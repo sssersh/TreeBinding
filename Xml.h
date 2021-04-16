@@ -36,7 +36,7 @@ typedef TreeBinding::Integer Integer;
  * \brief   XML child declaration
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Child's data type 
- *              2. Required number of childs elements (TreeBinding::FiledsNum::MORE_THAN_ONE by default(if this parameter not passed)). 
+ *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
  */
 
 #define XML_CHILD_ELEMENTS(type) TREE_SUBTREES_SET("", type)
@@ -47,3 +47,4 @@ typedef TreeBinding::Integer Integer;
 } /* namespace XML */
 
 #endif /* _XML_H_ */
+  
