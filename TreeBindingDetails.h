@@ -144,12 +144,21 @@ static const size_t NodeDataSize = sizeof(BasicNodeData) + sizeof(void*);
  *  \tparam RequiredNum   Required number of fields
  */
 template<typename NameContainer, typename DataType, NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0>
-struct Node final : public NodeData<DataType>
+struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicNodeData, DataType>::value,
+                                     TreeBinding::SubtreesSet< DataType >,
+                                     DataType
+                                   > >
 {
-  Node() : NodeData<DataType>(NameContainer::getName(), RequiredNum) {};
-  DataType& const operator= (DataType const value)
+  using InferetedDataType = 
+    std::conditional_t< std::is_base_of<BasicNodeData, DataType>::value,
+                        TreeBinding::SubtreesSet< DataType >,
+                        DataType
+                      >;
+
+  Node() : NodeData<InferetedDataType>(NameContainer::getName(), RequiredNum) {};
+  InferetedDataType& const operator= (InferetedDataType const value)
   {
-    return ((NodeData<DataType>*)this)->operator=(value);
+    return ((NodeData<InferetedDataType>*)this)->operator=(value);
   }
 };
 

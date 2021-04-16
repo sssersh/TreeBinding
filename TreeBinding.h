@@ -123,7 +123,7 @@ struct Tree : public BasicTree
  * \tparam name Name of subtree container (empty string for XML)
  * \tparam type Type of subtree
  */
-#define TREE_SUBTREES_SET(name, type) TREE_BINDING_DETAILS_NODE_COMMON(name, TreeBinding::SubtreesSet< type > )
+#define TREE_SUBTREES_SET(name, ...) TREE_BINDING_DETAILS_NODE_COMMON(name, __VA_ARGS__)
 
 } /* namespace TreeBinding */
 

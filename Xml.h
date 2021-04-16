@@ -20,6 +20,8 @@ typedef TreeBinding::Integer Integer;
 #define XML_DETAILS_CONCAT(x,y,z) XML_DETAILS_TOKEN_PASTE(x,y,z)
 
 #define XML_DETAILS_PATH_DELIMETER "/"
+
+
 #define XML_PATH_DELIMETER (*(XML_DETAILS_PATH_DELIMETER))
 
 /*!
@@ -38,8 +40,7 @@ typedef TreeBinding::Integer Integer;
  * \param   ... 1. Child's data type 
  *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
  */
-
-#define XML_CHILD_ELEMENTS(type) TREE_SUBTREES_SET("", type)
+#define XML_CHILD_ELEMENTS(...) TREE_SUBTREES_SET("", __VA_ARGS__)
 
 
 #define XML_ELEMENT(name, dataType) TREE_TREE(name, dataType)

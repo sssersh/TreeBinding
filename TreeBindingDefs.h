@@ -112,7 +112,6 @@ void NodeData<DataType>::reset()
  *  \tparam    DataType NodeData data type
  *  \param[in] rhs Right side value
  */
-// TODO: try use   *static_cast<DataType*>(this) = *static_cast<DataType*>(rhs);
 template<typename DataType>
 void NodeData<DataType>::copy(BasicNodeData const &rhs)
 {
