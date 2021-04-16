@@ -78,8 +78,9 @@ std::string NodesNum::toString() const
   }
 }
 
-// TODO: actualNum also -> type NodesNum
-WrongChildsNumException::WrongChildsNumException(std::string const &objectName, NodesNum const requiredNum, NodesNum::ValueType const actuallyNum) :
+WrongChildsNumException::WrongChildsNumException(std::string const &objectName, 
+                                                 NodesNum const requiredNum, 
+                                                 NodesNum::ValueType const actuallyNum) :
   std::runtime_error("Invalid number of childs in element " + objectName + ". Required: " + requiredNum.toString() + 
                      ", present: " + std::to_string(actuallyNum))
 {}
@@ -105,13 +106,14 @@ Details::BasicNodeData* BasicTree::NodeIterator::operator*() const
   return this->ptr;
 }
 
-/*! \brief   Get iterator on first node
+/*! 
+ *  \brief   Get iterator on first node
  *  \details Calculate pointer as offset from this equals to size of BasicTree
  *  \return  Iterator on first node
  */
 BasicTree::NodeIterator BasicTree::begin() const
 {
-  BasicTree::NodeIterator ret;
+  BasicTree::NodeIterator ret{};
   ret.ptr = (Details::BasicNodeData*)((uint8_t*)this + sizeof(*this));
   return ret;
 }
@@ -122,13 +124,14 @@ BasicTree::NodeIterator BasicTree::begin() const
  */
 BasicTree::NodeIterator BasicTree::end() const
 {
-  BasicTree::NodeIterator ret, beg;
+  BasicTree::NodeIterator ret{}, beg;
   beg = begin();
   ret.ptr = (Details::BasicNodeData*)((uint8_t*)beg.ptr + nodesNum * Details::NodeDataSize);
   return ret;
 }
 
-/*! \brief   Equal operator
+/*! 
+ *  \brief   Equal operator
  *  \details Compare only fields of derived class. Childs elements not compare.
  *  \note    Equal operator for Node compare values, only when both are valid. Otherwise, return true.
  *  \retval  true  Valid fields of derived are same
@@ -182,7 +185,6 @@ void BasicTree::parsePtree(boost::property_tree::ptree &tree, const bool isRoot)
   }
 
   /* Parse nodes */
-//  for (auto nodeIt : *this) not work, why (may be need postincremnt operator)???
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
     (*nodeIt)->parsePtree(tree);

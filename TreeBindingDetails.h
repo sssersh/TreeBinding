@@ -1,4 +1,5 @@
-/*! \file TreeBindingDetails.h
+/*! 
+ *  \file  TreeBindingDetails.h
  *  \brief Private classes for boost tree and classes/structures binding
  */
 
@@ -67,9 +68,9 @@ public:
   virtual void  copy     (BasicNodeData const &rhs)          = 0;
   virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER) = 0;
 
-  const char* const name;        /*!< Parameter name                      */
-  const NodesNum    requiredNum; /*!< Required number of fields in object */
-  bool              validity;    /*!< Value of node is valid              */
+  const char* const name;        /*!< Node name                        */
+  const NodesNum    requiredNum; /*!< Required number of nodes in tree */
+  bool              validity;    /*!< Value of node is valid           */
 
 protected:
   bool operator== (BasicNodeData const &rhs) const;
@@ -89,7 +90,6 @@ template<typename DataType>
 class NodeData final : public BasicNodeData
 {
 public:
-  // TODO: make pointer const and move to private
   DataType* value; /*!< Value of parameter */
 
   NodeData() = delete;
@@ -104,7 +104,7 @@ public:
   virtual void  reset   ()                                  override;
   virtual void  copy    (BasicNodeData const &rhs)          override;
   virtual void  parsePtree(boost::property_tree::ptree &tree, 
-                          const char pathDelimeter = Details::DEFAULT_DELIMETER) override; // TODO: use universal reference
+                           const char pathDelimeter = Details::DEFAULT_DELIMETER) override;
 
   // begin(), end() and [] is accessible only when DataType is container
   template<typename T = DataType::iterator>
@@ -137,12 +137,12 @@ protected:
 // declared not in class for get opportunity of declaration in header
 static const size_t NodeDataSize = sizeof(BasicNodeData) + sizeof(void*);
 
-/*! \brief  Tree node
+/*! 
+ *  \brief  Tree node
  *  \tparam NameContainer String wrapper class, which contain field name
  *  \tparam DataType      NodeData data type
  *  \tparam RequiredNum   Required number of fields
  */
-// TODO: DataType by default - string
 template<typename NameContainer, typename DataType, NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0>
 struct Node final : public NodeData<DataType>
 {

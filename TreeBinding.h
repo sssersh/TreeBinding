@@ -21,7 +21,8 @@ struct Translator
 {
   static bool isNumber(const std::string& s);
 
-  /*! \brief  Translate string value to target type
+  /*! 
+   *  \brief  Translate string value to target type
    *  \note   Not used direct get<T2> from boost tree, because it's necessary for forward instance of boost translator_between
    *  \tparam Target type
    *  \param  str   String representation of value
@@ -38,9 +39,6 @@ typedef long Integer;
 
 // Declared in private, because is necessary for forward declaration
 struct NodesNum;
-
-// TODO: add leaf declaration without name (name generated automatically by member name)
-// TODO: first 2 arguments are mandatory, hardcode it
 
 /*! 
  * \brief   Declaration of field which binds with tree node
@@ -86,22 +84,17 @@ protected:
 
 public:
  
-  // TODO: begin, end move to protected (not compiled, demands in NodeData operator []
   NodeIterator begin() const;
   NodeIterator end()   const;
 
-  // TODO: use rvalue
   void parsePtree(boost::property_tree::ptree &tree, bool isRoot = true);
-  // TODO: used wstring for excel, fix it
   void parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex);
 
   bool operator== (BasicTree const &rhs) const;
   bool isLeafsValid() const;
 
-  // delete it
   bool isValid() const
   {
-
     return true;
   }
 
@@ -121,7 +114,6 @@ struct Tree : public BasicTree
  * \tparam name Name of tree (in file)
  * \tparam type Name of this type (in code)
  */
-// TODO: overloading (whithout name)
 #define TREE_TREE(name, type)                  \
   TREE_BINDING_DETAILS_STRING_CONTAINER(name); \
   struct type : public TreeBinding::Tree < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, type >
