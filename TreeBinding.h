@@ -49,7 +49,8 @@ struct NodesNum;
  *              2. Node's data type
  *              3. Node are optional/mandatory
  */
-#define TREE_LEAF(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
+//#define TREE_LEAF(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
+#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
 
 typedef struct WrongChildsNumException : public std::runtime_error
 {
@@ -123,7 +124,7 @@ struct Tree : public BasicTree
  * \tparam name Name of subtree container (empty string for XML)
  * \tparam type Type of subtree
  */
-#define TREE_SUBTREES_SET(name, ...) TREE_BINDING_DETAILS_NODE_COMMON(name, __VA_ARGS__)
+//#define TREE_SUBTREES_SET(name, ...) TREE_BINDING_DETAILS_NODE_COMMON(name, __VA_ARGS__)
 
 } /* namespace TreeBinding */
 

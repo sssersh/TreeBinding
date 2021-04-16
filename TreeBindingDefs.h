@@ -128,10 +128,10 @@ void NodeData<DataType>::copy(BasicNodeData const &rhs)
  *  \retval    true  Values of fields are same
  *  \retval    false Value of fields are different
  */
-template<typename T>
-bool NodeData<T>::compare(BasicNodeData const &rhs) const
+template<typename DataType>
+bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
 {
-  return *this->value == *static_cast<T*>(rhs.getValue());
+  return *this->value == *static_cast<DataType*>(rhs.getValue());
 }
 
 

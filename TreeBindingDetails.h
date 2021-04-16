@@ -76,7 +76,7 @@ protected:
   bool operator== (BasicNodeData const &rhs) const;
 
   friend class BasicTree;
-  template <typename, typename> friend class Tree;
+  template <typename, typename> friend struct Tree;
 } BasicNodeData;
 
 template<typename>
@@ -87,7 +87,7 @@ struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
  
 // Store pointer to value, not value, to fix size of structure
 template<typename DataType>
-class NodeData final : public BasicNodeData
+class NodeData : public BasicNodeData
 {
 public:
   DataType* value; /*!< Value of parameter */
@@ -97,14 +97,14 @@ public:
   NodeData(NodeData const &rhs);
   NodeData& const operator= (NodeData const &rhs);
   virtual ~NodeData();
-  DataType& operator= (DataType const _value); // TODO: make virtual
+  DataType& operator= (DataType const _value);
   virtual operator DataType() const;
 
-  virtual void* getValue()                            const override;
-  virtual void  reset   ()                                  override;
-  virtual void  copy    (BasicNodeData const &rhs)          override;
+  virtual void* getValue()                            const override final;
+  virtual void  reset   ()                                  override final;
+  virtual void  copy    (BasicNodeData const &rhs)          override final;
   virtual void  parsePtree(boost::property_tree::ptree &tree, 
-                           const char pathDelimeter = Details::DEFAULT_DELIMETER) override;
+                           const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
 
   // begin(), end() and [] is accessible only when DataType is container
   template<typename T = DataType::iterator>
@@ -143,11 +143,15 @@ static const size_t NodeDataSize = sizeof(BasicNodeData) + sizeof(void*);
  *  \tparam DataType      NodeData data type
  *  \tparam RequiredNum   Required number of fields
  */
-template<typename NameContainer, typename DataType, NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0>
+template< typename NameContainer, 
+          typename DataType     , 
+          NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
+        >
 struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicNodeData, DataType>::value,
-                                     TreeBinding::SubtreesSet< DataType >,
-                                     DataType
-                                   > >
+                                                         TreeBinding::SubtreesSet< DataType >,
+                                                         DataType
+                                                       > 
+                                   >
 {
   using InferetedDataType = 
     std::conditional_t< std::is_base_of<BasicNodeData, DataType>::value,
@@ -156,14 +160,13 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicNo
                       >;
 
   Node() : NodeData<InferetedDataType>(NameContainer::getName(), RequiredNum) {};
-  InferetedDataType& const operator= (InferetedDataType const value)
-  {
-    return ((NodeData<InferetedDataType>*)this)->operator=(value);
-  }
+//  InferetedDataType& const operator= (InferetedDataType const value)
+//  {
+//    return ((NodeData<InferetedDataType>*)this)->operator=(value);
+//  }
 };
 
-// TODO: string
-static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Error");
+static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
 #define TREE_BINDING_DETAILS_TOKEN_PASTE(x, y) x##y
 
