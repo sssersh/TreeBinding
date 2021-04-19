@@ -128,6 +128,14 @@ protected:
   typename std::enable_if_t<is_subtrees_set<T>::value>
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
 
+  template<typename T = DataType>
+  std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+    resetImpl();
+
+  template<typename T = DataType>
+  std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+    resetImpl();
+
   virtual bool compare (BasicNodeData const &rhs) const override;
 
   typedef boost::property_tree::ptree::path_type path;

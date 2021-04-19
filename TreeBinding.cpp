@@ -199,4 +199,12 @@ void BasicTree::parseTable(std::vector<std::vector<std::wstring>> table, std::fu
   }
 }
 
+void BasicTree::reset()
+{
+  for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
+  {
+    (*nodeIt)->reset();
+  }
+}
+
 } /* namespace BoostTreeWrapper */

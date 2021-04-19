@@ -49,7 +49,6 @@ struct NodesNum;
  *              2. Node's data type
  *              3. Node are optional/mandatory
  */
-//#define TREE_LEAF(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
 #define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
 
 typedef struct WrongChildsNumException : public std::runtime_error
@@ -93,6 +92,7 @@ public:
 
   bool operator== (BasicTree const &rhs) const;
   bool isLeafsValid() const;
+  void reset();
 
   bool isValid() const
   {

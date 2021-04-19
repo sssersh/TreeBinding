@@ -100,9 +100,34 @@ void* NodeData<DataType>::getValue() const
  *  \brief  Reset validity of value
  *  \tparam DataType NodeData data type
  */
+/*
 template<typename DataType>
 void NodeData<DataType>::reset()
 {
+  validity = false;
+}
+*/
+
+template<typename DataType>
+void NodeData<DataType>::reset()
+{
+  resetImpl<DataType>();
+}
+
+template<typename DataType>
+template<typename T = DataType>
+std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+NodeData<DataType>::resetImpl()
+{
+  validity = false;
+}
+
+template<typename DataType>
+template<typename T = DataType>
+std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+NodeData<DataType>::resetImpl()
+{
+  value->clear();
   validity = false;
 }
 
