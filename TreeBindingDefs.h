@@ -172,7 +172,7 @@ void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathD
 // parse leaf
 template<typename DataType>
 template<typename T = DataType>
-std::enable_if_t<!is_subtrees_set<T>::value>
+typename std::enable_if_t<!is_subtrees_set<T>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
   try
@@ -201,7 +201,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 // pathDelimeter not used
 template<typename DataType>
 template<typename T = DataType>
-std::enable_if_t<is_subtrees_set<T>::value>
+typename std::enable_if_t<is_subtrees_set<T>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
   auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
@@ -247,11 +247,11 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 };
 
 // for print size
-template<int diff, int basic>
+template<int diff, int basicNodeSize>
 struct CheckSize
 {
-  static_assert(diff % basic == 0, "Tree contains incorrect nodes");
-  static_assert(diff >= basic, "Tree contains incorrect nodes");
+  static_assert(diff % basicNodeSize == 0, "Tree contains incorrect nodes");
+  static_assert((diff >= basicNodeSize || diff == 0), "Tree contains incorrect nodes"); // 0 - for empty tree
 };
 
 } /* namespace Details */
@@ -264,7 +264,6 @@ template<typename NameContainer, typename Derived>
 Tree<NameContainer, Derived>::Tree() :
   BasicTree(NameContainer::getName())
 {
-  // TODO: check that static assert for size work
   Details::CheckSize<sizeof(Derived) - sizeof(Tree<NameContainer, Derived>), Details::NodeDataSize> check;
 
   nodesNum = (sizeof(Derived) - sizeof(Tree<NameContainer, Derived>)) / Details::NodeDataSize;
