@@ -198,22 +198,24 @@ template<typename T = DataType>
 typename std::enable_if_t<!is_subtrees_set<T>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
+  std::string str;
   try
   {
     // Not used direct get<T>, because it's necessary for forward instance of boost translator_between
-    std::string str = tree.get<std::string>(path(this->name, pathDelimeter));
+    str = tree.get<std::string>(path(this->name, pathDelimeter));
     Translator::fromString(str, value);
   }
   catch (boost::exception const &e) // not found such node in ptree
   {
     if (requiredNum.isCertain() || (NodesNum::MORE_THAN_0 == requiredNum))
     {
-      throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, 0));
+      throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
     }
   }
   catch (std::exception const &e) // can't convert from string to taget type
   {
-    throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + "\"\n"));
+    throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str + 
+                            "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
   }
   validity = true;
 };

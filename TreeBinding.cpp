@@ -81,7 +81,7 @@ std::string NodesNum::toString() const
 WrongChildsNumException::WrongChildsNumException(std::string const &objectName, 
                                                  NodesNum const requiredNum, 
                                                  NodesNum::ValueType const actuallyNum) :
-  std::runtime_error("Invalid number of childs in element " + objectName + ". Required: " + requiredNum.toString() + 
+  std::runtime_error("Invalid number of childs in node " + objectName + ". Required: " + requiredNum.toString() + 
                      ", present: " + std::to_string(actuallyNum))
 {}
 
