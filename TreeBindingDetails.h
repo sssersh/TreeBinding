@@ -99,6 +99,7 @@ public:
   virtual ~NodeData();
   DataType& operator= (DataType const _value);
   virtual operator DataType() const;
+  virtual operator DataType&() const;
 
   virtual void* getValue()                            const override final;
   virtual void  reset   ()                                  override final;

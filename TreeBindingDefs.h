@@ -85,6 +85,12 @@ NodeData<DataType>::operator DataType() const
   return *value;
 }
 
+template<typename DataType>
+NodeData<DataType>::operator DataType&() const
+{
+  return *value;
+}
+
 /*! 
  *  \brief  Get pointer to value of field
  *  \tparam DataType NodeData data type
