@@ -90,10 +90,20 @@ BasicTree::BasicTree(const char* const _name) :
 {
 }
 
+Details::BasicNodeData* BasicTree::operator[](size_t const index) const
+{
+  return *(this->begin() + index);
+}
+
+BasicTree::NodeIterator& BasicTree::NodeIterator::operator+(int const index)
+{
+  ptr = (Details::BasicNodeData*)((uint8_t*)ptr + Details::NodeDataSize * index);
+  return *this;
+}
+
 BasicTree::NodeIterator& BasicTree::NodeIterator::operator++()
 {
-  ptr = (Details::BasicNodeData*)((uint8_t*)ptr + Details::NodeDataSize);
-  return *this;
+  return *this + 1;
 }
 
 bool BasicTree::NodeIterator::operator!= (const BasicTree::NodeIterator& rhs) const
@@ -151,6 +161,15 @@ bool BasicTree::operator== (BasicTree const &rhs) const
   }
 
   return result;
+}
+
+BasicTree& BasicTree::operator= (BasicTree const &rhs)
+{
+  for (size_t i = 0; i < this->nodesNum; ++i)
+  {
+    *(*this)[i] = *rhs[i];
+  }
+  return *this;
 }
 
 /*! \brief   Get validity

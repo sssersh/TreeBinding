@@ -121,11 +121,15 @@ protected:
 
   // define separate functions for implementation, because SFINAE work only for overloading
   template<typename T = DataType>
-  typename std::enable_if_t<!is_subtrees_set<T>::value>
+  typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
 
   template<typename T = DataType>
   typename std::enable_if_t<is_subtrees_set<T>::value>
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+
+  template<typename T = DataType>
+  typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
 
   template<typename T = DataType>
@@ -155,14 +159,14 @@ template< typename NameContainer,
           typename DataType     , 
           NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
         >
-struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTree, DataType>::value,
+struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
                                                          SubtreesSet< DataType >,
                                                          DataType
                                                        > 
                                    >
 {
   using InferetedDataType = typename
-    std::conditional_t< std::is_base_of<BasicTree, DataType>::value,
+    std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
                         SubtreesSet< DataType >,
                         DataType
                       >;

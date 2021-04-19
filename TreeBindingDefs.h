@@ -195,7 +195,7 @@ void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathD
 // parse leaf
 template<typename DataType>
 template<typename T = DataType>
-typename std::enable_if_t<!is_subtrees_set<T>::value>
+typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
   std::string str;
@@ -209,7 +209,8 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   {
     if (requiredNum.isCertain() || (NodesNum::MORE_THAN_0 == requiredNum))
     {
-      throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
+      return;
+//      throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
     }
   }
   catch (std::exception const &e) // can't convert from string to taget type
@@ -265,6 +266,46 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, subtreesSet->size()));
   }
   
+  validity = true;
+};
+
+template<typename DataType>
+template<typename T = DataType>
+typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
+NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
+{
+  auto subtree = (DataType*)this->getValue();
+  size_t num = 0;
+
+  if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
+  {
+    auto elementName = DataType::NameContainer_::getName();
+
+    // find if and error, if not found 
+    for (auto& j : tree)
+    {
+      if (!std::strcmp(j.first.c_str(), elementName))
+      {
+        subtree->parsePtree(j.second, false);
+        num++;
+      }
+    }
+  }
+  else // for JSON name of array stored in Subtree
+  {
+    auto subtree = tree.get_child(this->name);
+    for (auto &i : subtree)
+    {
+    }
+  }
+
+  /* Check num */
+  if ((requiredNum.isCertain() && num != requiredNum) ||
+      (NodesNum::MORE_THAN_0 == requiredNum && 0 == num))
+  {
+    throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, num));
+  }
+
   validity = true;
 };
 

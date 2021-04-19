@@ -65,6 +65,7 @@ protected:
 
   BasicTree() = delete;
   BasicTree(const char* const _name);
+  Details::BasicNodeData* operator[](size_t const index) const;
 
   size_t            nodesNum; /*!< Number of fields in current tree */
   const char* const name;     /*!< Name of tree                     */
@@ -76,6 +77,7 @@ protected:
     NodeIterator& operator=(const NodeIterator&) = default;
 
     bool operator!=(const NodeIterator&) const;
+    NodeIterator& operator+(int const index);
     NodeIterator& operator++();
     Details::BasicNodeData* operator*() const;
 
@@ -91,6 +93,7 @@ public:
   void parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex);
 
   bool operator== (BasicTree const &rhs) const;
+  virtual BasicTree& operator= (BasicTree const &rhs);
   bool isLeafsValid() const;
   void reset();
 
