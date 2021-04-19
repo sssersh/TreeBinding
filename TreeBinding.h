@@ -80,6 +80,7 @@ protected:
     NodeIterator& operator+(int const index);
     NodeIterator& operator++();
     Details::BasicNodeData* operator*() const;
+    Details::BasicNodeData* operator->() const;
 
     Details::BasicNodeData* ptr;
   } NodeIterator;

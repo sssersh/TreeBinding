@@ -116,6 +116,11 @@ Details::BasicNodeData* BasicTree::NodeIterator::operator*() const
   return this->ptr;
 }
 
+Details::BasicNodeData* BasicTree::NodeIterator::operator->() const
+{
+  return this->ptr;
+}
+
 /*! 
  *  \brief   Get iterator on first node
  *  \details Calculate pointer as offset from this equals to size of BasicTree
@@ -206,7 +211,8 @@ void BasicTree::parsePtree(boost::property_tree::ptree &tree, const bool isRoot)
   /* Parse nodes */
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
-    (*nodeIt)->parsePtree(tree);
+//    (*nodeIt)->parsePtree(tree);
+    nodeIt->parsePtree(tree);
   }
 }
 
@@ -222,7 +228,8 @@ void BasicTree::reset()
 {
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
-    (*nodeIt)->reset();
+//    (*nodeIt)->reset();
+    nodeIt->reset();
   }
 }
 
