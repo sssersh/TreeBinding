@@ -16,6 +16,8 @@ namespace XML
  */
 typedef TreeBinding::Integer Integer;
 
+typedef TreeBinding::NodesNum ItemNum;
+
 #define XML_DETAILS_TOKEN_PASTE(x, y, z) x##y##z
 #define XML_DETAILS_CONCAT(x,y,z) XML_DETAILS_TOKEN_PASTE(x,y,z)
 
