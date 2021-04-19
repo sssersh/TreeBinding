@@ -51,6 +51,7 @@ namespace Details
 
 static const char DEFAULT_DELIMETER = '/';
 
+
 // Base class used for iteration in Tree
 typedef class BasicNodeData
 {
@@ -72,12 +73,22 @@ public:
   const NodesNum    requiredNum; /*!< Required number of nodes in tree */
   bool              validity;    /*!< Value of node is valid           */
 
+  template <typename T> operator T&();
+
 protected:
   bool operator== (BasicNodeData const &rhs) const;
 
   friend class BasicTree;
   template <typename, typename> friend struct Tree;
 } BasicNodeData;
+
+
+template<typename T>
+BasicNodeData::operator T&()
+{
+  return static_cast<T&>(*static_cast<NodeData<T>*>(this));
+}
+
 
 template<typename>
 struct is_subtrees_set : std::false_type {};
@@ -101,7 +112,6 @@ public:
   virtual operator DataType() const;
   virtual operator DataType&() const;
 
-  virtual void* getValue()                            const override final;
   virtual void  reset   ()                                  override final;
   virtual void  copy    (BasicNodeData const &rhs)          override final;
   virtual void  parsePtree(boost::property_tree::ptree &tree, 
@@ -119,6 +129,8 @@ public:
   T* operator[](std::string const &key);
 
 protected:
+
+  virtual void* getValue()                            const override final;
 
   // define separate functions for implementation, because SFINAE work only for overloading
   template<typename T = DataType>

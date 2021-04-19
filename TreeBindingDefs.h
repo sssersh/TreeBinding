@@ -215,8 +215,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   {
     if (requiredNum.isCertain() || (NodesNum::MORE_THAN_0 == requiredNum))
     {
-      return;
-//      throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
+      throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
     }
   }
   catch (std::exception const &e) // can't convert from string to taget type

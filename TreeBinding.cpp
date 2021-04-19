@@ -90,7 +90,7 @@ BasicTree::BasicTree(const char* const _name) :
 {
 }
 
-Details::BasicNodeData* BasicTree::operator[](size_t const index) const
+Details::BasicNodeData& BasicTree::operator[](size_t const index) const
 {
   return *(this->begin() + index);
 }
@@ -111,9 +111,9 @@ bool BasicTree::NodeIterator::operator!= (const BasicTree::NodeIterator& rhs) co
   return this->ptr != rhs.ptr;
 }
 
-Details::BasicNodeData* BasicTree::NodeIterator::operator*() const
+Details::BasicNodeData& BasicTree::NodeIterator::operator*() const
 {
-  return this->ptr;
+  return *this->ptr;
 }
 
 Details::BasicNodeData* BasicTree::NodeIterator::operator->() const
@@ -172,7 +172,7 @@ BasicTree& BasicTree::operator= (BasicTree const &rhs)
 {
   for (size_t i = 0; i < this->nodesNum; ++i)
   {
-    *(*this)[i] = *rhs[i];
+    (*this)[i] = rhs[i];
   }
   return *this;
 }

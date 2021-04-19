@@ -65,7 +65,7 @@ protected:
 
   BasicTree() = delete;
   BasicTree(const char* const _name);
-  Details::BasicNodeData* operator[](size_t const index) const;
+  Details::BasicNodeData& operator[](size_t const index) const;
 
   size_t            nodesNum; /*!< Number of fields in current tree */
   const char* const name;     /*!< Name of tree                     */
@@ -79,7 +79,7 @@ protected:
     bool operator!=(const NodeIterator&) const;
     NodeIterator& operator+(int const index);
     NodeIterator& operator++();
-    Details::BasicNodeData* operator*() const;
+    Details::BasicNodeData& operator*() const;
     Details::BasicNodeData* operator->() const;
 
     Details::BasicNodeData* ptr;
@@ -105,7 +105,6 @@ public:
 
 //  template<typename, typename> friend class Tree;
 } BasicTree;
-
 
 template<typename NameContainer, typename T>
 struct Tree : public BasicTree
