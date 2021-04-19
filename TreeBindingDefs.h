@@ -100,7 +100,6 @@ void* NodeData<DataType>::getValue() const
  *  \brief  Reset validity of value
  *  \tparam DataType NodeData data type
  */
-// TODO: move to base
 template<typename DataType>
 void NodeData<DataType>::reset()
 {
@@ -115,7 +114,6 @@ void NodeData<DataType>::reset()
 template<typename DataType>
 void NodeData<DataType>::copy(BasicNodeData const &rhs)
 {
-//  void* rhsValue = rhs.getValue();
   *this->value = *static_cast<DataType*>(rhs.getValue());
   validity = rhs.validity;
 }
@@ -178,8 +176,6 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   try
   {
     // Not used direct get<T>, because it's necessary for forward instance of boost translator_between
-    // TODO: try use rvalue
-    // TODO: is there method to handle case when ptree not contain node without exception?
     std::string str = tree.get<std::string>(path(this->name, pathDelimeter));
     Translator::fromString(str, value);
   }
@@ -232,7 +228,6 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     auto subtree = tree.get_child(this->name);
     for (auto &i : subtree)
     {
-      // TODO
     }
   }
 

@@ -119,13 +119,6 @@ struct Tree : public BasicTree
   TREE_BINDING_DETAILS_STRING_CONTAINER(name); \
   struct type : public TreeBinding::Tree < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, type >
 
-/*!
- * \brief  Define set of subtrees inside tree (as node)
- * \tparam name Name of subtree container (empty string for XML)
- * \tparam type Type of subtree
- */
-//#define TREE_SUBTREES_SET(name, ...) TREE_BINDING_DETAILS_NODE_COMMON(name, __VA_ARGS__)
-
 } /* namespace TreeBinding */
 
 // Function definitions file

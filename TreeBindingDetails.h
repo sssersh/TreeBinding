@@ -160,10 +160,6 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
                       >;
 
   Node() : NodeData<InferetedDataType>(NameContainer::getName(), RequiredNum) {};
-//  InferetedDataType& const operator= (InferetedDataType const value)
-//  {
-//    return ((NodeData<InferetedDataType>*)this)->operator=(value);
-//  }
 };
 
 static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
