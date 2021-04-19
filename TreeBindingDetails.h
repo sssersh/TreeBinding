@@ -95,7 +95,7 @@ public:
   NodeData() = delete;
   NodeData(const char* const _name, NodesNum::ValueType const _requiredNum);
   NodeData(NodeData const &rhs);
-  NodeData& const operator= (NodeData const &rhs);
+  virtual NodeData& const operator= (NodeData const &rhs);
   virtual ~NodeData();
   DataType& operator= (DataType const _value);
   virtual operator DataType() const;
