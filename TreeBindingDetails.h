@@ -82,7 +82,7 @@ protected:
   template <typename, typename> friend struct Tree;
 } BasicNodeData;
 
-
+// for cast unrefenced iterator to target type
 template<typename T>
 BasicNodeData::operator T&()
 {
