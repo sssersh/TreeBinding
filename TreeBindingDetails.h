@@ -106,11 +106,12 @@ public:
   NodeData() = delete;
   NodeData(const char* const _name, NodesNum::ValueType const _requiredNum);
   NodeData(NodeData const &rhs);
-  virtual NodeData& const operator= (NodeData const &rhs);
+  virtual const NodeData& const operator= (NodeData const &rhs);
   virtual ~NodeData();
-  DataType& operator= (DataType const _value);
-  virtual operator DataType() const;
+  virtual const DataType& operator= (DataType const &_value);
+//  virtual operator DataType() const;
   virtual operator DataType&() const;
+  virtual bool operator==(DataType const &rhs);
 
   virtual void  reset   ()                                  override final;
   virtual void  copy    (BasicNodeData const &rhs)          override final;
@@ -185,6 +186,10 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
                       >;
 
   Node() : NodeData<InferetedDataType>(NameContainer::getName(), RequiredNum) {};
+  const DataType& operator=(DataType& const rhs)
+  {
+    return *value = rhs;
+  }
 };
 
 static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");

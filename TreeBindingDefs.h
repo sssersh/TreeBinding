@@ -44,7 +44,7 @@ NodeData<DataType>::NodeData(NodeData const &rhs) :
  *  \param[in] rhs Right hand side
  */
 template<typename DataType>
-NodeData<DataType>& const NodeData<DataType>::operator= (NodeData const &rhs)
+const NodeData<DataType>& NodeData<DataType>::operator= (NodeData const &rhs)
 {
   this->copy(rhs);
   return *this;
@@ -67,7 +67,7 @@ NodeData<DataType>::~NodeData()
  *  \return    Assigned value
  */
 template<typename DataType>
-DataType& NodeData<DataType>::operator= (DataType const _value)
+const DataType& NodeData<DataType>::operator= (DataType const &_value)
 {
   *value = _value;
   validity = true;
@@ -79,16 +79,24 @@ DataType& NodeData<DataType>::operator= (DataType const _value)
  *  \tparam DataType NodeData data type
  *  \return Value of field
  */
+/*
 template<typename DataType>
 NodeData<DataType>::operator DataType() const
 {
   return *value;
 }
+*/
 
 template<typename DataType>
 NodeData<DataType>::operator DataType&() const
 {
   return *value;
+}
+
+template<typename DataType>
+bool NodeData<DataType>::operator==(DataType const &rhs)
+{
+  return *(this->value) == rhs;
 }
 
 /*! 
@@ -168,16 +176,18 @@ template<typename DataType>
 template<typename T = DataType::iterator>
 T NodeData<DataType>::begin() const
 {
-  auto subtreesSet = (DataType*)this->getValue();
-  return subtreesSet->begin();
+//  auto subtreesSet = (DataType*)this->getValue();
+//  return subtreesSet->begin();
+  return value->begin();
 }
 
 template<typename DataType>
 template<typename T = DataType::iterator>
 T NodeData<DataType>::end() const
 {
-  auto subtreesSet = (DataType*)this->getValue();
-  return subtreesSet->end();
+//  auto subtreesSet = (DataType*)this->getValue();
+//  return subtreesSet->end();
+  return value->begin();
 }
 
 template<typename DataType>
