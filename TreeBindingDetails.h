@@ -12,16 +12,10 @@
 #include <type_traits>
 #include <vector> // subtree containter
 #include "TreeBindingDecl.h"
+#include "TableParser.h"
 
 namespace TreeBinding
 {
-
-/*!
- * \brief  Containter for subtree elements
- * \tparam Type of subtree elements
- */
-template<typename T>
-using SubtreesSet = std::vector<std::shared_ptr<T>>;
 
 typedef struct NodesNum
 {
@@ -85,12 +79,6 @@ BasicNodeData::operator T&()
 {
   return static_cast<T&>(*static_cast<NodeData<T>*>(this));
 }
-
-template<typename>
-struct is_subtrees_set : std::false_type {};
-
-template<typename T>
-struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
  
 // Store pointer to value, not value, to fix size of structure
 template<typename DataType>
@@ -153,7 +141,7 @@ protected:
 
   virtual bool compare (BasicNodeData const &rhs) const override;
 
-  friend class TableParser;
+  friend class NodeTableParser;
 
   typedef boost::property_tree::ptree::path_type path;
 }; /* class NodeData */
