@@ -1,2 +1,3 @@
 https://github.com/sssersh/TreeBinding.git
 https://habr.com/ru/post/344206/ - also see comments
+https://isocpp.org/wiki/faq/serialization
