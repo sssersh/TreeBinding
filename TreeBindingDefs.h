@@ -284,6 +284,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   validity = true;
 };
 
+// parse single subtree
 template<typename DataType>
 template<typename T = DataType>
 typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
