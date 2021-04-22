@@ -11,6 +11,7 @@
 #include <cinttypes>
 #include <type_traits>
 #include <vector> // subtree containter
+#include "TreeBindingDecl.h"
 
 namespace TreeBinding
 {
@@ -41,11 +42,6 @@ private:
   ValueType value;
 } NodesNum;
 
-class BasicTree;
-
-template<typename, typename>
-struct Tree;
-
 namespace Details
 {
 
@@ -68,6 +64,7 @@ public:
   virtual bool  compare  (BasicNodeData const &rhs)    const = 0;
   virtual void  copy     (BasicNodeData const &rhs)          = 0;
   virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER) = 0;
+  virtual void parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex) = 0;
 
   const char* const name;        /*!< Node name                        */
   const NodesNum    requiredNum; /*!< Required number of nodes in tree */
@@ -89,7 +86,6 @@ BasicNodeData::operator T&()
   return static_cast<T&>(*static_cast<NodeData<T>*>(this));
 }
 
-
 template<typename>
 struct is_subtrees_set : std::false_type {};
 
@@ -106,17 +102,17 @@ public:
   NodeData() = delete;
   NodeData(const char* const _name, NodesNum::ValueType const _requiredNum);
   NodeData(NodeData const &rhs);
-  virtual const NodeData& const operator= (NodeData const &rhs);
   virtual ~NodeData();
   virtual const DataType& operator= (DataType const &_value);
 //  virtual operator DataType() const;
-  virtual operator DataType&() const;
+  virtual operator const DataType&() const;
   virtual bool operator==(DataType const &rhs);
 
   virtual void  reset   ()                                  override final;
   virtual void  copy    (BasicNodeData const &rhs)          override final;
   virtual void  parsePtree(boost::property_tree::ptree &tree, 
                            const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
+  virtual void parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex) override final;
 
   // begin(), end() and [] is accessible only when DataType is container
   template<typename T = DataType::iterator>
@@ -132,6 +128,7 @@ public:
 protected:
 
   virtual void* getValue()                            const override final;
+  const NodeData& const operator= (NodeData const &rhs);
 
   // define separate functions for implementation, because SFINAE work only for overloading
   template<typename T = DataType>
@@ -155,6 +152,8 @@ protected:
     resetImpl();
 
   virtual bool compare (BasicNodeData const &rhs) const override;
+
+  friend class TableParser;
 
   typedef boost::property_tree::ptree::path_type path;
 }; /* class NodeData */

@@ -88,7 +88,7 @@ NodeData<DataType>::operator DataType() const
 */
 
 template<typename DataType>
-NodeData<DataType>::operator DataType&() const
+NodeData<DataType>::operator const DataType&() const
 {
   return *value;
 }
@@ -153,7 +153,7 @@ NodeData<DataType>::resetImpl()
 template<typename DataType>
 void NodeData<DataType>::copy(BasicNodeData const &rhs)
 {
-  *this->value = *static_cast<DataType*>(rhs.getValue());
+  *(this->value) = *static_cast<DataType*>(rhs.getValue());
   validity = rhs.validity;
 }
 
@@ -323,6 +323,12 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 
   validity = true;
 };
+
+template<typename T>
+void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex)
+{
+  parseTableImpl<T>(table, nameToIndex);
+}
 
 // for print size
 template<int diff, int basicNodeSize>

@@ -220,6 +220,7 @@ void BasicTree::parseTable(std::vector<std::vector<std::wstring>> table, std::fu
 {
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
+    nodeIt->parseTable(table, nameToIndex);
 //    (*nodeIt)->parseTable(table, nameToIndex);
   }
 }
