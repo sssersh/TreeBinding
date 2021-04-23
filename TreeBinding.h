@@ -91,7 +91,9 @@ public:
   NodeIterator end()   const;
 
   void parsePtree(boost::property_tree::ptree &tree, bool isRoot = true);
-  void parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex);
+  void parseTable(std::vector<std::vector<std::wstring>> const &table,
+    std::function<size_t(std::string &const)> const &nameToIndex,
+    std::vector<size_t> const &rows = std::vector<size_t>(0));
 
   bool operator== (BasicTree const &rhs) const;
   virtual BasicTree& operator= (BasicTree const &rhs);

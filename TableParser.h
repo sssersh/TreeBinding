@@ -7,6 +7,10 @@
 #define _TREE_BINDING_TABLE_PARSER_H_
 
 #include <type_traits>
+#include <map>
+#include <vector>
+#include <locale>
+#include <codecvt>
 #include "TreeBindingDecl.h"
 
 namespace TreeBinding
@@ -18,82 +22,123 @@ namespace Details
 /*!
  * \brief NodeData parser from table 
  */
-class TableParser
+typedef class TableParser
 {
-private:
 
-  template <typename> friend class NodeData;
+public:
 
-  template<typename T>
-  static typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, T>::value>
-    parseImpl(NodeData<T> &node,
-                   std::vector<std::vector<std::wstring>> table,
-                   std::function<size_t(std::string &const)> nameToIndex);
+  template<typename DataType>
+  static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+    parse(NodeData<DataType> &node,
+                   std::vector<std::vector<std::wstring>> const &table,
+                   std::function<size_t(std::string &const)> const &nameToIndex,
+                   std::vector<size_t> const &rows);
 
-  template<typename T>
-  static typename std::enable_if_t<is_subtrees_set<T>::value>
-    parseImpl(NodeData<T> &node,
-                   std::vector<std::vector<std::wstring>> table,
-                   std::function<size_t(std::string &const)> nameToIndex);
+  template<typename DataType>
+  static typename std::enable_if_t<is_subtrees_set<DataType>::value>
+    parse(NodeData<DataType> &node,
+                   std::vector<std::vector<std::wstring>> const &table,
+                   std::function<size_t(std::string &const)> const &nameToIndex,
+                   std::vector<size_t> const &rows);
 
-  template<typename T>
-  static typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
-    parseImpl(NodeData<T> &node,
-                   std::vector<std::vector<std::wstring>> table,
-                   std::function<size_t(std::string &const)> nameToIndex);
+  template<typename DataType>
+  static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+    parse(NodeData<DataType> &node,
+                   std::vector<std::vector<std::wstring>> const &table,
+                   std::function<size_t(std::string &const)> const &nameToIndex,
+                   std::vector<size_t> const &rows);
 
-};
+} TableParser;
 
 // parse leaf
-template<typename T>
-typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, T>::value>
-TableParser::parseImpl(NodeData<T> &node,
-                  std::vector<std::vector<std::wstring>> table,
-                  std::function<size_t(std::string &const)> nameToIndex)
+template<typename DataType>
+typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+TableParser::parse(NodeData<DataType> &node,
+                   std::vector<std::vector<std::wstring>> const &table,
+                   std::function<size_t(std::string &const)> const &nameToIndex,
+                   std::vector<size_t> const &rows)
 { 
   std::cout << "Here";
 }
 
 // parse subtree array
-template<typename T>
-typename std::enable_if_t<is_subtrees_set<T>::value>
-TableParser::parseImpl(NodeData<T> &node,
-                  std::vector<std::vector<std::wstring>> table,
-                  std::function<size_t(std::string &const)> nameToIndex)
+template<typename DataType>
+typename std::enable_if_t<is_subtrees_set<DataType>::value>
+TableParser::parse(NodeData<DataType> &node,
+                   std::vector<std::vector<std::wstring>> const &table,
+                   std::function<size_t(std::string &const)> const &nameToIndex,
+                   std::vector<size_t> const &rows)
 {
-  auto subtreesSet = (T*)node->getValue(); // T = SubtreesSet<>
+  auto subtreesSet = (DataType*)(node.getValue()); // T = SubtreesSet<>
 
   typedef DataType::value_type::element_type SubtreeElementType;
 
   auto elementName = SubtreeElementType::NameContainer_::getName();
+  auto columnIndex = nameToIndex(std::string(elementName));
+  auto rowsNum     = table.size();
+
+  using convert_type = std::codecvt_utf8<wchar_t>;
+  std::wstring_convert<convert_type, wchar_t> converter;
+
+  std::map<std::string, std::vector<size_t>> uniqKeys{};
+
+  auto addToUniqKeys = [&](size_t const rowIndex)
+  {
+    auto& it = uniqKeys.find(converter.to_bytes(table[rowIndex][columnIndex]));
+    if (it == uniqKeys.end())
+    {
+      uniqKeys.insert(std::pair<std::string, std::vector<size_t>>(
+        converter.to_bytes(table[rowIndex][columnIndex]),
+        std::vector<size_t>(1, rowIndex)
+        )
+        );
+    }
+    else
+    {
+      it->second.push_back(rowIndex);
+    }
+  };
+
+  if (rows.empty()) // iterate over all rows
+  {
+    for (size_t rowIndex = 0; rowIndex < rowsNum; ++rowIndex)
+    {
+      addToUniqKeys(rowIndex);
+    }
+  }
+  else // iterate only over passed rows
+  {
+    for (auto &rowIndex : rows)
+    {
+      addToUniqKeys(rowIndex);
+    }
+  }
+
+  for (auto &i : uniqKeys)
+  {
+    subtreesSet->emplace_back(new SubtreeElementType());
+    auto& subtreeElement = subtreesSet->back();
+    subtreeElement->parseTable(table, nameToIndex, i.second);
+  }
 
   /*
-  for (auto& j : tree)
-  {
-  if (!std::strcmp(j.first.c_str(), elementName))
-  {
-  subtreesSet->emplace_back(new SubtreeElementType());
-  auto subtreeElement = subtreesSet->back();
-  subtreeElement->parsePtree(j.second, false);
-  }
-  }
-  */
-
-  /* Check num */
+  // Check num 
   if ((requiredNum.isCertain() && subtreesSet->size() != requiredNum) ||
     (NodesNum::MORE_THAN_0 == requiredNum && 0 == subtreesSet->size()))
   {
     throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, subtreesSet->size()));
   }
+  */
 
-  validity = true;
+  node.validity = true;
 }
 
-template<typename T>
-typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
-TableParser::parseImpl(NodeData<T> &node,
-                  std::vector<std::vector<std::wstring>> table,
-                  std::function<size_t(std::string &const)> nameToIndex)
+template<typename DataType>
+typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+TableParser::parse(NodeData<DataType> &node,
+                   std::vector<std::vector<std::wstring>> const &table,
+                   std::function<size_t(std::string &const)> const &nameToIndex,
+                   std::vector<size_t> const &rows)
 {
   std::cout << "Here";
 }

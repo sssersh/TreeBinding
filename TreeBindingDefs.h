@@ -326,9 +326,11 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 };
 
 template<typename T>
-void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex)
+void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> const &table,
+                             std::function<size_t(std::string &const)> const &nameToIndex,
+                             std::vector<size_t> const &rows)
 {
-  TableParser::parseImpl(*this, table, nameToIndex);
+  TableParser::parse(*this, table, nameToIndex, rows);
 }
 
 // for print size

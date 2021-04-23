@@ -26,6 +26,9 @@ using SubtreesSet = std::vector<std::shared_ptr<T>>;
 namespace Details
 {
 
+template<typename>
+class NodeData;
+
 class TableParser;
 
 template<typename>

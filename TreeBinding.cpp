@@ -211,17 +211,17 @@ void BasicTree::parsePtree(boost::property_tree::ptree &tree, const bool isRoot)
   /* Parse nodes */
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
-//    (*nodeIt)->parsePtree(tree);
     nodeIt->parsePtree(tree);
   }
 }
 
-void BasicTree::parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex)
+void BasicTree::parseTable(std::vector<std::vector<std::wstring>> const &table,
+  std::function<size_t(std::string &const)> const &nameToIndex,
+  std::vector<size_t> const &rows)
 {
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
-    nodeIt->parseTable(table, nameToIndex);
-//    (*nodeIt)->parseTable(table, nameToIndex);
+    nodeIt->parseTable(table, nameToIndex, rows);
   }
 }
 
@@ -229,7 +229,6 @@ void BasicTree::reset()
 {
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
-//    (*nodeIt)->reset();
     nodeIt->reset();
   }
 }
