@@ -57,8 +57,24 @@ TableParser::parse(NodeData<DataType> &node,
                    std::vector<std::vector<std::wstring>> const &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
                    std::vector<size_t> const &rows)
-{ 
-  std::cout << "Here";
+{
+  auto columnIndex = nameToIndex(std::string(node.name));
+  auto rowIndex = rows[0]; // all rows for this column must have same value, use first
+
+  using convert_type = std::codecvt_utf8<wchar_t>;
+  std::wstring_convert<convert_type, wchar_t> converter;
+
+  std::string str = converter.to_bytes(table[rowIndex][columnIndex]);
+  try
+  {
+    Translator::fromString(str, node.value);
+  }
+  catch (std::exception const &e) // can't convert from string to taget type
+  {
+    throw(std::out_of_range("Tree node " + std::string(node.name) + " contain wrong value: \"" + str +
+      "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
+  }
+  node.validity = true;
 }
 
 // parse subtree array
