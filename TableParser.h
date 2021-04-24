@@ -6,6 +6,7 @@
 #ifndef _TREE_BINDING_TABLE_PARSER_H_
 #define _TREE_BINDING_TABLE_PARSER_H_
 
+#include <algorithm>
 #include <type_traits>
 #include <map>
 #include <vector>
@@ -30,23 +31,23 @@ public:
   template<typename DataType>
   static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> const &table,
+                   std::vector<std::vector<std::wstring>> &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::vector<size_t> const &rows);
+                   std::pair<size_t, size_t> const &rows);
 
   template<typename DataType>
   static typename std::enable_if_t<is_subtrees_set<DataType>::value>
     parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> const &table,
+                   std::vector<std::vector<std::wstring>> &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::vector<size_t> const &rows);
+                   std::pair<size_t, size_t> const &rows);
 
   template<typename DataType>
   static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> const &table,
+                   std::vector<std::vector<std::wstring>> &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::vector<size_t> const &rows);
+                   std::pair<size_t, size_t> const &rows);
 
 } TableParser;
 
@@ -54,17 +55,17 @@ public:
 template<typename DataType>
 typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> const &table,
+                   std::vector<std::vector<std::wstring>> &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::vector<size_t> const &rows)
+                   std::pair<size_t, size_t> const &rows)
 {
   auto columnIndex = nameToIndex(std::string(node.name));
-  auto rowIndex = rows[0]; // all rows for this column must have same value, use first
+//  auto rowIndex = rows[0]; // all rows for this column must have same value, use first
 
   using convert_type = std::codecvt_utf8<wchar_t>;
   std::wstring_convert<convert_type, wchar_t> converter;
 
-  std::string str = converter.to_bytes(table[rowIndex][columnIndex]);
+  std::string str = "";//converter.to_bytes(table[rowIndex][columnIndex]);
   try
   {
     Translator::fromString(str, node.value);
@@ -81,9 +82,9 @@ TableParser::parse(NodeData<DataType> &node,
 template<typename DataType>
 typename std::enable_if_t<is_subtrees_set<DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> const &table,
+                   std::vector<std::vector<std::wstring>> &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::vector<size_t> const &rows)
+                   std::pair<size_t, size_t> const &rows)
 {
   auto subtreesSet = (DataType*)(node.getValue()); // T = SubtreesSet<>
 
@@ -95,6 +96,14 @@ TableParser::parse(NodeData<DataType> &node,
 
   using convert_type = std::codecvt_utf8<wchar_t>;
   std::wstring_convert<convert_type, wchar_t> converter;
+
+  auto _begin = table.begin() + rows.first;
+  auto _end = table.begin() + rows.second;
+
+  std::sort(_begin, _end, [&](std::vector<std::wstring> const &row1, std::vector<std::wstring> const &row2)
+  {
+    return row1[columnIndex] < row2[columnIndex];
+  });
 
   std::map<std::string, std::vector<size_t>> uniqKeys{};
 
@@ -115,6 +124,7 @@ TableParser::parse(NodeData<DataType> &node,
     }
   };
 
+  /*
   if (rows.empty()) // iterate over all rows
   {
     for (size_t rowIndex = 0; rowIndex < rowsNum; ++rowIndex)
@@ -129,12 +139,13 @@ TableParser::parse(NodeData<DataType> &node,
       addToUniqKeys(rowIndex);
     }
   }
+  */
 
   for (auto &i : uniqKeys)
   {
     subtreesSet->emplace_back(new SubtreeElementType());
     auto& subtreeElement = subtreesSet->back();
-    subtreeElement->parseTable(table, nameToIndex, i.second);
+//    subtreeElement->parseTable(table, nameToIndex, i.second);
   }
 
   /*
@@ -152,9 +163,9 @@ TableParser::parse(NodeData<DataType> &node,
 template<typename DataType>
 typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> const &table,
+                   std::vector<std::vector<std::wstring>> &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::vector<size_t> const &rows)
+                   std::pair<size_t, size_t> const &rows)
 {
   std::cout << "Here";
 }

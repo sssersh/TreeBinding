@@ -215,9 +215,9 @@ void BasicTree::parsePtree(boost::property_tree::ptree &tree, const bool isRoot)
   }
 }
 
-void BasicTree::parseTable(std::vector<std::vector<std::wstring>> const &table,
+void BasicTree::parseTable(std::vector<std::vector<std::wstring>> &table,
   std::function<size_t(std::string &const)> const &nameToIndex,
-  std::vector<size_t> const &rows)
+  std::pair<size_t, size_t> const &rows)
 {
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {

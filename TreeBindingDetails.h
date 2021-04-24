@@ -58,9 +58,9 @@ public:
   virtual bool  compare  (BasicNodeData const &rhs)    const = 0;
   virtual void  copy     (BasicNodeData const &rhs)          = 0;
   virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER) = 0;
-  virtual void parseTable(std::vector<std::vector<std::wstring>> const &table,
+  virtual void parseTable(std::vector<std::vector<std::wstring>> &table,
                           std::function<size_t(std::string &const)> const &nameToIndex,
-                          std::vector<size_t> const &rows = std::vector<size_t>(0)) = 0;
+                          std::pair<size_t, size_t> const &rows) = 0;
 
   const char* const name;        /*!< Node name                        */
   const NodesNum    requiredNum; /*!< Required number of nodes in tree */
@@ -103,9 +103,9 @@ public:
   virtual void  copy    (BasicNodeData const &rhs)          override final;
   virtual void  parsePtree(boost::property_tree::ptree &tree, 
                            const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
-  virtual void parseTable(std::vector<std::vector<std::wstring>> const &table,
+  virtual void parseTable(std::vector<std::vector<std::wstring>> &table,
                           std::function<size_t(std::string &const)> const &nameToIndex,
-                          std::vector<size_t> const &rows = std::vector<size_t>(0)) override final;
+                          std::pair<size_t, size_t> const &rows) override final;
 
   // begin(), end() and [] is accessible only when DataType is container
   template<typename T = DataType::iterator>
