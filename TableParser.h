@@ -60,12 +60,12 @@ TableParser::parse(NodeData<DataType> &node,
                    std::pair<size_t, size_t> const &rows)
 {
   auto columnIndex = nameToIndex(std::string(node.name));
-//  auto rowIndex = rows[0]; // all rows for this column must have same value, use first
+  auto rowIndex = rows.first; // all rows for this column must have same value, use first
 
   using convert_type = std::codecvt_utf8<wchar_t>;
   std::wstring_convert<convert_type, wchar_t> converter;
 
-  std::string str = "";//converter.to_bytes(table[rowIndex][columnIndex]);
+  std::string str = converter.to_bytes(table[rowIndex][columnIndex]);
   try
   {
     Translator::fromString(str, node.value);
@@ -79,6 +79,7 @@ TableParser::parse(NodeData<DataType> &node,
 }
 
 // parse subtree array
+// use indexes for range, because sort table
 template<typename DataType>
 typename std::enable_if_t<is_subtrees_set<DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
@@ -99,53 +100,36 @@ TableParser::parse(NodeData<DataType> &node,
 
   auto _begin = table.begin() + rows.first;
   auto _end = table.begin() + rows.second;
-
   std::sort(_begin, _end, [&](std::vector<std::wstring> const &row1, std::vector<std::wstring> const &row2)
   {
     return row1[columnIndex] < row2[columnIndex];
   });
 
-  std::map<std::string, std::vector<size_t>> uniqKeys{};
+  std::map<std::string, std::pair<size_t, size_t>> uniqKeys;
 
-  auto addToUniqKeys = [&](size_t const rowIndex)
+  auto rangeBegin = table.begin() + rows.first;;
+  auto rangeEnd = rangeBegin + 1;
+  while (true)
   {
-    auto& it = uniqKeys.find(converter.to_bytes(table[rowIndex][columnIndex]));
-    if (it == uniqKeys.end())
+    if (rangeEnd == _end || rangeBegin->at(columnIndex) != rangeEnd->at(columnIndex))
     {
-      uniqKeys.insert(std::pair<std::string, std::vector<size_t>>(
-        converter.to_bytes(table[rowIndex][columnIndex]),
-        std::vector<size_t>(1, rowIndex)
+      uniqKeys.insert(std::pair<std::string, std::pair<size_t, size_t>>(
+        converter.to_bytes(rangeBegin->at(columnIndex)),
+        std::pair<size_t, size_t>(std::distance(_begin, rangeBegin),
+                                  std::distance(_begin, rangeEnd) - 1
         )
-        );
+        ));
+      if (rangeEnd == _end) break;
+      else rangeBegin = rangeEnd++;
     }
-    else
-    {
-      it->second.push_back(rowIndex);
-    }
-  };
-
-  /*
-  if (rows.empty()) // iterate over all rows
-  {
-    for (size_t rowIndex = 0; rowIndex < rowsNum; ++rowIndex)
-    {
-      addToUniqKeys(rowIndex);
-    }
+    else ++rangeEnd;
   }
-  else // iterate only over passed rows
-  {
-    for (auto &rowIndex : rows)
-    {
-      addToUniqKeys(rowIndex);
-    }
-  }
-  */
 
   for (auto &i : uniqKeys)
   {
     subtreesSet->emplace_back(new SubtreeElementType());
     auto& subtreeElement = subtreesSet->back();
-//    subtreeElement->parseTable(table, nameToIndex, i.second);
+    subtreeElement->parseTable(table, nameToIndex, i.second);
   }
 
   /*
