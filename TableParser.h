@@ -31,7 +31,7 @@ public:
   template<typename DataType>
   static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> &table,
+                   std::vector<std::vector<std::wstring>> const &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
                    std::pair<size_t, size_t> const &rows);
 
@@ -55,7 +55,7 @@ public:
 template<typename DataType>
 typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> &table,
+                   std::vector<std::vector<std::wstring>> const &table,
                    std::function<size_t(std::string &const)> const &nameToIndex,
                    std::pair<size_t, size_t> const &rows)
 {
@@ -87,22 +87,21 @@ TableParser::parse(NodeData<DataType> &node,
                    std::function<size_t(std::string &const)> const &nameToIndex,
                    std::pair<size_t, size_t> const &rows)
 {
-  auto subtreesSet = (DataType*)(node.getValue()); // T = SubtreesSet<>
+  auto subtreesSet = (DataType*)(node.getValue()); // DataType = SubtreesSet<>
 
   typedef DataType::value_type::element_type SubtreeElementType;
 
-  auto elementName = SubtreeElementType::NameContainer_::getName();
-  auto columnIndex = nameToIndex(std::string(elementName));
-  auto rowsNum     = table.size();
+  auto keyFieldName   = std::string(SubtreeElementType().getKeyNodeName());
+  auto keyColumnIndex = nameToIndex(keyFieldName);
 
   using convert_type = std::codecvt_utf8<wchar_t>;
   std::wstring_convert<convert_type, wchar_t> converter;
 
   auto _begin = table.begin() + rows.first;
-  auto _end = table.begin() + rows.second;
+  auto _end = table.begin() + rows.second + 1;
   std::sort(_begin, _end, [&](std::vector<std::wstring> const &row1, std::vector<std::wstring> const &row2)
   {
-    return row1[columnIndex] < row2[columnIndex];
+    return row1[keyColumnIndex] < row2[keyColumnIndex];
   });
 
   std::map<std::string, std::pair<size_t, size_t>> uniqKeys;
@@ -111,10 +110,10 @@ TableParser::parse(NodeData<DataType> &node,
   auto rangeEnd = rangeBegin + 1;
   while (true)
   {
-    if (rangeEnd == _end || rangeBegin->at(columnIndex) != rangeEnd->at(columnIndex))
+    if (rangeEnd == _end || rangeBegin->at(keyColumnIndex) != rangeEnd->at(keyColumnIndex))
     {
       uniqKeys.insert(std::pair<std::string, std::pair<size_t, size_t>>(
-        converter.to_bytes(rangeBegin->at(columnIndex)),
+        converter.to_bytes(rangeBegin->at(keyColumnIndex)),
         std::pair<size_t, size_t>(std::distance(_begin, rangeBegin),
                                   std::distance(_begin, rangeEnd) - 1
         )

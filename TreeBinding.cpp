@@ -233,4 +233,10 @@ void BasicTree::reset()
   }
 }
 
+const char* BasicTree::getKeyNodeName() const
+{
+  auto keyNodeIt = this->begin();
+  return keyNodeIt->name;
+}
+
 } /* namespace BoostTreeWrapper */

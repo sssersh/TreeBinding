@@ -99,6 +99,7 @@ public:
   virtual BasicTree& operator= (BasicTree const &rhs);
   bool isLeafsValid() const;
   void reset();
+  const char* getKeyNodeName() const;
 
   bool isValid() const
   {
