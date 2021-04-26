@@ -39,6 +39,15 @@ struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
 
 } /* namespace Details */
 
+template<typename T>
+using Row = std::vector<T>;
+
+template<typename T>
+using Table = std::vector<Row<T>>;
+
+// second index include in range
+using RowsRange = std::pair<size_t, size_t>;
+
 } /* namespace TreeBinding */
 
 #endif /* _TREE_BINDING_DECLARATIONS_H_ */

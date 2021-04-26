@@ -58,9 +58,9 @@ public:
   virtual bool  compare  (BasicNodeData const &rhs)    const = 0;
   virtual void  copy     (BasicNodeData const &rhs)          = 0;
   virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER) = 0;
-  virtual void parseTable(std::vector<std::vector<std::wstring>> &table,
+  virtual void parseTable(Table<std::wstring> &table,
                           std::function<size_t(std::string &const)> const &nameToIndex,
-                          std::pair<size_t, size_t> const &rows) = 0;
+                          RowsRange const &rows) = 0;
 
   const char* const name;        /*!< Node name                        */
   const NodesNum    requiredNum; /*!< Required number of nodes in tree */
@@ -103,9 +103,9 @@ public:
   virtual void  copy    (BasicNodeData const &rhs)          override final;
   virtual void  parsePtree(boost::property_tree::ptree &tree, 
                            const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
-  virtual void parseTable(std::vector<std::vector<std::wstring>> &table,
+  virtual void parseTable(Table<std::wstring> &table,
                           std::function<size_t(std::string &const)> const &nameToIndex,
-                          std::pair<size_t, size_t> const &rows) override final;
+                          RowsRange const &rows) override final;
 
   // begin(), end() and [] is accessible only when DataType is container
   template<typename T = DataType::iterator>
@@ -212,7 +212,8 @@ static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect
   TREE_BINDING_DETAILS_STRING_CONTAINER(paramName);           \
   TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, dataType, num >
 
-/*! \brief     Declaration of reflection field (mandatory)
+/*! 
+ *  \brief     Declaration of reflection field (mandatory)
  *  \details   Declare and pass to field specialization wrapper class with uniq name, which contain name of field
  *  \warning   Each macro call should be placed in different lines
  *  \param[in] paramName Name of field

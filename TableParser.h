@@ -22,32 +22,31 @@ namespace Details
 
 /*!
  * \brief NodeData parser from table 
+ * \note  Use indexes for range, because sort table
  */
-typedef class TableParser
+typedef struct TableParser
 {
-
-public:
 
   template<typename DataType>
   static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> const &table,
-                   std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::pair<size_t, size_t> const &rows);
+          Table<std::wstring> const &table,
+          std::function<size_t(std::string &const)> const &columnNameToIndex,
+          RowsRange const &rows);
 
   template<typename DataType>
   static typename std::enable_if_t<is_subtrees_set<DataType>::value>
     parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> &table,
-                   std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::pair<size_t, size_t> const &rows);
+          Table<std::wstring> &table,
+          std::function<size_t(std::string &const)> const &columnNameToIndex,
+          RowsRange const &rows);
 
   template<typename DataType>
   static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> &table,
-                   std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::pair<size_t, size_t> const &rows);
+          Table<std::wstring> &table,
+          std::function<size_t(std::string &const)> const &columnNameToIndex,
+          RowsRange const &rows);
 
 } TableParser;
 
@@ -55,11 +54,11 @@ public:
 template<typename DataType>
 typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> const &table,
-                   std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::pair<size_t, size_t> const &rows)
+                   Table<std::wstring> const &table,
+                   std::function<size_t(std::string &const)> const &columnNameToIndex,
+                   RowsRange const &rows)
 {
-  auto columnIndex = nameToIndex(std::string(node.name));
+  auto columnIndex = columnNameToIndex(std::string(node.name));
   auto rowIndex = rows.first; // all rows for this column must have same value, use first
 
   using convert_type = std::codecvt_utf8<wchar_t>;
@@ -79,32 +78,31 @@ TableParser::parse(NodeData<DataType> &node,
 }
 
 // parse subtree array
-// use indexes for range, because sort table
 template<typename DataType>
 typename std::enable_if_t<is_subtrees_set<DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> &table,
-                   std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::pair<size_t, size_t> const &rows)
+                   Table<std::wstring> &table,
+                   std::function<size_t(std::string &const)> const &columnNameToIndex,
+                   RowsRange const &rows)
 {
   auto subtreesSet = (DataType*)(node.getValue()); // DataType = SubtreesSet<>
 
   typedef DataType::value_type::element_type SubtreeElementType;
 
   auto keyFieldName   = std::string(SubtreeElementType().getKeyNodeName());
-  auto keyColumnIndex = nameToIndex(keyFieldName);
+  auto keyColumnIndex = columnNameToIndex(keyFieldName);
 
   using convert_type = std::codecvt_utf8<wchar_t>;
   std::wstring_convert<convert_type, wchar_t> converter;
 
   auto _begin = table.begin() + rows.first;
-  auto _end = table.begin() + rows.second + 1;
-  std::sort(_begin, _end, [&](std::vector<std::wstring> const &row1, std::vector<std::wstring> const &row2)
+  auto _end   = table.begin() + rows.second + 1;
+  std::sort(_begin, _end, [&](Row<std::wstring> const &row1, Row<std::wstring> const &row2)
   {
     return row1[keyColumnIndex] < row2[keyColumnIndex];
   });
 
-  std::map<std::string, std::pair<size_t, size_t>> uniqKeys;
+  std::map<std::string, RowsRange> uniqKeys;
 
   auto rangeBegin = table.begin() + rows.first;;
   auto rangeEnd = rangeBegin + 1;
@@ -112,10 +110,10 @@ TableParser::parse(NodeData<DataType> &node,
   {
     if (rangeEnd == _end || rangeBegin->at(keyColumnIndex) != rangeEnd->at(keyColumnIndex))
     {
-      uniqKeys.insert(std::pair<std::string, std::pair<size_t, size_t>>(
+      uniqKeys.insert(std::pair<std::string, RowsRange>(
         converter.to_bytes(rangeBegin->at(keyColumnIndex)),
-        std::pair<size_t, size_t>(std::distance(_begin, rangeBegin),
-                                  std::distance(_begin, rangeEnd) - 1
+        RowsRange(std::distance(_begin, rangeBegin),
+                  std::distance(_begin, rangeEnd) - 1
         )
         ));
       if (rangeEnd == _end) break;
@@ -128,7 +126,7 @@ TableParser::parse(NodeData<DataType> &node,
   {
     subtreesSet->emplace_back(new SubtreeElementType());
     auto& subtreeElement = subtreesSet->back();
-    subtreeElement->parseTable(table, nameToIndex, i.second);
+    subtreeElement->parseTable(table, columnNameToIndex, i.second);
   }
 
   /*
@@ -146,9 +144,9 @@ TableParser::parse(NodeData<DataType> &node,
 template<typename DataType>
 typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
-                   std::vector<std::vector<std::wstring>> &table,
-                   std::function<size_t(std::string &const)> const &nameToIndex,
-                   std::pair<size_t, size_t> const &rows)
+                   Table<std::wstring> &table,
+                   std::function<size_t(std::string &const)> const &columnNameToIndex,
+                   RowsRange const &rows)
 {
   std::cout << "Here";
 }
