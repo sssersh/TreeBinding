@@ -208,6 +208,12 @@ void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathD
   parsePtreeImpl<T>(tree, pathDelimeter);
 }
 
+template<typename T>
+void NodeData<T>::writePtree(boost::property_tree::ptree &tree)
+{
+  PtreeWriter::write(*this, tree)
+}
+
 // parse leaf
 template<typename DataType>
 template<typename T = DataType>

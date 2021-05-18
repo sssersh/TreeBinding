@@ -61,6 +61,8 @@ public:
                           std::function<size_t(std::string &const)> const &nameToIndex,
                           RowsRange const &rows) = 0;
 
+  virtual void writePtree(boost::property_tree::ptree &tree) = 0;
+
   const char* const name;        /*!< Node name                        */
   const NodesNum    requiredNum; /*!< Required number of nodes in tree */
   bool              validity;    /*!< Value of node is valid           */
@@ -105,6 +107,8 @@ public:
   virtual void parseTable(Table<std::wstring> &table,
                           std::function<size_t(std::string &const)> const &nameToIndex,
                           RowsRange const &rows) override final;
+
+  virtual void writePtree(boost::property_tree::ptree &tree) override final;
 
   // begin(), end() and [] is accessible only when DataType is container
   template<typename T = DataType::iterator>

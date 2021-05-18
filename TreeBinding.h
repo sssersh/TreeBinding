@@ -70,20 +70,7 @@ protected:
   size_t            nodesNum; /*!< Number of fields in current tree */
   const char* const name;     /*!< Name of tree                     */
 
-  typedef struct NodeIterator
-  {
-    NodeIterator() = default;
-    NodeIterator(const NodeIterator&) = default;
-    NodeIterator& operator=(const NodeIterator&) = default;
-
-    bool operator!=(const NodeIterator&) const;
-    NodeIterator& operator+(int const index);
-    NodeIterator& operator++();
-    Details::BasicNodeData& operator*() const;
-    Details::BasicNodeData* operator->() const;
-
-    Details::BasicNodeData* ptr;
-  } NodeIterator;
+  struct NodeIterator;
 
 public:
  
@@ -94,6 +81,8 @@ public:
   void parseTable(std::vector<std::vector<std::wstring>> &table,
     std::function<size_t(std::string &const)> const &nameToIndex,
     std::pair<size_t, size_t> const &rows);
+
+  void writePtree(boost::property_tree::ptree &tree, const bool isRoot);
 
   bool operator== (BasicTree const &rhs) const;
   virtual BasicTree& operator= (BasicTree const &rhs);
@@ -108,6 +97,22 @@ public:
 
 //  template<typename, typename> friend class Tree;
 } BasicTree;
+
+
+struct BasicTree::NodeIterator
+{
+  NodeIterator() = default;
+  NodeIterator(const NodeIterator&) = default;
+  NodeIterator& operator=(const NodeIterator&) = default;
+
+  bool operator!=(const NodeIterator&) const;
+  NodeIterator& operator+(int const index);
+  NodeIterator& operator++();
+  Details::BasicNodeData& operator*() const;
+  Details::BasicNodeData* operator->() const;
+
+  Details::BasicNodeData* ptr;
+};
 
 template<typename NameContainer, typename T>
 struct Tree : public BasicTree

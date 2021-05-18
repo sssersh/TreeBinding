@@ -200,6 +200,7 @@ bool BasicTree::isLeafsValid() const
 /*! \brief   Parse Tree from text representation (XML, JSON, etc.)
  *  \note    It's necessary to define ChildIterator functions and parseNode() function for type T.
  *  \param[in] tree Boost tree which represent current node and it's childs
+ *  \param[in] isRoot Tree node is root node
  */
 void BasicTree::parsePtree(boost::property_tree::ptree &tree, const bool isRoot)
 {
@@ -222,6 +223,21 @@ void BasicTree::parseTable(std::vector<std::vector<std::wstring>> &table,
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
     nodeIt->parseTable(table, nameToIndex, rows);
+  }
+}
+
+void BasicTree::writePtree(boost::property_tree::ptree &tree, const bool isRoot)
+{
+  /*
+  if (isRoot)
+  {
+    tree = tree.back().second;
+  }
+  */
+
+  for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
+  {
+    nodeIt->writePtree(tree);
   }
 }
 

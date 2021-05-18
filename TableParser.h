@@ -64,7 +64,7 @@ TableParser::parse(NodeData<DataType> &node,
   using convert_type = std::codecvt_utf8<wchar_t>;
   std::wstring_convert<convert_type, wchar_t> converter;
 
-  std::string str = converter.to_bytes(table[rowIndex][columnIndex]);
+  const std::string str = converter.to_bytes(table[rowIndex][columnIndex]);
   try
   {
     Translator::fromString(str, node.value);
