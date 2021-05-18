@@ -33,7 +33,16 @@ struct Translator
 
   template<typename T>
   static std::string toString(const T* const value);
+
 };
+
+#define TREE_BINDING_TRANSLATOR_TO_STRING_STUB(type)   \
+  template<>                                           \
+  std::string Translator::toString(const type * const) \
+  {                                                    \
+    throw std::runtime_error                           \
+      (TREE_BINDING_CONCAT("Conversion to string not implementeted for", #type)); \
+  }
 
 /*!
  *  \brief   Type for store integer fields of Object
