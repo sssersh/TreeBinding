@@ -7,6 +7,7 @@
 #define _TREE_BINDING_DECLARATIONS_H_
 
 #include <type_traits>
+#include <vector> // subtree containter
 
 namespace TreeBinding
 {
@@ -23,6 +24,15 @@ struct Tree;
 template<typename T>
 using SubtreesSet = std::vector<std::shared_ptr<T>>;
 
+template<typename T>
+using Row = std::vector<T>;
+
+template<typename T>
+using Table = std::vector<Row<T>>;
+
+// second index include in range
+using RowsRange = std::pair<size_t, size_t>;
+
 namespace Details
 {
 
@@ -38,15 +48,6 @@ template<typename T>
 struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
 
 } /* namespace Details */
-
-template<typename T>
-using Row = std::vector<T>;
-
-template<typename T>
-using Table = std::vector<Row<T>>;
-
-// second index include in range
-using RowsRange = std::pair<size_t, size_t>;
 
 } /* namespace TreeBinding */
 

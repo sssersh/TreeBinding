@@ -10,7 +10,6 @@
 #include <string>
 #include <cinttypes>
 #include <type_traits>
-#include <vector> // subtree containter
 #include "TreeBindingDecl.h"
 #include "TableParser.h"
 
