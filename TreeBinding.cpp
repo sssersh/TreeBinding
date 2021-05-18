@@ -17,7 +17,7 @@ bool Translator::isNumber(const std::string& s)
 }
 
 template<>
-void Translator::fromString(std::string const &str, Integer* value)
+void Translator::fromString(std::string const &str, Integer* const value)
 {
   if (isNumber(str))
   {
@@ -30,9 +30,23 @@ void Translator::fromString(std::string const &str, Integer* value)
 }
 
 template<>
-void Translator::fromString(std::string const &str, std::string* value)
+void Translator::fromString(std::string const &str, std::string* const value)
 {
   *value = str;
+}
+
+template<>
+std::string Translator::toString(const Integer* const value)
+{
+  char buf[20];
+  std::sprintf(buf, "%d", *value);
+  return std::string(buf);
+}
+
+template<>
+std::string Translator::toString(const std::string* const value)
+{
+  return *value;
 }
 
 namespace Details
@@ -226,7 +240,7 @@ void BasicTree::parseTable(std::vector<std::vector<std::wstring>> &table,
   }
 }
 
-void BasicTree::writePtree(boost::property_tree::ptree &tree, const bool isRoot)
+void BasicTree::writePtree(boost::property_tree::ptree &tree, const bool isRoot) const
 {
   /*
   if (isRoot)

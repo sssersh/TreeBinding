@@ -209,9 +209,9 @@ void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathD
 }
 
 template<typename T>
-void NodeData<T>::writePtree(boost::property_tree::ptree &tree)
+void NodeData<T>::writePtree(boost::property_tree::ptree &tree) const
 {
-  PtreeWriter::write(*this, tree)
+  PtreeWriter::write(*this, tree);
 }
 
 // parse leaf

@@ -40,6 +40,7 @@ template<typename>
 class NodeData;
 
 class TableParser;
+class PtreeWriter;
 
 template<typename>
 struct is_subtrees_set : std::false_type {};

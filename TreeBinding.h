@@ -29,7 +29,10 @@ struct Translator
    *  \param  value Pointer to target value
    */
   template<typename T>
-  static void fromString(std::string const &str, T* value) throw(std::runtime_error);
+  static void fromString(std::string const &str, T* const value) throw(std::runtime_error);
+
+  template<typename T>
+  static std::string toString(const T* const value);
 };
 
 /*!
@@ -82,7 +85,7 @@ public:
     std::function<size_t(std::string &const)> const &nameToIndex,
     std::pair<size_t, size_t> const &rows);
 
-  void writePtree(boost::property_tree::ptree &tree, const bool isRoot);
+  void writePtree(boost::property_tree::ptree &tree, const bool isRoot = true) const;
 
   bool operator== (BasicTree const &rhs) const;
   virtual BasicTree& operator= (BasicTree const &rhs);
