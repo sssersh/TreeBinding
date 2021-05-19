@@ -251,9 +251,10 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 {
   auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
 
+  typedef DataType::value_type::element_type SubtreeElementType;
+
   if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
   {
-    typedef DataType::value_type::element_type SubtreeElementType;
     static const int XML_ATTR_SUBTREE_NUM = 1;
 
     auto elementName = SubtreeElementType::NameContainer_::getName();
@@ -275,8 +276,11 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   else // for JSON name of array stored in Subtree
   {
     auto subtree = tree.get_child(this->name);
-    for (auto &i : subtree)
+    for (auto &j : subtree)
     {
+      subtreesSet->emplace_back(new SubtreeElementType());
+      auto subtreeElement = subtreesSet->back();
+      subtreeElement->parsePtree(j.second, false);
     }
   }
 
