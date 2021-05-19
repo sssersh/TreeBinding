@@ -55,21 +55,20 @@ typename std::enable_if_t<is_subtrees_set<DataType>::value>
 PtreeWriter::write(NodeData<DataType> const &node,
                    boost::property_tree::ptree &tree)
 {
-  typedef DataType::value_type::element_type SubtreeElementType;
-
   if (node.validity)
   {
     auto subtreesSet = (DataType*)node.getValue(); // DataType = SubtreesSet<>
-    auto elementName = SubtreeElementType::NameContainer_::getName();
 
     boost::property_tree::ptree subtree;
 
     for (auto &i : *subtreesSet)
     {
-      i->writePtree(subtree);
+      boost::property_tree::ptree entry;
+      i->writePtree(entry);
+      subtree.push_back(std::make_pair("", entry));
     }
 
-    tree.add_child(elementName, subtree);
+    tree.add_child(node.name, subtree);
   }
 }
 
