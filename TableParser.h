@@ -87,7 +87,7 @@ TableParser::parse(NodeData<DataType> &node,
 {
   auto subtreesSet = (DataType*)(node.getValue()); // DataType = SubtreesSet<>
 
-  typedef DataType::value_type::element_type SubtreeElementType;
+  typedef DataType::value_type SubtreeElementType;
 
   auto keyFieldName   = std::string(SubtreeElementType().getKeyNodeName());
   auto keyColumnIndex = columnNameToIndex(keyFieldName);
@@ -124,9 +124,9 @@ TableParser::parse(NodeData<DataType> &node,
 
   for (auto &i : uniqKeys)
   {
-    subtreesSet->emplace_back(new SubtreeElementType());
+    subtreesSet->emplace_back();
     auto& subtreeElement = subtreesSet->back();
-    subtreeElement->parseTable(table, columnNameToIndex, i.second);
+    subtreeElement.parseTable(table, columnNameToIndex, i.second);
   }
 
   /*

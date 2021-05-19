@@ -191,15 +191,15 @@ T NodeData<DataType>::end() const
 }
 
 template<typename DataType>
-template<typename T = DataType::value_type::element_type>
+template<typename T = DataType::value_type>
 T* NodeData<DataType>::operator[](std::string const &key)
 {
   auto subtreesSet = (DataType*)this->getValue();
-  return std::find_if(subtreesSet->begin(), subtreesSet->end(), [&](std::shared_ptr<T> const it) 
+  return std::find_if(subtreesSet->begin(), subtreesSet->end(), [&](const T& it) 
   {  
     auto keyField = it->begin();
-    return *((std::string*)(*keyField)->getValue()) == key;
-  })->get();
+    return *((std::string*)(keyField.getValue())) == key;
+  });
 }
 
 template<typename T>
@@ -251,7 +251,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 {
   auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
 
-  typedef DataType::value_type::element_type SubtreeElementType;
+  typedef DataType::value_type SubtreeElementType;
 
   if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
   {
@@ -267,9 +267,9 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     {
       if (!std::strcmp(j.first.c_str(), elementName))
       {
-        subtreesSet->emplace_back(new SubtreeElementType()); 
+        subtreesSet->emplace_back(); 
         auto subtreeElement = subtreesSet->back();
-        subtreeElement->parsePtree(j.second, false);
+        subtreeElement.parsePtree(j.second, false);
       }
     }
   }
@@ -278,9 +278,9 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     auto subtree = tree.get_child(this->name);
     for (auto &j : subtree)
     {
-      subtreesSet->emplace_back(new SubtreeElementType());
+      subtreesSet->emplace_back();
       auto subtreeElement = subtreesSet->back();
-      subtreeElement->parsePtree(j.second, false);
+      subtreeElement.parsePtree(j.second, false);
     }
   }
 

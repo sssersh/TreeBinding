@@ -9,6 +9,7 @@
 #include <string>
 #include <map>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/serialization/access.hpp>
 #include "TreeBindingDetails.h"
 
 namespace TreeBinding
@@ -83,6 +84,8 @@ protected:
   const char* const name;     /*!< Name of tree                     */
 
   struct NodeIterator;
+
+  friend class boost::serialization::access;
 
 public:
  

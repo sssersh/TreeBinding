@@ -64,7 +64,7 @@ PtreeWriter::write(NodeData<DataType> const &node,
     for (auto &i : *subtreesSet)
     {
       boost::property_tree::ptree entry;
-      i->writePtree(entry);
+      i.writePtree(entry);
       subtree.push_back(std::make_pair("", entry));
     }
 

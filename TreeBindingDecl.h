@@ -22,7 +22,7 @@ struct Tree;
  * \tparam Type of subtree elements
  */
 template<typename T>
-using SubtreesSet = std::vector<std::shared_ptr<T>>;
+using SubtreesSet = std::vector<T>;
 
 template<typename T>
 using Row = std::vector<T>;
