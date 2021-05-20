@@ -9,6 +9,18 @@
 #include <boost/serialization/vector.hpp>
 #include "ArchiveSerializerDecl.h"
 
+// Should be declared in global namespace
+#define TREE_BINDING_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \
+  namespace boost {                                                      \
+  namespace serialization {                                              \
+  template<class Archive>                                                \
+  void serialize(Archive & ar, type & value, const unsigned int version) \
+  {                                                                      \
+    ar & value.t;                                                        \
+  }                                                                      \
+  } /* namespace serialization */                                        \
+  } /* namespace boost        */
+
 namespace boost {
 namespace serialization {
 
