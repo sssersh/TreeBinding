@@ -45,6 +45,19 @@ struct Translator
       (TREE_BINDING_CONCAT("Conversion to string not implementeted for", #type)); \
   }
 
+#define TREE_BINDING_TABLE_TRANSLATORS_DECLARATION(type, table)         \
+template<>                                                              \
+void Translator::fromString(std::string const &str,                     \
+                            type* const value) throw(std::out_of_range) \
+{                                                                       \
+  *value = table.left.find(str)->second;                                \
+}                                                                       \
+template<>                                                              \
+std::string Translator::toString(const type* const value)               \
+{                                                                       \
+  return table.right.find(*value)->second;                              \
+}
+
 /*!
  *  \brief   Type for store integer fields of Object
  */
