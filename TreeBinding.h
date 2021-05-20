@@ -86,7 +86,8 @@ protected:
   struct NodeIterator;
 
   friend class boost::serialization::access;
-
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version);
 public:
  
   NodeIterator begin() const;
@@ -114,6 +115,17 @@ public:
 } BasicTree;
 
 
+template<class Archive>
+void BasicTree::serialize(Archive & ar, const unsigned int version)
+{
+  for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
+  {
+    ar & (*nodeIt);
+  }
+}
+
+
+
 struct BasicTree::NodeIterator
 {
   NodeIterator() = default;
@@ -134,6 +146,9 @@ struct Tree : public BasicTree
 {
   Tree();
   typedef NameContainer NameContainer_;
+
+//private:
+//  friend class boost::serialization::access;
 };
 
 /*!

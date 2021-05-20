@@ -36,6 +36,8 @@ using RowsRange = std::pair<size_t, size_t>;
 namespace Details
 {
 
+class BasicNodeData;
+
 template<typename>
 class NodeData;
 

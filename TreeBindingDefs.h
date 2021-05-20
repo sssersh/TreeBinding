@@ -130,7 +130,7 @@ void NodeData<DataType>::reset()
 
 template<typename DataType>
 template<typename T = DataType>
-std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+typename std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
 NodeData<DataType>::resetImpl()
 {
   validity = false;

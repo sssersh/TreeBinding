@@ -13,6 +13,7 @@
 #include "TreeBindingDecl.h"
 #include "TableParser.h"
 #include "PtreeWriter.h"
+#include "ArchiveSerializerDecl.h"
 
 namespace TreeBinding
 {
@@ -41,9 +42,8 @@ namespace Details
 
 static const char DEFAULT_DELIMETER = '/';
 
-
 // Base class used for iteration in Tree
-typedef class BasicNodeData
+typedef class BasicNodeData : public Archivable
 {
 public:
 
@@ -72,6 +72,8 @@ public:
 
 protected:
   bool operator== (BasicNodeData const &rhs) const;
+
+  friend class boost::serialization::access;
 
   friend class NodeTableParser;
   friend class PtreeWriter;
@@ -111,6 +113,8 @@ public:
                           RowsRange const &rows) override final;
 
   virtual void writePtree(boost::property_tree::ptree &tree) const override final;
+  virtual void serializeData(boost::archive::text_iarchive & ar, const unsigned int version) override final;
+  virtual void serializeData(boost::archive::text_oarchive & ar, const unsigned int version) override final;
 
   // begin(), end() and [] is accessible only when DataType is container
   template<typename T = DataType::iterator>
