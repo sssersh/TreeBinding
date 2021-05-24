@@ -138,8 +138,6 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
   }
 }
 
-
-
 struct BasicTree::NodeIterator
 {
   NodeIterator() = default;

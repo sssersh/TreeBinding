@@ -191,14 +191,14 @@ T NodeData<DataType>::end() const
 }
 
 template<typename DataType>
-template<typename T = DataType::value_type>
-T* NodeData<DataType>::operator[](std::string const &key)
+template<typename T = DataType::const_iterator>
+T NodeData<DataType>::operator[](std::string const &key) const
 {
-  auto subtreesSet = (DataType*)this->getValue();
-  return std::find_if(subtreesSet->begin(), subtreesSet->end(), [&](const T& it) 
+  auto subtreesSet = static_cast<DataType*>(this->getValue());
+  return std::find_if(subtreesSet->cbegin(), subtreesSet->cend(), [&](typename DataType::const_reference it)
   {  
-    auto keyField = it->begin();
-    return *((std::string*)(keyField.getValue())) == key;
+    auto keyField = it.begin();
+    return *((std::string*)(keyField->getValue())) == key;
   });
 }
 
