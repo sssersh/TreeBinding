@@ -189,7 +189,7 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
                       >;
 
   Node() : NodeData<InferetedDataType>(NameContainer::getName(), RequiredNum) {};
-  const DataType& operator=(DataType& const rhs)
+  const InferetedDataType& operator=(DataType& const rhs)
   {
     return *value = rhs;
   }
@@ -199,6 +199,9 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
   {
     return this->typename NodeData<SubtreesSet<DataType>>::operator[](key);
   }
+
+  InferetedDataType* const operator->() { return this->value; };
+  const InferetedDataType* const operator->() const { return this->value; };
 };
 
 static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
