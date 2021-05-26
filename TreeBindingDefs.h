@@ -177,8 +177,6 @@ template<typename DataType>
 template<typename T = DataType::iterator>
 T NodeData<DataType>::begin() const
 {
-//  auto subtreesSet = (DataType*)this->getValue();
-//  return subtreesSet->begin();
   return value->begin();
 }
 
@@ -186,8 +184,6 @@ template<typename DataType>
 template<typename T = DataType::iterator>
 T NodeData<DataType>::end() const
 {
-//  auto subtreesSet = (DataType*)this->getValue();
-//  return subtreesSet->end();
   return value->end();
 }
 

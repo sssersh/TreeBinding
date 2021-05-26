@@ -125,10 +125,6 @@ public:
   template<typename T = DataType::iterator>
   T end() const;
 
-  // Use first leaf as key(string)
-//  template<typename T = DataType::const_iterator>
-//  T operator[](std::string const &key) const;
-
   template<typename KeyType, typename T = DataType::const_iterator>
   T operator[](const KeyType &key) const;
 
@@ -198,13 +194,7 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
   {
     return *value = rhs;
   }
-  /*
-  template<typename T = SubtreesSet<DataType>::const_iterator>
-  T operator[](std::string const &key) const
-  {
-    return this->typename NodeData<SubtreesSet<DataType>>::operator[](key);
-  }
-  */
+
   template<typename KeyType, typename T = DeducedDataType::const_iterator>
   T operator[](const typename KeyType &key) const
   {
