@@ -130,6 +130,8 @@ public:
 
   virtual void* getValue()                            const override final;
 
+  using ValueType = DataType;
+
 protected:
 
   const NodeData& const operator= (NodeData const &rhs);
