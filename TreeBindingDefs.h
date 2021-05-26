@@ -7,6 +7,7 @@
 #define _TREE_BINDING_DEFINITIONS_H_
 
 #include <string>
+#include <type_traits>
 
 namespace TreeBinding
 {
@@ -187,18 +188,23 @@ T NodeData<DataType>::end() const
 {
 //  auto subtreesSet = (DataType*)this->getValue();
 //  return subtreesSet->end();
-  return value->begin();
+  return value->end();
 }
 
 template<typename DataType>
-template<typename T = DataType::const_iterator>
-T NodeData<DataType>::operator[](std::string const &key) const
+template<typename KeyType, typename T = DataType::const_iterator>
+T NodeData<DataType>::operator[](const KeyType &key) const
 {
-  auto subtreesSet = static_cast<DataType*>(this->getValue());
-  return std::find_if(subtreesSet->cbegin(), subtreesSet->cend(), [&](typename DataType::const_reference it)
+  static_assert(std::is_assignable< KeyType&, KeyType >::value, "Key type for operator [] should be assignable");
+
+  return std::find_if(this->value->cbegin(), this->value->cend(), [&](typename DataType::const_reference element)
   {  
-    auto keyField = it.begin();
-    return *((std::string*)(keyField->getValue())) == key;
+    auto keyField = std::find_if(element.begin(), element.end(), [&](const BasicNodeData &node)
+    {
+      return dynamic_cast<const NodeData<KeyType>*>(&node);
+    });
+    if (keyField == element.end()) throw std::runtime_error(std::string("There are not key field in ") + typeid(typename DataType::value_type).name() + "\n");
+    return static_cast<NodeData<KeyType>&>(*keyField) == key;
   });
 }
 

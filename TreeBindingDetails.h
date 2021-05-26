@@ -70,6 +70,7 @@ public:
 
   template <typename T> operator T&();
 
+
 protected:
   bool operator== (BasicNodeData const &rhs) const;
 
@@ -106,6 +107,7 @@ public:
 
   virtual void  reset   ()                                  override final;
   virtual void  copy    (BasicNodeData const &rhs)          override final;
+
   virtual void  parsePtree(boost::property_tree::ptree &tree, 
                            const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
   virtual void parseTable(Table<std::wstring> &table,
@@ -124,8 +126,11 @@ public:
   T end() const;
 
   // Use first leaf as key(string)
-  template<typename T = DataType::const_iterator>
-  T operator[](std::string const &key) const;
+//  template<typename T = DataType::const_iterator>
+//  T operator[](std::string const &key) const;
+
+  template<typename KeyType, typename T = DataType::const_iterator>
+  T operator[](const KeyType &key) const;
 
   virtual void* getValue()                            const override final;
 
@@ -182,26 +187,32 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
                                                        > 
                                    >
 {
-  using InferetedDataType = typename
+  using DeducedDataType = typename
     std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
                         SubtreesSet< DataType >,
                         DataType
                       >;
 
-  Node() : NodeData<InferetedDataType>(NameContainer::getName(), RequiredNum) {};
-  const InferetedDataType& operator=(DataType& const rhs)
+  Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
+  const DeducedDataType& operator=(DeducedDataType& const rhs)
   {
     return *value = rhs;
   }
-
+  /*
   template<typename T = SubtreesSet<DataType>::const_iterator>
   T operator[](std::string const &key) const
   {
     return this->typename NodeData<SubtreesSet<DataType>>::operator[](key);
   }
+  */
+  template<typename KeyType, typename T = DeducedDataType::const_iterator>
+  T operator[](const typename KeyType &key) const
+  {
+    return this->typename NodeData<DeducedDataType>::operator[](key);
+  }
 
-  InferetedDataType* const operator->() { return this->value; };
-  const InferetedDataType* const operator->() const { return this->value; };
+  DeducedDataType* const operator->() { return this->value; };
+  const DeducedDataType* const operator->() const { return this->value; };
 };
 
 static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");

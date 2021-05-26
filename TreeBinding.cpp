@@ -120,9 +120,14 @@ BasicTree::NodeIterator& BasicTree::NodeIterator::operator++()
   return *this + 1;
 }
 
+bool BasicTree::NodeIterator::operator== (const BasicTree::NodeIterator& rhs) const
+{
+  return this->ptr == rhs.ptr;
+}
+
 bool BasicTree::NodeIterator::operator!= (const BasicTree::NodeIterator& rhs) const
 {
-  return this->ptr != rhs.ptr;
+  return !(*this == rhs);
 }
 
 Details::BasicNodeData& BasicTree::NodeIterator::operator*() const

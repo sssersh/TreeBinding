@@ -138,13 +138,14 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
   }
 }
 
-struct BasicTree::NodeIterator
+struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
 {
   NodeIterator() = default;
   NodeIterator(const NodeIterator&) = default;
   NodeIterator& operator=(const NodeIterator&) = default;
 
   bool operator!=(const NodeIterator&) const;
+  bool operator==(const NodeIterator&) const;
   NodeIterator& operator+(int const index);
   NodeIterator& operator++();
   Details::BasicNodeData& operator*() const;
