@@ -119,8 +119,8 @@ TableParser::parse(NodeData<DataType> &node,
     {
       uniqKeys.insert(std::pair<std::string, RowsRange>(
         converter.to_bytes(rangeBegin->at(keyColumnIndex)),
-        RowsRange(std::distance(_begin, rangeBegin),
-                  std::distance(_begin, rangeEnd) - 1
+        RowsRange(rows.first + std::distance(_begin, rangeBegin),
+                  rows.first + std::distance(_begin, rangeEnd) - 1
         )
         ));
       if (rangeEnd == _end) break;
