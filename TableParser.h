@@ -65,16 +65,23 @@ TableParser::parse(NodeData<DataType> &node,
   std::wstring_convert<convert_type, wchar_t> converter;
 
   const std::string str = converter.to_bytes(table[rowIndex][columnIndex]);
-  try
+  if (str.empty() && !node.requiredNum.isCertain())
   {
-    Translator::fromString(str, node.value);
+    node.validity = false;
   }
-  catch (std::exception const &e) // can't convert from string to taget type
+  else
   {
-    throw(std::out_of_range("Tree node " + std::string(node.name) + " contain wrong value: \"" + str +
-      "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
+    try
+    {
+      Translator::fromString(str, node.value);
+    }
+    catch (std::exception const &e) // can't convert from string to taget type
+    {
+      throw(std::out_of_range("Tree node " + std::string(node.name) + " contain wrong value: \"" + str +
+        "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
+    }
+    node.validity = true;
   }
-  node.validity = true;
 }
 
 // parse subtree array

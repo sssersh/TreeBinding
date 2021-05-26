@@ -227,7 +227,6 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   {
     // Not used direct get<T>, because it's necessary for forward instance of boost translator_between
     str = tree.get<std::string>(path(this->name, pathDelimeter));
-    Translator::fromString(str, value);
   }
   catch (boost::exception const &e) // not found such node in ptree
   {
@@ -236,12 +235,24 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
       throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
     }
   }
-  catch (std::exception const &e) // can't convert from string to taget type
+
+  if (str.empty() && !this->requiredNum.isCertain())
   {
-    throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str + 
-                            "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
+    this->validity = false;
   }
-  validity = true;
+  else
+  {
+    try
+    {
+      Translator::fromString(str, value);
+    }
+    catch (std::exception const &e) // can't convert from string to taget type
+    {
+      throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str +
+        "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
+    }
+    validity = true;
+  }
 };
 
 // parse subtree array

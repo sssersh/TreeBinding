@@ -21,7 +21,7 @@ void Translator::fromString(std::string const &str, Integer* const value)
 {
   if (isNumber(str))
   {
-    *value = atol(str.c_str());
+    *value = atoll(str.c_str());
   }
   else
   {
@@ -39,7 +39,7 @@ template<>
 std::string Translator::toString(const Integer* const value)
 {
   char buf[20];
-  std::sprintf(buf, "%d", *value);
+  std::sprintf(buf, "%lld", *value);
   return std::string(buf);
 }
 
