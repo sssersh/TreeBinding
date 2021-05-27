@@ -119,11 +119,13 @@ public:
   virtual void serializeData(boost::archive::text_oarchive & ar, const unsigned int version) override final;
 
   // begin(), end() and [] is accessible only when DataType is container
+  /*
   template<typename T = DataType::iterator>
   T begin() const;
 
   template<typename T = DataType::iterator>
   T end() const;
+  */
 
   template<typename KeyType, typename T = DataType::const_iterator>
   T operator[](const KeyType &key) const;
@@ -203,6 +205,9 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
   {
     return this->typename NodeData<DeducedDataType>::operator[](key);
   }
+
+  DeducedDataType& const operator*() { return *this->value; };
+  const DeducedDataType& const operator*() const { return *this->value; };
 
   DeducedDataType* const operator->() { return this->value; };
   const DeducedDataType* const operator->() const { return this->value; };

@@ -6,6 +6,8 @@
 #ifndef _TREE_BINDING_TABLE_PARSER_H_
 #define _TREE_BINDING_TABLE_PARSER_H_
 
+#include <iostream> // debug
+
 #include <algorithm>
 #include <type_traits>
 #include <map>
