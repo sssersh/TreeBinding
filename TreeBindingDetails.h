@@ -192,7 +192,8 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
                       >;
 
   Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
-  const DeducedDataType& operator=(DeducedDataType& const rhs)
+  template<typename T = DeducedDataType>
+  const T& operator=(T&& const rhs)
   {
     return *value = rhs;
   }
