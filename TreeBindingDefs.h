@@ -64,16 +64,24 @@ NodeData<DataType>::~NodeData()
 /*! 
  *  \brief     NodeData assignment operator
  *  \tparam    DataType NodeData data type
- *  \param[in] _value Right side value
+ *  \param[in] value Right side value
  *  \return    Assigned value
  */
 template<typename DataType>
-const DataType& NodeData<DataType>::operator= (DataType const &_value)
+const DataType& NodeData<DataType>::operator= (DataType const &value)
 {
-  *value = _value;
+  *this->value = value;
   validity = true;
-  return *value;
+  return *this->value;
 } 
+
+template<typename DataType>
+const DataType& NodeData<DataType>::operator= (DataType const &&value)
+{
+  *this->value = value;
+  validity = true;
+  return *this->value;
+}
 
 /*! 
  *  \brief  NodeData cast to underlying type operator

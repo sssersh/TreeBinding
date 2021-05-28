@@ -112,9 +112,15 @@ Details::BasicNodeData& BasicTree::operator[](size_t const index) const
 
 void BasicTree::copyLeafs(BasicTree const &rhs)
 {
+  /*
   for (auto &node : *this)
   {
     if (node.isLeaf) node = rhs.getSameNode(node);
+  }
+  */
+  for (size_t i = 0; i < this->nodesNum; ++i)
+  {
+    if (rhs[i].isLeaf) (*this)[i] = rhs[i];
   }
 }
 
@@ -184,7 +190,6 @@ BasicTree::NodeIterator BasicTree::end() const
 
 /*! 
  *  \brief   Equal operator
- *  \details Compare only fields of derived class. Childs elements not compare.
  *  \note    Equal operator for Node compare values, only when both are valid. Otherwise, return true.
  *  \retval  true  Valid fields of derived are same
  *  \retval  false Valid fields of derived are different
@@ -192,16 +197,10 @@ BasicTree::NodeIterator BasicTree::end() const
 bool BasicTree::operator== (BasicTree const &rhs) const
 {
   bool result = true;
-//  auto field = this->getNodes();
-//  auto rhsNode = rhs.getNodes();
-
-  for (int i = 0; i != nodesNum; i++)
+  for (size_t i = 0; i < this->nodesNum; ++i)
   {
-//    result = result && (*field == *rhsNode);
-//    field = field->next();
-//    rhsNode = rhsNode->next();
+    result = result && ((*this)[i] == rhs[i]);
   }
-
   return result;
 }
 

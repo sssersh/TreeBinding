@@ -101,7 +101,8 @@ public:
   NodeData(const char* const _name, NodesNum::ValueType const _requiredNum);
   NodeData(NodeData const &rhs);
   virtual ~NodeData();
-  virtual const DataType& operator= (DataType const &_value);
+  virtual const DataType& operator= (DataType const &value);
+  virtual const DataType& operator= (DataType const &&value);
 //  virtual operator DataType() const;
   virtual operator const DataType&() const;
   virtual bool operator==(DataType const &rhs);
@@ -187,12 +188,13 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
                       >;
 
   Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
-
   template<typename T = DeducedDataType>
   const T& operator=(const T&& rhs)
   {
+    validity = true;
     return *value = rhs;
   }
+  
 
   template<typename KeyType, typename T = DeducedDataType::const_iterator>
   T operator[](const typename KeyType &key) const
@@ -200,8 +202,8 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
     return this->typename NodeData<DeducedDataType>::operator[](key);
   }
 
-  DeducedDataType& const operator*() { return *this->value; };
-  const DeducedDataType& const operator*() const { return *this->value; };
+  DeducedDataType& operator*() { return *this->value; };
+  const DeducedDataType& operator*() const { return *this->value; };
 
   DeducedDataType* const operator->() { return this->value; };
   const DeducedDataType* const operator->() const { return this->value; };
