@@ -63,6 +63,7 @@ template<class Archive>
 void serialize(Archive & ar, BasicNodeData& node, const unsigned int version)
 {
   ar & node.validity;
+  ar & node.isLeaf;
   node.serializeData(ar, version);
 }
 
