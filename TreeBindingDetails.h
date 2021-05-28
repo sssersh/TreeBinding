@@ -118,15 +118,7 @@ public:
   virtual void serializeData(boost::archive::text_iarchive & ar, const unsigned int version) override final;
   virtual void serializeData(boost::archive::text_oarchive & ar, const unsigned int version) override final;
 
-  // begin(), end() and [] is accessible only when DataType is container
-  /*
-  template<typename T = DataType::iterator>
-  T begin() const;
-
-  template<typename T = DataType::iterator>
-  T end() const;
-  */
-
+  // [] is accessible only when DataType is container
   template<typename KeyType, typename T = DataType::const_iterator>
   T operator[](const KeyType &key) const;
 

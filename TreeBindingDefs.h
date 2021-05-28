@@ -172,22 +172,6 @@ bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
   return *this->value == *static_cast<DataType*>(rhs.getValue());
 }
 
-/*
-template<typename DataType>
-template<typename T = DataType::iterator>
-T NodeData<DataType>::begin() const
-{
-  return value->begin();
-}
-
-template<typename DataType>
-template<typename T = DataType::iterator>
-T NodeData<DataType>::end() const
-{
-  return value->end();
-}
-*/
-
 template<typename DataType>
 template<typename KeyType, typename T = DataType::const_iterator>
 T NodeData<DataType>::operator[](const KeyType &key) const
