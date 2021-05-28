@@ -110,6 +110,23 @@ Details::BasicNodeData& BasicTree::operator[](size_t const index) const
   return *(this->begin() + index);
 }
 
+void BasicTree::copyLeafs(BasicTree const &rhs)
+{
+  for (auto &node : *this)
+  {
+    if (node.isLeaf) node = rhs.getSameNode(node);
+  }
+}
+
+Details::BasicNodeData& BasicTree::getSameNode(const Details::BasicNodeData &rhs) const
+{
+  for (auto &node : *this)
+  {
+    if(typeid(node) == typeid(rhs)) return node;
+  }
+  throw(std::runtime_error("Cannot find same field"));
+}
+
 BasicTree::NodeIterator& BasicTree::NodeIterator::operator+(int const index)
 {
   ptr = (Details::BasicNodeData*)((uint8_t*)ptr + Details::NodeDataSize * index);

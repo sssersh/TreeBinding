@@ -93,6 +93,7 @@ protected:
   BasicTree() = delete;
   BasicTree(const char* const _name);
   Details::BasicNodeData& operator[](size_t const index) const;
+  Details::BasicNodeData& getSameNode(const Details::BasicNodeData &rhs) const;
 
   size_t            nodesNum; /*!< Number of fields in current tree */
   const char* const name;     /*!< Name of tree                     */
@@ -119,6 +120,7 @@ public:
   bool isLeafsValid() const;
   void reset();
   const char* getKeyNodeName() const;
+  void copyLeafs(BasicTree const &rhs);
 
   bool isValid() const
   {
