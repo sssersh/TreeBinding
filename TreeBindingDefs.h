@@ -21,7 +21,7 @@ namespace Details
  */
 template<typename DataType>
 NodeData<DataType>::NodeData(const char* const _name, NodesNum::ValueType const _requiredNum) :
-  BasicNodeData(_name, _requiredNum)
+  BasicNodeData(_name, _requiredNum, !is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value)
 {
   value = new DataType(); // TODO: move to initialization list
 };

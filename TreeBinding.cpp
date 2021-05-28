@@ -52,10 +52,11 @@ std::string Translator::toString(const std::string* const value)
 namespace Details
 {
 
-BasicNodeData::BasicNodeData(const char* const _name, NodesNum::ValueType const _requiredNum) :
+BasicNodeData::BasicNodeData(const char* const _name, NodesNum::ValueType const _requiredNum, bool const isLeaf) :
   name(_name),
   requiredNum(_requiredNum),
-  validity(false)
+  validity(false),
+  isLeaf(isLeaf)
 {}
 
 bool BasicNodeData::operator== (BasicNodeData const &rhs) const

@@ -48,7 +48,7 @@ typedef class BasicNodeData : public Archivable
 public:
 
   BasicNodeData() = delete;
-  BasicNodeData(const char* const _name, NodesNum::ValueType const num);
+  BasicNodeData(const char* const _name, NodesNum::ValueType const num, bool const isLeaf);
   BasicNodeData(BasicNodeData const &rhs) = delete;
   virtual ~BasicNodeData() = default;
   void operator= (BasicNodeData const &rhs);
@@ -67,6 +67,7 @@ public:
   const char* const name;        /*!< Node name                        */
   const NodesNum    requiredNum; /*!< Required number of nodes in tree */
   bool              validity;    /*!< Value of node is valid           */
+  bool              isLeaf;      /*!< Value is leaf (not subtree containter and not Tree) */
 
   template <typename T> operator T&();
 
