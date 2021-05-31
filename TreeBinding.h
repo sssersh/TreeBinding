@@ -122,10 +122,7 @@ public:
   const char* getKeyNodeName() const;
   void copyLeafs(BasicTree const &rhs);
 
-  bool isValid() const
-  {
-    return true;
-  }
+  bool isValid() const;
 
 //  template<typename, typename> friend class Tree;
 } BasicTree;

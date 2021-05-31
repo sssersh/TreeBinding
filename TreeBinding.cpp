@@ -124,6 +124,16 @@ void BasicTree::copyLeafs(BasicTree const &rhs)
   }
 }
 
+bool BasicTree::isValid() const
+{
+  return std::all_of(this->begin(), this->end(), [](const Details::BasicNodeData &node) 
+  { 
+    return node.validity; 
+  });
+}
+
+
+
 Details::BasicNodeData& BasicTree::getSameNode(const Details::BasicNodeData &rhs) const
 {
   for (auto &node : *this)
@@ -221,16 +231,10 @@ BasicTree& BasicTree::operator= (BasicTree const &rhs)
  */
 bool BasicTree::isLeafsValid() const
 {
-//  auto field = getNodes();
-
-  bool isValid = true;
-  for (int i = 0; i != nodesNum; i++)
+  return std::all_of(this->begin(), this->end(), [](const Details::BasicNodeData &node)
   {
- //   isValid = isValid && field->validity;
-//    field = field->next();
-  }
-
-  return isValid;
+    return node.isLeaf ? node.validity : true;
+  });
 }
 
 /*! \brief   Parse Tree from text representation (XML, JSON, etc.)
