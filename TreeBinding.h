@@ -118,6 +118,7 @@ public:
   bool operator== (BasicTree const &rhs) const;
   virtual BasicTree& operator= (BasicTree const &rhs);
   bool isLeafsValid() const;
+  bool isMandatoryLeafsValid() const;
   void reset();
   const char* getKeyNodeName() const;
   void copyLeafs(BasicTree const &rhs);

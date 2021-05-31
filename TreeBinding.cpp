@@ -243,6 +243,14 @@ bool BasicTree::isLeafsValid() const
   });
 }
 
+bool BasicTree::isMandatoryLeafsValid() const
+{
+  return std::all_of(this->begin(), this->end(), [](const Details::BasicNodeData &node)
+  {
+    return (node.isLeaf && node.requiredNum != NodesNum::NOT_SPECIFIED ) ? node.validity : true;
+  });
+}
+
 /*! \brief   Parse Tree from text representation (XML, JSON, etc.)
  *  \note    It's necessary to define ChildIterator functions and parseNode() function for type T.
  *  \param[in] tree Boost tree which represent current node and it's childs
