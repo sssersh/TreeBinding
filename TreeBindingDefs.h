@@ -274,7 +274,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
       if (!std::strcmp(j.first.c_str(), elementName))
       {
         subtreesSet->emplace_back(); 
-        auto subtreeElement = subtreesSet->back();
+        auto& subtreeElement = subtreesSet->back();
         subtreeElement.parsePtree(j.second, false);
       }
     }
@@ -285,7 +285,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     for (auto &j : subtree)
     {
       subtreesSet->emplace_back();
-      auto subtreeElement = subtreesSet->back();
+      auto& subtreeElement = subtreesSet->back();
       subtreeElement.parsePtree(j.second, false);
     }
   }

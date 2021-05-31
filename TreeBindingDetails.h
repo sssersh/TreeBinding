@@ -188,13 +188,19 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
                       >;
 
   Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
-  template<typename T = DeducedDataType>
-  const T& operator=(const T&& rhs)
+//  template<typename T = std::remove_cv<DeducedDataType>::type>
+  const DeducedDataType& operator=(const DeducedDataType& rhs)
   {
     validity = true;
     return *value = rhs;
   }
-  
+//  template<typename T = std::remove_cv<DeducedDataType>::type>
+  const DeducedDataType& operator=(const DeducedDataType&& rhs)
+  {
+    validity = true;
+    return *value = rhs;
+  }
+  Node& operator=(const Node&) = default;
 
   template<typename KeyType, typename T = DeducedDataType::const_iterator>
   T operator[](const typename KeyType &key) const
