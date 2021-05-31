@@ -132,7 +132,13 @@ bool BasicTree::isValid() const
   });
 }
 
-
+bool BasicTree::containValidNodes() const
+{
+  return std::any_of(this->begin(), this->end(), [](const Details::BasicNodeData &node)
+  {
+    return node.validity;
+  });
+}
 
 Details::BasicNodeData& BasicTree::getSameNode(const Details::BasicNodeData &rhs) const
 {

@@ -123,6 +123,7 @@ public:
   void copyLeafs(BasicTree const &rhs);
 
   bool isValid() const;
+  bool containValidNodes() const;
 
 //  template<typename, typename> friend class Tree;
 } BasicTree;
