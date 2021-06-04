@@ -281,7 +281,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
   else // for JSON name of array stored in Subtree
   {
-    auto subtree = tree.get_child(this->name);
+    auto &subtree = tree.get_child(this->name);
     for (auto &j : subtree)
     {
       subtreesSet->emplace_back();
@@ -325,10 +325,9 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
   else // for JSON name of array stored in Subtree
   {
-    auto subtree = tree.get_child(this->name);
-    for (auto &i : subtree)
-    {
-    }
+    auto &tree_ = tree.get_child(this->name);
+    subtree->parsePtree(tree_, false);
+    num = 1;
   }
 
   /* Check num */

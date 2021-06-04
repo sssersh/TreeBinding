@@ -113,6 +113,7 @@ public:
     std::function<size_t(std::string &const)> const &nameToIndex,
     std::pair<size_t, size_t> const &rows);
 
+  // true for XML, false for JSON
   void writePtree(boost::property_tree::ptree &tree, const bool isRoot = true) const;
 
   bool operator== (BasicTree const &rhs) const;
