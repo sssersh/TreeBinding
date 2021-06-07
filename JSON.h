@@ -6,7 +6,7 @@
 #ifndef _JSON_H_
 #define _JSON_H_
 
-#include "TreeBinding.h"
+#include "TreeBinding/TreeBinding.h"
 
 namespace JSON
 {

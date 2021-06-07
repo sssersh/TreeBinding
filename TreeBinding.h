@@ -10,8 +10,8 @@
 #include <map>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/access.hpp>
-#include "TreeBindingDetails.h"
-#include "ArchiveSerializer.h"
+#include "TreeBinding/Details/TreeBindingDetails.h"
+#include "TreeBinding/Details/Parsers/ArchiveSerializer.h"
 
 namespace TreeBinding
 {
@@ -178,6 +178,6 @@ struct Tree : public BasicTree
 } /* namespace TreeBinding */
 
 // Function definitions file
-#include "TreeBindingDefs.h"
+#include "TreeBinding/Details/TreeBindingDefs.h"
 
 #endif /* _TREE_BINDING_H_ */

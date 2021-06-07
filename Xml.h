@@ -6,7 +6,7 @@
 #ifndef _XML_H_
 #define _XML_H_
 
-#include "TreeBinding.h"
+#include "TreeBinding/TreeBinding.h"
 
 namespace XML
 {
