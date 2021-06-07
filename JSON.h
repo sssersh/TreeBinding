@@ -1,6 +1,6 @@
 /*! 
  *  \file JSON.h
- *  \brief Classes for implement JSON
+ *  \brief Macro definitions for JSON implementation
  */
 
 #ifndef _JSON_H_
@@ -12,10 +12,13 @@ namespace JSON
 {
 
 /*!
- *  \brief Type for store integer fields of JSON
+ *  \copydoc TreeBinding::Integer
  */
 typedef TreeBinding::Integer Integer;
 
+/*!
+ *  \copydoc TreeBinding::NodesNum
+ */
 typedef TreeBinding::NodesNum ItemNum;
 
 /*!

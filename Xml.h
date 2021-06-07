@@ -1,6 +1,6 @@
 /*! 
  *  \file Xml.h
- *  \brief Classes for implement XML
+ *  \brief Macro definitions for XML implementation 
  */
 
 #ifndef _XML_H_
@@ -12,14 +12,16 @@ namespace XML
 {
 
 /*!
- *  \brief Type for store integer fields of XML attributes
+ *  \copydoc TreeBinding::Integer
  */
 typedef TreeBinding::Integer Integer;
 
+/*!
+ *  \copydoc TreeBinding::NodesNum
+ */
 typedef TreeBinding::NodesNum ItemNum;
 
-template<typename T>
-using ChildContainer = TreeBinding::SubtreesSet<T>;
+
 
 #define XML_DETAILS_TOKEN_PASTE(x, y, z) x##y##z
 #define XML_DETAILS_CONCAT(x,y,z) XML_DETAILS_TOKEN_PASTE(x,y,z)
@@ -48,6 +50,12 @@ using ChildContainer = TreeBinding::SubtreesSet<T>;
 #define XML_CHILD_ELEMENTS(...) TREE_NODE("", __VA_ARGS__)
 
 
+/*!
+ * \brief   XML element declaration
+ * \warning Each macro call should be placed in different lines
+ * \param   ... 1. Element name (in file)
+ *              2. Data type name
+ */
 #define XML_ELEMENT(name, dataType) TREE_TREE(name, dataType)
 
 } /* namespace XML */

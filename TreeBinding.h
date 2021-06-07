@@ -27,17 +27,27 @@ struct Translator
    *  \brief  Translate string value to target type
    *  \note   Not used direct get<T2> from boost tree, because it's necessary for forward instance of boost translator_between
    *  \tparam Target type
-   *  \param  str   String representation of value
-   *  \param  value Pointer to target value
+   *  \param[in]  str   String representation of value
+   *  \param[out] value Pointer to target value
    */
   template<typename T>
   static void fromString(std::string const &str, T* const value) throw(std::runtime_error);
 
+  /*! 
+   *  \brief     Translate target type to string value
+   *  \tparam    Target type
+   *  \param[in] value Pointer to target value
+   *  \return    String representation of value
+   */
   template<typename T>
   static std::string toString(const T* const value);
 
 };
 
+/*! 
+ *  \brief     Declaration of stub for string translator
+ *  \param[in] type Type of translated value
+ */
 #define TREE_BINDING_TRANSLATOR_TO_STRING_STUB(type)   \
   template<>                                           \
   std::string Translator::toString(const type * const) \
@@ -46,6 +56,11 @@ struct Translator
       (TREE_BINDING_CONCAT("Conversion to string not implementeted for", #type)); \
   }
 
+/*! 
+ *  \brief     Declaration of string <-> target type translators
+ *  \param[in] type Type of translated value
+ *  \param[in] table boost bimap, which map string value <-> target type
+ */
 #define TREE_BINDING_TABLE_TRANSLATORS_DECLARATION(type, table)         \
 template<>                                                              \
 void Translator::fromString(std::string const &str,                     \
@@ -60,11 +75,14 @@ std::string Translator::toString(const type* const value)               \
 }
 
 /*!
- *  \brief   Type for store integer fields of Object
+ *  \brief Type for store integer fields of Tree
  */
 typedef long Integer;
 
-// Declared in private, because is necessary for forward declaration
+/*!
+ * \copydoc NodesNum
+ * \note    Declared in private, because is necessary for forward declaration
+ */
 struct NodesNum;
 
 /*! 
@@ -78,13 +96,17 @@ struct NodesNum;
  */
 #define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
 
+/*!
+ * \brief Exception for signal wrong number of childs elements in tree
+ */
 typedef struct WrongChildsNumException : public std::runtime_error
 {
   WrongChildsNumException(std::string const &objectName, NodesNum const requiredNum, int const actuallyNum);
 } WrongChildsNumException;
 
-
-
+/*!
+ * \brief Basic tree
+ */
 typedef class BasicTree
 {
 
@@ -130,7 +152,11 @@ public:
 //  template<typename, typename> friend class Tree;
 } BasicTree;
 
-
+/*!
+ * \brief serialize BasicTree by boost serialize
+ * \param[out] ar serialize archive
+ * \param[in]  version structre version
+ */
 template<class Archive>
 void BasicTree::serialize(Archive & ar, const unsigned int version)
 {
@@ -140,6 +166,9 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
   }
 }
 
+/*!
+ * \brief Iterator for iterater over fields in tree
+ */
 struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
 {
   NodeIterator() = default;
@@ -156,6 +185,11 @@ struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, D
   Details::BasicNodeData* ptr;
 };
 
+/*!
+ * \brief  Tree
+ * \tparam NameContainer Container with name of tree
+ * \tparam T Structure, which represent tree (derived of current struct)
+ */
 template<typename NameContainer, typename T>
 struct Tree : public BasicTree
 {

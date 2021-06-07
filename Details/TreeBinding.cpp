@@ -9,26 +9,36 @@
 namespace TreeBinding
 {
 
+/*!
+ * \brief     Check that string contain only digits
+ * \param[in] s string for check
+ * \retval    true string contain only digits
+ * \retval    false otherwise
+ */
 bool Translator::isNumber(const std::string& s)
 {
-  std::string::const_iterator it = s.begin();
+  auto it = s.cbegin();
   while (it != s.end() && std::isdigit(*it)) ++it;
   return !s.empty() && it == s.end();
 }
 
+/*! 
+ *  \brief      Translate string value to integer
+ *  \param[in]  str   String representation of value
+ *  \param[out] value Pointer to integer value
+ */
 template<>
 void Translator::fromString(std::string const &str, Integer* const value)
 {
-  if (isNumber(str))
-  {
-    *value = atoll(str.c_str());
-  }
-  else
-  {
-    throw(std::out_of_range(""));
-  }
+  if (isNumber(str)) *value = atoll(str.c_str());
+  else throw(std::out_of_range("Integer contain incorrect value: " + str + "\n"));
 }
 
+/*! 
+ *  \brief      Translate string value to string value
+ *  \param[in]  str   Source string
+ *  \param[out] value Target string
+ */
 template<>
 void Translator::fromString(std::string const &str, std::string* const value)
 {
@@ -52,9 +62,9 @@ std::string Translator::toString(const std::string* const value)
 namespace Details
 {
 
-BasicNodeData::BasicNodeData(const char* const _name, NodesNum::ValueType const _requiredNum, bool const isLeaf) :
-  name(_name),
-  requiredNum(_requiredNum),
+BasicNodeData::BasicNodeData(const char* const name, NodesNum::ValueType const requiredNum, bool const isLeaf) :
+  name(name),
+  requiredNum(requiredNum),
   validity(false),
   isLeaf(isLeaf)
 {}

@@ -18,6 +18,9 @@
 namespace TreeBinding
 {
 
+/*!
+ *  \brief Type for represent number of fields in Tree object
+ */
 typedef struct NodesNum
 {
   typedef int32_t ValueType;
