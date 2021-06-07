@@ -43,6 +43,9 @@ private:
 namespace Details
 {
 
+/*!
+ * \brief Default path delimeter in ptree
+ */
 static const char DEFAULT_DELIMETER = '/';
 
 // Base class used for iteration in Tree
@@ -51,7 +54,7 @@ typedef class BasicNodeData : public Archivable
 public:
 
   BasicNodeData() = delete;
-  BasicNodeData(const char* const _name, NodesNum::ValueType const num, bool const isLeaf);
+  BasicNodeData(const char* const name, NodesNum::ValueType const num, bool const isLeaf);
   BasicNodeData(BasicNodeData const &rhs) = delete;
   virtual ~BasicNodeData() = default;
   void operator= (BasicNodeData const &rhs);

@@ -45,6 +45,11 @@ void Translator::fromString(std::string const &str, std::string* const value)
   *value = str;
 }
 
+/*!
+ *  \brief     Translate integer to string value
+ *  \param[in] value Pointer to integer value
+ *  \return    String representation of value
+ */
 template<>
 std::string Translator::toString(const Integer* const value)
 {
@@ -53,6 +58,11 @@ std::string Translator::toString(const Integer* const value)
   return std::string(buf);
 }
 
+/*!
+ *  \brief     Translate string to string value
+ *  \param[in] value Pointer to source value
+ *  \return    Copy of source string
+ */
 template<>
 std::string Translator::toString(const std::string* const value)
 {
@@ -62,6 +72,12 @@ std::string Translator::toString(const std::string* const value)
 namespace Details
 {
 
+/*!
+ * \brief     BasicNodeData constructor
+ * \param[in] name        Name of node
+ * \param[in] requiredNum Required numbers of node
+ * \param[in] isLeaf      Node is leaf (not subtree container)
+ */
 BasicNodeData::BasicNodeData(const char* const name, NodesNum::ValueType const requiredNum, bool const isLeaf) :
   name(name),
   requiredNum(requiredNum),
@@ -69,6 +85,14 @@ BasicNodeData::BasicNodeData(const char* const name, NodesNum::ValueType const r
   isLeaf(isLeaf)
 {}
 
+/*!
+ * \brief     BasicNodeData compare operator
+ * \note      Compare nodes only if both are valid.
+ *            Comparison function are declared in derived class.
+ * \param[in] rhs Right hand side value
+ * \retval    true Both are valid and are equals
+ * \retval    false One/both are invalid or are not equals
+ */
 bool BasicNodeData::operator== (BasicNodeData const &rhs) const
 {
   if (this->validity && rhs.validity)
@@ -78,6 +102,11 @@ bool BasicNodeData::operator== (BasicNodeData const &rhs) const
   else return true;
 }
 
+/*!
+ * \brief     BasicNodeData assignment operator
+ * \note      Assignment function are declared in derived class.
+ * \param[in] rhs Right hand side value
+ */
 void BasicNodeData::operator= (BasicNodeData const &rhs)
 {
   this->copy(rhs);
@@ -85,11 +114,20 @@ void BasicNodeData::operator= (BasicNodeData const &rhs)
 
 } /* namespace Details */
 
+/*!
+ * \brief  Show that number of nodes is certain or not
+ * \retval true Number of nodes is certain
+ * \retval false Number of nodes is float
+ */
 bool NodesNum::isCertain() const
 {
   return value >= 0;
 }
 
+/*!
+ * \brief  Get number of nodes in string representation
+ * \return Number of nodes in string representation
+ */
 std::string NodesNum::toString() const
 {
   switch (value)
@@ -103,23 +141,38 @@ std::string NodesNum::toString() const
   }
 }
 
-WrongChildsNumException::WrongChildsNumException(std::string const &objectName, 
-                                                 NodesNum const requiredNum, 
-                                                 NodesNum::ValueType const actuallyNum) :
-  std::runtime_error("Invalid number of childs in node " + objectName + ". Required: " + requiredNum.toString() + 
+/*!
+ * \brief     WrongChildsNumException constructor
+ * \param[in] nodeName Node name
+ * \param[in] requiredNum Required number of childs nodes
+ * \param[in] actuallyNum Actual number of childs nodes
+ */
+WrongChildsNumException::WrongChildsNumException
+  (std::string         const &nodeName , 
+   NodesNum            const  requiredNum, 
+   NodesNum::ValueType const  actuallyNum) :
+   std::runtime_error("Invalid number of childs in node " + nodeName + ". Required: " + requiredNum.toString() +
                      ", present: " + std::to_string(actuallyNum))
 {}
 
-BasicTree::BasicTree(const char* const _name) :
-  name(_name)
-{
-}
+BasicTree::BasicTree(const char* const name) :
+  name(name)
+{}
 
+/*!
+ * \brief     Get node by index
+ * \param[in] index Index of node
+ * \return    Reference to node
+ */
 Details::BasicNodeData& BasicTree::operator[](size_t const index) const
 {
   return *(this->begin() + index);
 }
 
+/*!
+ * \brief Copy only leafs nodes
+ * \param[in] rhs Right hand side value
+ */
 void BasicTree::copyLeafs(BasicTree const &rhs)
 {
   /*
@@ -134,6 +187,12 @@ void BasicTree::copyLeafs(BasicTree const &rhs)
   }
 }
 
+/*!
+ * \brief  Check that tree is valid
+ * \note   Tree is valid if all nodes are valid
+ * \retval true All nodes are valid
+ * \retval false Otherwise
+ */
 bool BasicTree::isValid() const
 {
   return std::all_of(this->begin(), this->end(), [](const Details::BasicNodeData &node) 
@@ -142,6 +201,11 @@ bool BasicTree::isValid() const
   });
 }
 
+/*!
+ * \brief  Check that tree contain valid nodes
+ * \retval true Tree contain valid nodes
+ * \retval false Otherwise
+ */
 bool BasicTree::containValidNodes() const
 {
   return std::any_of(this->begin(), this->end(), [](const Details::BasicNodeData &node)
@@ -150,6 +214,7 @@ bool BasicTree::containValidNodes() const
   });
 }
 
+// deprecated
 Details::BasicNodeData& BasicTree::getSameNode(const Details::BasicNodeData &rhs) const
 {
   for (auto &node : *this)
@@ -158,6 +223,7 @@ Details::BasicNodeData& BasicTree::getSameNode(const Details::BasicNodeData &rhs
   }
   throw(std::runtime_error("Cannot find same field"));
 }
+
 
 BasicTree::NodeIterator& BasicTree::NodeIterator::operator+(int const index)
 {
@@ -175,6 +241,7 @@ bool BasicTree::NodeIterator::operator== (const BasicTree::NodeIterator& rhs) co
   return this->ptr == rhs.ptr;
 }
 
+//deprecated
 bool BasicTree::NodeIterator::operator!= (const BasicTree::NodeIterator& rhs) const
 {
   return !(*this == rhs);

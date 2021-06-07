@@ -101,7 +101,7 @@ struct NodesNum;
  */
 typedef struct WrongChildsNumException : public std::runtime_error
 {
-  WrongChildsNumException(std::string const &objectName, NodesNum const requiredNum, int const actuallyNum);
+  WrongChildsNumException(std::string const &nodeName, NodesNum const requiredNum, int const actuallyNum);
 } WrongChildsNumException;
 
 /*!
