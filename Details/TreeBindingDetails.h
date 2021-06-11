@@ -241,7 +241,7 @@ static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect
   }
 
 /*! 
- *  \copydoc BOOST_TREE_WRAPPER_FIELD_2()
+ *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
 #define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num) \
@@ -267,14 +267,38 @@ static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect
 /*!
  * \brief Choose necessary overloaded macro (with 2 or 3 parameters) 
  */
-#define TREE_BINDING_DETAILS_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
+#define TREE_BINDING_DETAILS_NODE_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
 
-#define TREE_BINDING_DETAILS_NODE_COMMON(...)                   \
-  TREE_BINDING_DETAILS_EXPAND(                                  \
-    TREE_BINDING_DETAILS_GET_MACRO(__VA_ARGS__,                 \
-                                   TREE_BINDING_DETAILS_NODE_3, \
-                                   TREE_BINDING_DETAILS_NODE_2  \
-                                  )(__VA_ARGS__)                \
+#define TREE_BINDING_DETAILS_NODE_COMMON(...)                       \
+  TREE_BINDING_DETAILS_EXPAND(                                      \
+    TREE_BINDING_DETAILS_NODE_GET_MACRO(__VA_ARGS__,                \
+                                       TREE_BINDING_DETAILS_NODE_3, \
+                                       TREE_BINDING_DETAILS_NODE_2  \
+                                      )(__VA_ARGS__)                \
+                             )
+
+
+
+/*! 
+ *  \copydoc TREE_BINDING_DETAILS_TREE_1()
+ *  \param[in] name Name of tree
+ */
+#define TREE_BINDING_DETAILS_TREE_2(type, name) \
+  TREE_BINDING_DETAILS_STRING_CONTAINER(name);  \
+  struct type : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
+
+
+#define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, "")
+
+#define TREE_BINDING_DETAILS_TREE_GET_MACRO(_1, _2, TARGET_MACRO, ...) TARGET_MACRO
+
+
+#define TREE_BINDING_DETAILS_TREE_COMMON(...)                       \
+  TREE_BINDING_DETAILS_EXPAND(                                      \
+    TREE_BINDING_DETAILS_TREE_GET_MACRO(__VA_ARGS__,                \
+                                       TREE_BINDING_DETAILS_TREE_2, \
+                                       TREE_BINDING_DETAILS_TREE_1  \
+                                      )(__VA_ARGS__)                \
                              )
 
 } /* namespace Details */

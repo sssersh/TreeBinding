@@ -362,8 +362,8 @@ struct CheckSize
  *  \details Calculate number of values: size of Derived - size of current Tree / size of field specialization
  *  \tparam  Derived Derived class
  */
-template<typename NameContainer, typename Derived>
-Tree<NameContainer, Derived>::Tree() :
+template<typename Derived, typename NameContainer>
+Tree<Derived, NameContainer>::Tree() :
   BasicTree(NameContainer::getName())
 {
   Details::CheckSize<sizeof(Derived) - sizeof(Tree<NameContainer, Derived>), Details::NodeDataSize> check;

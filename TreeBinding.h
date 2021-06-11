@@ -187,10 +187,10 @@ struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, D
 
 /*!
  * \brief  Tree
- * \tparam NameContainer Container with name of tree
  * \tparam T Structure, which represent tree (derived of current struct)
+ * \tparam NameContainer Container with name of tree
  */
-template<typename NameContainer, typename T>
+template<typename T, typename NameContainer>
 struct Tree : public BasicTree
 {
   Tree();
@@ -202,12 +202,10 @@ struct Tree : public BasicTree
 
 /*!
  * \brief  Define structure of tree
- * \tparam name Name of tree (in file)
  * \tparam type Name of this type (in code)
+ * \tparam name Name of tree (in file)
  */
-#define TREE_TREE(name, type)                  \
-  TREE_BINDING_DETAILS_STRING_CONTAINER(name); \
-  struct type : public TreeBinding::Tree < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, type >
+#define TREE_TREE(...) TREE_BINDING_DETAILS_TREE_COMMON(__VA_ARGS__) 
 
 } /* namespace TreeBinding */
 

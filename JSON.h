@@ -43,7 +43,7 @@ typedef TreeBinding::NodesNum ItemNum;
  * \warning Each macro call should be placed in different lines
  * \param   dataType Elements's data type
  */
-#define JSON_ELEMENT(dataType) TREE_TREE("", dataType)
+#define JSON_ELEMENT(dataType) TREE_TREE(dataType)
 
 } /* namespace JSON */
 
