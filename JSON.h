@@ -21,13 +21,16 @@ typedef TreeBinding::Integer Integer;
  */
 typedef TreeBinding::NodesNum ItemNum;
 
+
+
 /*!
  * \brief   JSON child declaration
  * \warning Each macro call should be placed in different lines
- * \param   ... 1. Child name. 
- * \param   ... 2. Child's data type
+ * \param[in] ... 1. Child name. 
+ * \param[in] ... 2. Child's data type
+ * \param[in] ... 3. Field are optional/mandatory (mandatory by default).
  */
-#define JSON_CHILD(name, type) TREE_NODE(name, type, 1)
+#define JSON_CHILD(...) TREE_NODE(__VA_ARGS__)
 
 /*!
  * \brief   JSON array declaration
