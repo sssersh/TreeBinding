@@ -281,12 +281,19 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
   else // for JSON name of array stored in Subtree
   {
-    auto &subtree = tree.get_child(this->name);
-    for (auto &j : subtree)
+    try
     {
-      subtreesSet->emplace_back();
-      auto& subtreeElement = subtreesSet->back();
-      subtreeElement.parsePtree(j.second, false);
+      auto &subtree = tree.get_child(this->name);
+      for (auto &j : subtree)
+      {
+        subtreesSet->emplace_back();
+        auto& subtreeElement = subtreesSet->back();
+        subtreeElement.parsePtree(j.second, false);
+      }
+    }
+    catch (std::exception &e)
+    {
+      if (requiredNum.isCertain()) throw;
     }
   }
 
