@@ -31,7 +31,7 @@ struct Translator
    *  \param[out] value Pointer to target value
    */
   template<typename T>
-  static void fromString(std::string const &str, T* const value) throw(std::runtime_error);
+  static void fromString(std::string const &str, T* const value);
 
   /*! 
    *  \brief     Translate target type to string value
@@ -61,23 +61,23 @@ struct Translator
  *  \param[in] type Type of translated value
  *  \param[in] table boost bimap, which map string value <-> target type
  */
-#define TREE_BINDING_TABLE_TRANSLATORS_DECLARATION(type, table)         \
-template<>                                                              \
-void Translator::fromString(std::string const &str,                     \
-                            type* const value) throw(std::out_of_range) \
-{                                                                       \
-  *value = table.left.find(str)->second;                                \
-}                                                                       \
-template<>                                                              \
-std::string Translator::toString(const type* const value)               \
-{                                                                       \
-  return table.right.find(*value)->second;                              \
+#define TREE_BINDING_TABLE_TRANSLATORS_DECLARATION(type, table) \
+template<>                                                      \
+void Translator::fromString(std::string const &str,             \
+                            type* const value)                  \
+{                                                               \
+  *value = table.left.find(str)->second;                        \
+}                                                               \
+template<>                                                      \
+std::string Translator::toString(const type* const value)       \
+{                                                               \
+  return table.right.find(*value)->second;                      \
 }
 
 /*!
  *  \brief Type for store integer fields of Tree
  */
-typedef long Integer;
+typedef int32_t Integer;
 
 /*!
  * \copydoc NodesNum
@@ -135,7 +135,7 @@ public:
 
   void parsePtree(boost::property_tree::ptree &tree, bool isRoot = true);
   void parseTable(std::vector<std::vector<std::wstring>> &table,
-    std::function<size_t(std::string &const)> const &nameToIndex,
+    std::function<size_t(const std::string&)> const &nameToIndex,
     std::pair<size_t, size_t> const &rows);
 
   // true for XML, false for JSON
@@ -196,6 +196,7 @@ struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, D
 template<typename T, typename NameContainer>
 struct Tree : public BasicTree
 {
+  template<typename T1 = Details::CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
   Tree();
   typedef NameContainer NameContainer_;
 

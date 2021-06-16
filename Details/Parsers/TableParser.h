@@ -33,21 +33,21 @@ typedef struct TableParser
   static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
           Table<std::wstring> const &table,
-          std::function<size_t(std::string &const)> const &columnNameToIndex,
+          std::function<size_t(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
   template<typename DataType>
   static typename std::enable_if_t<is_subtrees_set<DataType>::value>
     parse(NodeData<DataType> &node,
           Table<std::wstring> &table,
-          std::function<size_t(std::string &const)> const &columnNameToIndex,
+          std::function<size_t(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
   template<typename DataType>
   static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
           Table<std::wstring> &table,
-          std::function<size_t(std::string &const)> const &columnNameToIndex,
+          std::function<size_t(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
 } TableParser;
@@ -57,7 +57,7 @@ template<typename DataType>
 typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> const &table,
-                   std::function<size_t(std::string &const)> const &columnNameToIndex,
+                   std::function<size_t(const std::string&)> const &columnNameToIndex,
                    RowsRange const &rows)
 {
   auto columnIndex = columnNameToIndex(std::string(node.name));
@@ -77,7 +77,7 @@ TableParser::parse(NodeData<DataType> &node,
     {
       Translator::fromString(str, node.value);
     }
-    catch (std::exception const &e) // can't convert from string to taget type
+    catch (std::exception const &) // can't convert from string to taget type
     {
       throw(std::out_of_range("Tree node " + std::string(node.name) + " contain wrong value: \"" + str +
         "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
@@ -91,7 +91,7 @@ template<typename DataType>
 typename std::enable_if_t<is_subtrees_set<DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> &table,
-                   std::function<size_t(std::string &const)> const &columnNameToIndex,
+                   std::function<size_t(const std::string&)> const &columnNameToIndex,
                    RowsRange const &rows)
 {
   auto subtreesSet = (DataType*)(node.getValue()); // DataType = SubtreesSet<>
@@ -154,7 +154,7 @@ template<typename DataType>
 typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> &table,
-                   std::function<size_t(std::string &const)> const &columnNameToIndex,
+                   std::function<size_t(const std::string&)> const &columnNameToIndex,
                    RowsRange const &rows)
 {
   std::cout << "Here";

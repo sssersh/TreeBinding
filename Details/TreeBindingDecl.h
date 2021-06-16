@@ -41,7 +41,7 @@ class BasicNodeData;
 template<typename>
 class NodeData;
 
-class TableParser;
+struct TableParser;
 class PtreeWriter;
 
 template<typename>

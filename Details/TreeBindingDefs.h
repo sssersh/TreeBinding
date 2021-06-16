@@ -138,7 +138,7 @@ void NodeData<DataType>::reset()
 }
 
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 typename std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
 NodeData<DataType>::resetImpl()
 {
@@ -146,7 +146,7 @@ NodeData<DataType>::resetImpl()
 }
 
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
 NodeData<DataType>::resetImpl()
 {
@@ -181,7 +181,7 @@ bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
 }
 
 template<typename DataType>
-template<typename KeyType, typename T = DataType::const_iterator>
+template<typename KeyType, typename T>
 T NodeData<DataType>::operator[](const KeyType &key) const
 {
   static_assert(std::is_assignable< KeyType&, KeyType >::value, "Key type for operator [] should be assignable");
@@ -211,7 +211,7 @@ void NodeData<T>::writePtree(boost::property_tree::ptree &tree) const
 
 // parse leaf
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
@@ -221,7 +221,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     // Not used direct get<T>, because it's necessary for forward instance of boost translator_between
     str = tree.get<std::string>(path(this->name, pathDelimeter));
   }
-  catch (boost::exception const &e) // not found such node in ptree
+  catch (boost::exception const &) // not found such node in ptree
   {
     if (requiredNum.isCertain() || (NodesNum::MORE_THAN_0 == requiredNum))
     {
@@ -239,7 +239,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     {
       Translator::fromString(str, value);
     }
-    catch (std::exception const &e) // can't convert from string to taget type
+    catch (std::exception const &) // can't convert from string to taget type
     {
       throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str +
         "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
@@ -251,7 +251,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 // parse subtree array
 // pathDelimeter not used
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 typename std::enable_if_t<is_subtrees_set<T>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
@@ -291,7 +291,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
         subtreeElement.parsePtree(j.second, false);
       }
     }
-    catch (std::exception &e)
+    catch (const std::exception &)
     {
       if (requiredNum.isCertain()) throw;
     }
@@ -309,7 +309,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 
 // parse single subtree
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
@@ -349,7 +349,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 
 template<typename T>
 void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
-                             std::function<size_t(std::string &const)> const &nameToIndex,
+                             std::function<size_t(const std::string&)> const &nameToIndex,
                              std::pair<size_t, size_t> const &rows)
 {
   TableParser::parse(*this, table, nameToIndex, rows);
@@ -370,11 +370,10 @@ struct CheckSize
  *  \tparam  Derived Derived class
  */
 template<typename Derived, typename NameContainer>
+template<typename T>
 Tree<Derived, NameContainer>::Tree() :
   BasicTree(NameContainer::getName())
 {
-  Details::CheckSize<sizeof(Derived) - sizeof(Tree<NameContainer, Derived>), Details::NodeDataSize> check;
-
   nodesNum = (sizeof(Derived) - sizeof(Tree<NameContainer, Derived>)) / Details::NodeDataSize;
 }
 

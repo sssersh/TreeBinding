@@ -18,7 +18,7 @@ namespace TreeBinding
 bool Translator::isNumber(const std::string& s)
 {
   auto it = s.cbegin();
-  while (it != s.end() && std::isdigit(*it)) ++it;
+  while (it != s.end() && std::isdigit(static_cast<unsigned char>(*it))) ++it;
   return !s.empty() && it == s.end();
 }
 
@@ -348,7 +348,7 @@ void BasicTree::parsePtree(boost::property_tree::ptree &tree, const bool isRoot)
 }
 
 void BasicTree::parseTable(std::vector<std::vector<std::wstring>> &table,
-  std::function<size_t(std::string &const)> const &nameToIndex,
+  std::function<size_t(const std::string&)> const &nameToIndex,
   std::pair<size_t, size_t> const &rows)
 {
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)

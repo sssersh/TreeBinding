@@ -69,10 +69,10 @@ typedef TreeBinding::NodesNum ItemNum;
 /*!
  * \brief   XML element declaration
  * \warning Each macro call should be placed in different lines
- * \param   ... 1. Data type name
- *              2. Element name (in file)
+ * \param   ... 1. Element name (in file)
+ *              2. Data type name
  */
-#define XML_ELEMENT(dataType, name) TREE_TREE(dataType, name)
+#define XML_ELEMENT(name, dataType) TREE_TREE(name, dataType)
 
 } /* namespace XML */
 
