@@ -30,7 +30,7 @@ bool Translator::isNumber(const std::string& s)
 template<>
 void Translator::fromString(std::string const &str, Integer* const value)
 {
-  if (isNumber(str)) *value = atoll(str.c_str());
+  if (isNumber(str)) *value = atol(str.c_str());
   else throw(std::out_of_range("Integer contain incorrect value: " + str + "\n"));
 }
 
@@ -167,6 +167,13 @@ BasicTree::BasicTree(const char* const name) :
 Details::BasicNodeData& BasicTree::operator[](size_t const index) const
 {
   return *(this->begin() + index);
+}
+
+size_t BasicTree::getNodeIndex(const Details::BasicNodeData &node)
+{
+  int index = ((uint8_t*)(&node) - (uint8_t*)(this)) / Details::NodeDataSize;
+  if (index < 0 || index >(nodesNum - 1)) throw(std::runtime_error("Passed node not from current tree\n"));
+  return index;
 }
 
 /*!

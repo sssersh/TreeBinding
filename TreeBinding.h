@@ -148,6 +148,7 @@ public:
   void reset();
   const char* getKeyNodeName() const;
   void copyLeafs(BasicTree const &rhs);
+  size_t getNodeIndex(const Details::BasicNodeData &node);
 
   bool isValid() const;
   bool containValidNodes() const;
