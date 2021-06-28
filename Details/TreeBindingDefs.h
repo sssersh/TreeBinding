@@ -370,10 +370,10 @@ struct CheckSize
  *  \tparam  Derived Derived class
  */
 template<typename Derived, typename NameContainer>
-template<typename T>
 Tree<Derived, NameContainer>::Tree() :
   BasicTree(NameContainer::getName())
 {
+  checkSize();
   nodesNum = (sizeof(Derived) - sizeof(Tree<NameContainer, Derived>)) / Details::NodeDataSize;
 }
 

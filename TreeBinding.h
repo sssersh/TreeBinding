@@ -197,11 +197,13 @@ struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, D
 template<typename T, typename NameContainer>
 struct Tree : public BasicTree
 {
-  template<typename T1 = Details::CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
   Tree();
   typedef NameContainer NameContainer_;
 
-//private:
+private:
+  template<typename T1 = Details::CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
+  static void checkSize() {}
+
 //  friend class boost::serialization::access;
 };
 
