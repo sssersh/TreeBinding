@@ -65,7 +65,7 @@ public:
   virtual void  copy     (BasicNodeData const &rhs)          = 0;
   virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER) = 0;
   virtual void parseTable(Table<std::wstring> &table,
-                          std::function<size_t(const std::string&)> const &nameToIndex,
+                          std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                           RowsRange const &rows) = 0;
 
   virtual void writePtree(boost::property_tree::ptree &tree) const = 0;
@@ -119,7 +119,7 @@ public:
   virtual void  parsePtree(boost::property_tree::ptree &tree, 
                            const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
   virtual void parseTable(Table<std::wstring> &table,
-                          std::function<size_t(const std::string&)> const &nameToIndex,
+                          std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                           RowsRange const &rows) override final;
 
   virtual void writePtree(boost::property_tree::ptree &tree) const override final;

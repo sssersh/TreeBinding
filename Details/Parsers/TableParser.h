@@ -33,21 +33,21 @@ typedef struct TableParser
   static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
           Table<std::wstring> const &table,
-          std::function<size_t(const std::string&)> const &columnNameToIndex,
+          std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
   template<typename DataType>
   static typename std::enable_if_t<is_subtrees_set<DataType>::value>
     parse(NodeData<DataType> &node,
           Table<std::wstring> &table,
-          std::function<size_t(const std::string&)> const &columnNameToIndex,
+          std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
   template<typename DataType>
   static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
     parse(NodeData<DataType> &node,
           Table<std::wstring> &table,
-          std::function<size_t(const std::string&)> const &columnNameToIndex,
+          std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
 } TableParser;
@@ -57,16 +57,22 @@ template<typename DataType>
 typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> const &table,
-                   std::function<size_t(const std::string&)> const &columnNameToIndex,
+                   std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
                    RowsRange const &rows)
 {
   auto columnIndex = columnNameToIndex(std::string(node.name));
+  if (!columnIndex && !node.requiredNum.isCertain())
+  {
+    node.validity = false;
+    return;
+  }
+
   auto rowIndex = rows.first; // all rows for this column must have same value, use first
 
   using convert_type = std::codecvt_utf8<wchar_t>;
   std::wstring_convert<convert_type, wchar_t> converter;
 
-  const std::string str = converter.to_bytes(table[rowIndex][columnIndex]);
+  const std::string str = converter.to_bytes(table[rowIndex][*columnIndex]);
   if (str.empty() && !node.requiredNum.isCertain())
   {
     node.validity = false;
@@ -91,7 +97,7 @@ template<typename DataType>
 typename std::enable_if_t<is_subtrees_set<DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> &table,
-                   std::function<size_t(const std::string&)> const &columnNameToIndex,
+                   std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
                    RowsRange const &rows)
 {
   auto subtreesSet = (DataType*)(node.getValue()); // DataType = SubtreesSet<>
@@ -101,6 +107,12 @@ TableParser::parse(NodeData<DataType> &node,
   auto keyFieldName   = std::string(SubtreeElementType().getKeyNodeName());
   auto keyColumnIndex = columnNameToIndex(keyFieldName);
 
+  if (!keyColumnIndex && !node.requiredNum.isCertain())
+  {
+    node.validity = false;
+    return;
+  }
+
   using convert_type = std::codecvt_utf8<wchar_t>;
   std::wstring_convert<convert_type, wchar_t> converter;
 
@@ -108,7 +120,7 @@ TableParser::parse(NodeData<DataType> &node,
   auto _end   = table.begin() + rows.second + 1;
   std::sort(_begin, _end, [&](Row<std::wstring> const &row1, Row<std::wstring> const &row2)
   {
-    return row1[keyColumnIndex] < row2[keyColumnIndex];
+    return row1[*keyColumnIndex] < row2[*keyColumnIndex];
   });
 
   std::map<std::string, RowsRange> uniqKeys;
@@ -117,10 +129,10 @@ TableParser::parse(NodeData<DataType> &node,
   auto rangeEnd = rangeBegin + 1;
   while (true)
   {
-    if (rangeEnd == _end || rangeBegin->at(keyColumnIndex) != rangeEnd->at(keyColumnIndex))
+    if (rangeEnd == _end || rangeBegin->at(*keyColumnIndex) != rangeEnd->at(*keyColumnIndex))
     {
       uniqKeys.insert(std::pair<std::string, RowsRange>(
-        converter.to_bytes(rangeBegin->at(keyColumnIndex)),
+        converter.to_bytes(rangeBegin->at(*keyColumnIndex)),
         RowsRange(rows.first + std::distance(_begin, rangeBegin),
                   rows.first + std::distance(_begin, rangeEnd) - 1
         )
@@ -154,7 +166,7 @@ template<typename DataType>
 typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> &table,
-                   std::function<size_t(const std::string&)> const &columnNameToIndex,
+                   std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
                    RowsRange const &rows)
 {
   std::cout << "Here";

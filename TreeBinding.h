@@ -135,7 +135,7 @@ public:
 
   void parsePtree(boost::property_tree::ptree &tree, bool isRoot = true);
   void parseTable(std::vector<std::vector<std::wstring>> &table,
-    std::function<size_t(const std::string&)> const &nameToIndex,
+    std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
     std::pair<size_t, size_t> const &rows);
 
   // true for XML, false for JSON
@@ -148,7 +148,6 @@ public:
   void reset();
   const char* getKeyNodeName() const;
   void copyLeafs(BasicTree const &rhs);
-  size_t getNodeIndex(const Details::BasicNodeData &node);
 
   bool isValid() const;
   bool containValidNodes() const;

@@ -349,7 +349,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 
 template<typename T>
 void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
-                             std::function<size_t(const std::string&)> const &nameToIndex,
+                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                              std::pair<size_t, size_t> const &rows)
 {
   TableParser::parse(*this, table, nameToIndex, rows);
@@ -370,6 +370,7 @@ struct CheckSize
  *  \tparam  Derived Derived class
  */
 template<typename Derived, typename NameContainer>
+template<typename T>
 Tree<Derived, NameContainer>::Tree() :
   BasicTree(NameContainer::getName())
 {

@@ -54,7 +54,7 @@ template<>
 std::string Translator::toString(const Integer* const value)
 {
   char buf[20];
-  std::sprintf(buf, "%lld", *value);
+  std::sprintf(buf, "%ld", *const_cast<Integer*>(value));
   return std::string(buf);
 }
 
@@ -167,13 +167,6 @@ BasicTree::BasicTree(const char* const name) :
 Details::BasicNodeData& BasicTree::operator[](size_t const index) const
 {
   return *(this->begin() + index);
-}
-
-size_t BasicTree::getNodeIndex(const Details::BasicNodeData &node)
-{
-  int index = ((uint8_t*)(&node) - (uint8_t*)(this)) / Details::NodeDataSize;
-  if (index < 0 || index >(nodesNum - 1)) throw(std::runtime_error("Passed node not from current tree\n"));
-  return index;
 }
 
 /*!
@@ -355,7 +348,7 @@ void BasicTree::parsePtree(boost::property_tree::ptree &tree, const bool isRoot)
 }
 
 void BasicTree::parseTable(std::vector<std::vector<std::wstring>> &table,
-  std::function<size_t(const std::string&)> const &nameToIndex,
+  std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
   std::pair<size_t, size_t> const &rows)
 {
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
