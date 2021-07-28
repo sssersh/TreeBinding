@@ -2,3 +2,4 @@ https://github.com/sssersh/TreeBinding.git
 https://habr.com/ru/post/344206/ - also see comments
 https://isocpp.org/wiki/faq/serialization
 https://github.com/deftio/travis-ci-cpp-example - get titles from it
+https://github.com/KanoComputing/googletest-sample
