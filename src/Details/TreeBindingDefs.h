@@ -7,6 +7,7 @@
 #define _TREE_BINDING_DEFINITIONS_H_
 
 #include <string>
+#include <type_traits>
 
 namespace TreeBinding
 {
@@ -20,7 +21,7 @@ namespace Details
  */
 template<typename DataType>
 NodeData<DataType>::NodeData(const char* const _name, NodesNum::ValueType const _requiredNum) :
-  BasicNodeData(_name, _requiredNum)
+  BasicNodeData(_name, _requiredNum, !is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value)
 {
   value = new DataType(); // TODO: move to initialization list
 };
@@ -44,7 +45,7 @@ NodeData<DataType>::NodeData(NodeData const &rhs) :
  *  \param[in] rhs Right hand side
  */
 template<typename DataType>
-NodeData<DataType>& const NodeData<DataType>::operator= (NodeData const &rhs)
+const NodeData<DataType>& NodeData<DataType>::operator= (NodeData const &rhs)
 {
   this->copy(rhs);
   return *this;
@@ -63,32 +64,48 @@ NodeData<DataType>::~NodeData()
 /*! 
  *  \brief     NodeData assignment operator
  *  \tparam    DataType NodeData data type
- *  \param[in] _value Right side value
+ *  \param[in] value Right side value
  *  \return    Assigned value
  */
 template<typename DataType>
-DataType& NodeData<DataType>::operator= (DataType const _value)
+const DataType& NodeData<DataType>::operator= (DataType const &value)
 {
-  *value = _value;
+  *this->value = value;
   validity = true;
-  return *value;
+  return *this->value;
 } 
+
+template<typename DataType>
+const DataType& NodeData<DataType>::operator= (DataType const &&value)
+{
+  *this->value = value;
+  validity = true;
+  return *this->value;
+}
 
 /*! 
  *  \brief  NodeData cast to underlying type operator
  *  \tparam DataType NodeData data type
  *  \return Value of field
  */
+/*
 template<typename DataType>
 NodeData<DataType>::operator DataType() const
 {
   return *value;
 }
+*/
 
 template<typename DataType>
-NodeData<DataType>::operator DataType&() const
+NodeData<DataType>::operator const DataType&() const
 {
   return *value;
+}
+
+template<typename DataType>
+bool NodeData<DataType>::operator==(DataType const &rhs)
+{
+  return *(this->value) == rhs;
 }
 
 /*! 
@@ -121,15 +138,15 @@ void NodeData<DataType>::reset()
 }
 
 template<typename DataType>
-template<typename T = DataType>
-std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+template<typename T>
+typename std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
 NodeData<DataType>::resetImpl()
 {
   validity = false;
 }
 
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
 NodeData<DataType>::resetImpl()
 {
@@ -145,7 +162,7 @@ NodeData<DataType>::resetImpl()
 template<typename DataType>
 void NodeData<DataType>::copy(BasicNodeData const &rhs)
 {
-  *this->value = *static_cast<DataType*>(rhs.getValue());
+  *(this->value) = *static_cast<DataType*>(rhs.getValue());
   validity = rhs.validity;
 }
 
@@ -163,33 +180,21 @@ bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
   return *this->value == *static_cast<DataType*>(rhs.getValue());
 }
 
-
 template<typename DataType>
-template<typename T = DataType::iterator>
-T NodeData<DataType>::begin() const
+template<typename KeyType, typename T>
+T NodeData<DataType>::operator[](const KeyType &key) const
 {
-  auto subtreesSet = (DataType*)this->getValue();
-  return subtreesSet->begin();
-}
+  static_assert(std::is_assignable< KeyType&, KeyType >::value, "Key type for operator [] should be assignable");
 
-template<typename DataType>
-template<typename T = DataType::iterator>
-T NodeData<DataType>::end() const
-{
-  auto subtreesSet = (DataType*)this->getValue();
-  return subtreesSet->end();
-}
-
-template<typename DataType>
-template<typename T = DataType::value_type::element_type>
-T* NodeData<DataType>::operator[](std::string const &key)
-{
-  auto subtreesSet = (DataType*)this->getValue();
-  return std::find_if(subtreesSet->begin(), subtreesSet->end(), [&](std::shared_ptr<T> const it) 
+  return std::find_if(this->value->cbegin(), this->value->cend(), [&](typename DataType::const_reference element)
   {  
-    auto keyField = it->begin();
-    return *((std::string*)(*keyField)->getValue()) == key;
-  })->get();
+    auto keyField = std::find_if(element.begin(), element.end(), [&](const BasicNodeData &node)
+    {
+      return dynamic_cast<const NodeData<KeyType>*>(&node);
+    });
+    if (keyField == element.end()) throw std::runtime_error(std::string("There are not key field in ") + typeid(typename DataType::value_type).name() + "\n");
+    return static_cast<NodeData<KeyType>&>(*keyField) == key;
+  });
 }
 
 template<typename T>
@@ -198,9 +203,15 @@ void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathD
   parsePtreeImpl<T>(tree, pathDelimeter);
 }
 
+template<typename T>
+void NodeData<T>::writePtree(boost::property_tree::ptree &tree) const
+{
+  PtreeWriter::write(*this, tree);
+}
+
 // parse leaf
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
@@ -209,35 +220,47 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   {
     // Not used direct get<T>, because it's necessary for forward instance of boost translator_between
     str = tree.get<std::string>(path(this->name, pathDelimeter));
-    Translator::fromString(str, value);
   }
-  catch (boost::exception const &e) // not found such node in ptree
+  catch (boost::exception const &) // not found such node in ptree
   {
     if (requiredNum.isCertain() || (NodesNum::MORE_THAN_0 == requiredNum))
     {
       throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
     }
   }
-  catch (std::exception const &e) // can't convert from string to taget type
+
+  if (str.empty() && !this->requiredNum.isCertain())
   {
-    throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str + 
-                            "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
+    this->validity = false;
   }
-  validity = true;
+  else
+  {
+    try
+    {
+      Translator::fromString(str, value);
+    }
+    catch (std::exception const &) // can't convert from string to taget type
+    {
+      throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str +
+        "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
+    }
+    validity = true;
+  }
 };
 
 // parse subtree array
 // pathDelimeter not used
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 typename std::enable_if_t<is_subtrees_set<T>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
   auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
 
+  typedef DataType::value_type SubtreeElementType;
+
   if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
   {
-    typedef DataType::value_type::element_type SubtreeElementType;
     static const int XML_ATTR_SUBTREE_NUM = 1;
 
     auto elementName = SubtreeElementType::NameContainer_::getName();
@@ -250,17 +273,27 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     {
       if (!std::strcmp(j.first.c_str(), elementName))
       {
-        subtreesSet->emplace_back(new SubtreeElementType()); 
-        auto subtreeElement = subtreesSet->back();
-        subtreeElement->parsePtree(j.second, false);
+        subtreesSet->emplace_back(); 
+        auto& subtreeElement = subtreesSet->back();
+        subtreeElement.parsePtree(j.second, false);
       }
     }
   }
   else // for JSON name of array stored in Subtree
   {
-    auto subtree = tree.get_child(this->name);
-    for (auto &i : subtree)
+    try
     {
+      auto &subtree = tree.get_child(this->name);
+      for (auto &j : subtree)
+      {
+        subtreesSet->emplace_back();
+        auto& subtreeElement = subtreesSet->back();
+        subtreeElement.parsePtree(j.second, false);
+      }
+    }
+    catch (const std::exception &)
+    {
+      if (requiredNum.isCertain()) throw;
     }
   }
 
@@ -274,8 +307,9 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   validity = true;
 };
 
+// parse single subtree
 template<typename DataType>
-template<typename T = DataType>
+template<typename T>
 typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
@@ -298,10 +332,9 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
   else // for JSON name of array stored in Subtree
   {
-    auto subtree = tree.get_child(this->name);
-    for (auto &i : subtree)
-    {
-    }
+    auto &tree_ = tree.get_child(this->name);
+    subtree->parsePtree(tree_, false);
+    num = 1;
   }
 
   /* Check num */
@@ -313,6 +346,14 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 
   validity = true;
 };
+
+template<typename T>
+void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
+                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
+                             std::pair<size_t, size_t> const &rows)
+{
+  TableParser::parse(*this, table, nameToIndex, rows);
+}
 
 // for print size
 template<int diff, int basicNodeSize>
@@ -328,12 +369,12 @@ struct CheckSize
  *  \details Calculate number of values: size of Derived - size of current Tree / size of field specialization
  *  \tparam  Derived Derived class
  */
-template<typename NameContainer, typename Derived>
-Tree<NameContainer, Derived>::Tree() :
+template<typename Derived, typename NameContainer>
+template<typename T>
+Tree<Derived, NameContainer>::Tree() :
   BasicTree(NameContainer::getName())
 {
-  Details::CheckSize<sizeof(Derived) - sizeof(Tree<NameContainer, Derived>), Details::NodeDataSize> check;
-
+  checkSize();
   nodesNum = (sizeof(Derived) - sizeof(Tree<NameContainer, Derived>)) / Details::NodeDataSize;
 }
 

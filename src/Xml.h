@@ -1,32 +1,51 @@
 /*! 
  *  \file Xml.h
- *  \brief Classes for implement XML
+ *  \brief Macro definitions for XML implementation 
  */
 
 #ifndef _XML_H_
 #define _XML_H_
 
-#include "TreeBinding.h"
+#include "TreeBinding/TreeBinding.h"
 
 namespace XML
 {
 
 /*!
- *  \brief Type for store integer fields of XML attributes
+ *  \copydoc TreeBinding::Integer
  */
 typedef TreeBinding::Integer Integer;
 
+/*!
+ *  \copydoc TreeBinding::NodesNum
+ */
 typedef TreeBinding::NodesNum ItemNum;
 
-template<typename T>
-using ChildContainer = TreeBinding::SubtreesSet<T>;
-
+/*!
+ * \brief Concatenate 3 string literals
+ * \param[in] 1st literal
+ * \param[in] 2nd literal
+ * \param[in] 3rd literal
+ */
 #define XML_DETAILS_TOKEN_PASTE(x, y, z) x##y##z
+
+/*!
+ * \brief Concatenate 3 string literals
+ * \note  Used this wrapper over XML_DETAILS_TOKEN_PASTE, because it's imposible without it
+ * \param[in] 1st literal
+ * \param[in] 2nd literal
+ * \param[in] 3rd literal
+ */
 #define XML_DETAILS_CONCAT(x,y,z) XML_DETAILS_TOKEN_PASTE(x,y,z)
 
+/*!
+ * \brief XML default path delimeter (string representation)
+ */
 #define XML_DETAILS_PATH_DELIMETER "/"
 
-
+/*!
+ * \brief XML default path delimeter (char representation)
+ */
 #define XML_PATH_DELIMETER (*(XML_DETAILS_PATH_DELIMETER))
 
 /*!
@@ -47,7 +66,12 @@ using ChildContainer = TreeBinding::SubtreesSet<T>;
  */
 #define XML_CHILD_ELEMENTS(...) TREE_NODE("", __VA_ARGS__)
 
-
+/*!
+ * \brief   XML element declaration
+ * \warning Each macro call should be placed in different lines
+ * \param   ... 1. Element name (in file)
+ *              2. Data type name
+ */
 #define XML_ELEMENT(name, dataType) TREE_TREE(name, dataType)
 
 } /* namespace XML */
