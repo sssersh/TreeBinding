@@ -81,7 +81,7 @@ std::string NodesNum::toString() const
 WrongChildsNumException::WrongChildsNumException(std::string const &objectName, 
                                                  NodesNum const requiredNum, 
                                                  NodesNum::ValueType const actuallyNum) :
-  std::runtime_error("Invalid number of childs in element " + objectName + ". Required: " + requiredNum.toString() + 
+  std::runtime_error("Invalid number of childs in node " + objectName + ". Required: " + requiredNum.toString() + 
                      ", present: " + std::to_string(actuallyNum))
 {}
 
@@ -90,10 +90,20 @@ BasicTree::BasicTree(const char* const _name) :
 {
 }
 
+Details::BasicNodeData& BasicTree::operator[](size_t const index) const
+{
+  return *(this->begin() + index);
+}
+
+BasicTree::NodeIterator& BasicTree::NodeIterator::operator+(int const index)
+{
+  ptr = (Details::BasicNodeData*)((uint8_t*)ptr + Details::NodeDataSize * index);
+  return *this;
+}
+
 BasicTree::NodeIterator& BasicTree::NodeIterator::operator++()
 {
-  ptr = (Details::BasicNodeData*)((uint8_t*)ptr + Details::NodeDataSize);
-  return *this;
+  return *this + 1;
 }
 
 bool BasicTree::NodeIterator::operator!= (const BasicTree::NodeIterator& rhs) const
@@ -101,7 +111,12 @@ bool BasicTree::NodeIterator::operator!= (const BasicTree::NodeIterator& rhs) co
   return this->ptr != rhs.ptr;
 }
 
-Details::BasicNodeData* BasicTree::NodeIterator::operator*() const
+Details::BasicNodeData& BasicTree::NodeIterator::operator*() const
+{
+  return *this->ptr;
+}
+
+Details::BasicNodeData* BasicTree::NodeIterator::operator->() const
 {
   return this->ptr;
 }
@@ -153,6 +168,15 @@ bool BasicTree::operator== (BasicTree const &rhs) const
   return result;
 }
 
+BasicTree& BasicTree::operator= (BasicTree const &rhs)
+{
+  for (size_t i = 0; i < this->nodesNum; ++i)
+  {
+    (*this)[i] = rhs[i];
+  }
+  return *this;
+}
+
 /*! \brief   Get validity
  *  \details Calculate validity as logical multiply of all fields of derived
  *  \warning Validity for childs not calculated
@@ -187,7 +211,8 @@ void BasicTree::parsePtree(boost::property_tree::ptree &tree, const bool isRoot)
   /* Parse nodes */
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
-    (*nodeIt)->parsePtree(tree);
+//    (*nodeIt)->parsePtree(tree);
+    nodeIt->parsePtree(tree);
   }
 }
 
@@ -196,6 +221,15 @@ void BasicTree::parseTable(std::vector<std::vector<std::wstring>> table, std::fu
   for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
   {
 //    (*nodeIt)->parseTable(table, nameToIndex);
+  }
+}
+
+void BasicTree::reset()
+{
+  for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
+  {
+//    (*nodeIt)->reset();
+    nodeIt->reset();
   }
 }
 

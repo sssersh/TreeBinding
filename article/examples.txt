@@ -1,2 +1,3 @@
 https://github.com/sssersh/TreeBinding.git
 https://github.com/DimaAmega/Laba-1.-BitPole.
+https://habr.com/ru/post/344206/ - also see comments

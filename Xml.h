@@ -16,10 +16,17 @@ namespace XML
  */
 typedef TreeBinding::Integer Integer;
 
+typedef TreeBinding::NodesNum ItemNum;
+
+template<typename T>
+using ChildContainer = TreeBinding::SubtreesSet<T>;
+
 #define XML_DETAILS_TOKEN_PASTE(x, y, z) x##y##z
 #define XML_DETAILS_CONCAT(x,y,z) XML_DETAILS_TOKEN_PASTE(x,y,z)
 
 #define XML_DETAILS_PATH_DELIMETER "/"
+
+
 #define XML_PATH_DELIMETER (*(XML_DETAILS_PATH_DELIMETER))
 
 /*!
@@ -30,7 +37,7 @@ typedef TreeBinding::Integer Integer;
  *              3. Attribute are optional/mandatory (mandatory(TreeBinding::NodesNum::MORE_THAN_ONE) by default(if this parameter not passed)). 
  *                 If attribute are optional, pass TreeBinding::NodesNum::NOT_SPECIFIED
  */
-#define XML_ATTR(name, ...) TREE_LEAF( XML_DETAILS_CONCAT("<xmlattr>", XML_DETAILS_PATH_DELIMETER, name), __VA_ARGS__)
+#define XML_ATTR(name, ...) TREE_NODE( XML_DETAILS_CONCAT("<xmlattr>", XML_DETAILS_PATH_DELIMETER, name), __VA_ARGS__)
 
 /*!
  * \brief   XML child declaration
@@ -38,8 +45,7 @@ typedef TreeBinding::Integer Integer;
  * \param   ... 1. Child's data type 
  *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
  */
-
-#define XML_CHILD_ELEMENTS(type) TREE_SUBTREES_SET("", type)
+#define XML_CHILD_ELEMENTS(...) TREE_NODE("", __VA_ARGS__)
 
 
 #define XML_ELEMENT(name, dataType) TREE_TREE(name, dataType)

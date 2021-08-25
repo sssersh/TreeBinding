@@ -49,7 +49,7 @@ struct NodesNum;
  *              2. Node's data type
  *              3. Node are optional/mandatory
  */
-#define TREE_LEAF(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
+#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
 
 typedef struct WrongChildsNumException : public std::runtime_error
 {
@@ -65,6 +65,7 @@ protected:
 
   BasicTree() = delete;
   BasicTree(const char* const _name);
+  Details::BasicNodeData& operator[](size_t const index) const;
 
   size_t            nodesNum; /*!< Number of fields in current tree */
   const char* const name;     /*!< Name of tree                     */
@@ -76,8 +77,10 @@ protected:
     NodeIterator& operator=(const NodeIterator&) = default;
 
     bool operator!=(const NodeIterator&) const;
+    NodeIterator& operator+(int const index);
     NodeIterator& operator++();
-    Details::BasicNodeData* operator*() const;
+    Details::BasicNodeData& operator*() const;
+    Details::BasicNodeData* operator->() const;
 
     Details::BasicNodeData* ptr;
   } NodeIterator;
@@ -91,7 +94,9 @@ public:
   void parseTable(std::vector<std::vector<std::wstring>> table, std::function<size_t(std::string &const)> nameToIndex);
 
   bool operator== (BasicTree const &rhs) const;
+  virtual BasicTree& operator= (BasicTree const &rhs);
   bool isLeafsValid() const;
+  void reset();
 
   bool isValid() const
   {
@@ -100,7 +105,6 @@ public:
 
 //  template<typename, typename> friend class Tree;
 } BasicTree;
-
 
 template<typename NameContainer, typename T>
 struct Tree : public BasicTree
@@ -117,13 +121,6 @@ struct Tree : public BasicTree
 #define TREE_TREE(name, type)                  \
   TREE_BINDING_DETAILS_STRING_CONTAINER(name); \
   struct type : public TreeBinding::Tree < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, type >
-
-/*!
- * \brief  Define set of subtrees inside tree (as node)
- * \tparam name Name of subtree container (empty string for XML)
- * \tparam type Type of subtree
- */
-#define TREE_SUBTREES_SET(name, type) TREE_BINDING_DETAILS_NODE_COMMON(name, TreeBinding::SubtreesSet< type > )
 
 } /* namespace TreeBinding */
 

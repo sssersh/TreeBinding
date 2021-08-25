@@ -85,6 +85,12 @@ NodeData<DataType>::operator DataType() const
   return *value;
 }
 
+template<typename DataType>
+NodeData<DataType>::operator DataType&() const
+{
+  return *value;
+}
+
 /*! 
  *  \brief  Get pointer to value of field
  *  \tparam DataType NodeData data type
@@ -100,10 +106,34 @@ void* NodeData<DataType>::getValue() const
  *  \brief  Reset validity of value
  *  \tparam DataType NodeData data type
  */
-// TODO: move to base
+/*
 template<typename DataType>
 void NodeData<DataType>::reset()
 {
+  validity = false;
+}
+*/
+
+template<typename DataType>
+void NodeData<DataType>::reset()
+{
+  resetImpl<DataType>();
+}
+
+template<typename DataType>
+template<typename T = DataType>
+std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+NodeData<DataType>::resetImpl()
+{
+  validity = false;
+}
+
+template<typename DataType>
+template<typename T = DataType>
+std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+NodeData<DataType>::resetImpl()
+{
+  value->clear();
   validity = false;
 }
 
@@ -112,11 +142,9 @@ void NodeData<DataType>::reset()
  *  \tparam    DataType NodeData data type
  *  \param[in] rhs Right side value
  */
-// TODO: try use   *static_cast<DataType*>(this) = *static_cast<DataType*>(rhs);
 template<typename DataType>
 void NodeData<DataType>::copy(BasicNodeData const &rhs)
 {
-//  void* rhsValue = rhs.getValue();
   *this->value = *static_cast<DataType*>(rhs.getValue());
   validity = rhs.validity;
 }
@@ -129,10 +157,10 @@ void NodeData<DataType>::copy(BasicNodeData const &rhs)
  *  \retval    true  Values of fields are same
  *  \retval    false Value of fields are different
  */
-template<typename T>
-bool NodeData<T>::compare(BasicNodeData const &rhs) const
+template<typename DataType>
+bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
 {
-  return *this->value == *static_cast<T*>(rhs.getValue());
+  return *this->value == *static_cast<DataType*>(rhs.getValue());
 }
 
 
@@ -173,27 +201,27 @@ void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathD
 // parse leaf
 template<typename DataType>
 template<typename T = DataType>
-std::enable_if_t<!is_subtrees_set<T>::value>
+typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
+  std::string str;
   try
   {
     // Not used direct get<T>, because it's necessary for forward instance of boost translator_between
-    // TODO: try use rvalue
-    // TODO: is there method to handle case when ptree not contain node without exception?
-    std::string str = tree.get<std::string>(path(this->name, pathDelimeter));
+    str = tree.get<std::string>(path(this->name, pathDelimeter));
     Translator::fromString(str, value);
   }
   catch (boost::exception const &e) // not found such node in ptree
   {
     if (requiredNum.isCertain() || (NodesNum::MORE_THAN_0 == requiredNum))
     {
-      throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, 0));
+      throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
     }
   }
   catch (std::exception const &e) // can't convert from string to taget type
   {
-    throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + "\"\n"));
+    throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str + 
+                            "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
   }
   validity = true;
 };
@@ -202,7 +230,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 // pathDelimeter not used
 template<typename DataType>
 template<typename T = DataType>
-std::enable_if_t<is_subtrees_set<T>::value>
+typename std::enable_if_t<is_subtrees_set<T>::value>
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
   auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
@@ -233,7 +261,6 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     auto subtree = tree.get_child(this->name);
     for (auto &i : subtree)
     {
-      // TODO
     }
   }
 
@@ -247,12 +274,52 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   validity = true;
 };
 
+template<typename DataType>
+template<typename T = DataType>
+typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
+NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
+{
+  auto subtree = (DataType*)this->getValue();
+  size_t num = 0;
+
+  if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
+  {
+    auto elementName = DataType::NameContainer_::getName();
+
+    // find if and error, if not found 
+    for (auto& j : tree)
+    {
+      if (!std::strcmp(j.first.c_str(), elementName))
+      {
+        subtree->parsePtree(j.second, false);
+        num++;
+      }
+    }
+  }
+  else // for JSON name of array stored in Subtree
+  {
+    auto subtree = tree.get_child(this->name);
+    for (auto &i : subtree)
+    {
+    }
+  }
+
+  /* Check num */
+  if ((requiredNum.isCertain() && num != requiredNum) ||
+      (NodesNum::MORE_THAN_0 == requiredNum && 0 == num))
+  {
+    throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, num));
+  }
+
+  validity = true;
+};
+
 // for print size
-template<int diff, int basic>
+template<int diff, int basicNodeSize>
 struct CheckSize
 {
-  static_assert(diff % basic == 0, "Tree contains incorrect nodes");
-  static_assert(diff >= basic, "Tree contains incorrect nodes");
+  static_assert(diff % basicNodeSize == 0, "Tree contains incorrect nodes");
+  static_assert((diff >= basicNodeSize || diff == 0), "Tree contains incorrect nodes"); // 0 - for empty tree
 };
 
 } /* namespace Details */
@@ -265,7 +332,6 @@ template<typename NameContainer, typename Derived>
 Tree<NameContainer, Derived>::Tree() :
   BasicTree(NameContainer::getName())
 {
-  // TODO: check that static assert for size work
   Details::CheckSize<sizeof(Derived) - sizeof(Tree<NameContainer, Derived>), Details::NodeDataSize> check;
 
   nodesNum = (sizeof(Derived) - sizeof(Tree<NameContainer, Derived>)) / Details::NodeDataSize;
