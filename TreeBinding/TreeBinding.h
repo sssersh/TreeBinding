@@ -156,9 +156,9 @@ public:
 } BasicTree;
 
 /*!
- * \brief serialize BasicTree by boost serialize
- * \param[out] ar serialize archive
- * \param[in]  version structre version
+ * \brief serialize BasicTree by boost serializer
+ * \param[out] ar      Serialized archive
+ * \param[in]  version Data structure version
  */
 template<class Archive>
 void BasicTree::serialize(Archive & ar, const unsigned int version)
@@ -170,7 +170,7 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
 }
 
 /*!
- * \brief Iterator for iterater over fields in tree
+ * \brief Iterator for iterate over fields in tree
  */
 struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
 {
