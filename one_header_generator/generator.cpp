@@ -26,6 +26,7 @@ struct File
     void deleteFileDescription();
     const File& operator+=(const File &rhs);
     const File& operator+=(const std::string &rhs);
+    void insert(const std::size_t position, const File &file);
 };
 
 /*!
@@ -36,7 +37,9 @@ struct Generator
     Generator(const fs::path    &rootDir      ,
               const std::string &srcDirName   ,
               const std::string &srcFilesNames,
-              const std::string &outDirName);
+              const std::string &outDirName,
+              const std::string &templateOutFile,
+              const std::size_t  contentLineIndex);
     void generate();
 
 private:
@@ -44,19 +47,21 @@ private:
     void readSrcFiles();
     void deleteIncludeMainFile();
     void preprocessFile(File &file);
-    void deleteFileDescriptions();
     void deleteIncludeGuards();
+    File insertOutFileInTemplate();
 
-    fs::path                 rootDir      ; /*!< Path to TreeBinding library root directory         */
-    std::string              srcDirName   ; /*!< Name of directory with TreeBinding library sources */
-    std::vector<std::string> srcFilesNames; /*!< Names of TreeBinding library sources (first file used as 
-                                                 main file, others - just include main file and 
-                                                 and redefine macro from main file) */
-    fs::path                 outDirPath   ; /*!< Output directory name */
-    fs::path                 outFilePath  ; /*!< Path to out file */
-    File                     outFile      ; /*!< Out file content */
+    fs::path                 rootDir         ; /*!< Path to TreeBinding library root directory         */
+    std::string              srcDirName      ; /*!< Name of directory with TreeBinding library sources */
+    std::vector<std::string> srcFilesNames   ; /*!< Names of TreeBinding library sources (first file used as
+                                                    main file, others - just include main file and
+                                                    and redefine macro from main file) */
+    fs::path                 outDirPath      ; /*!< Output directory name */
+    fs::path                 outFilePath     ; /*!< Path to out file */
+    File                     outFile         ; /*!< Out file content */
+    File                     templateOutFile ; /*!< Template of out file */
+    std::size_t              contentLineIndex; /*!< Index of line, where will be insert generated file */
 
-    static const size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in srcFilesNames array */
+    static const std::size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in srcFilesNames array */
 };
 
 /*!
@@ -115,11 +120,11 @@ void File::write(const fs::path &path) const
  */
 void File::deleteFileDescription()
 {
-    size_t begin, size;
+    std::size_t begin, size;
     bool isFileDescription = false;
 
     size = lines.size();
-    for(size_t i = 0; i < size; ++i)
+    for(std::size_t i = 0; i < size; ++i)
     {
         if(Utils::isBeginOfDoxygenComment(lines[i]))
         {
@@ -156,29 +161,52 @@ const File& File::operator+=(const File &rhs)
  */
 const File& File::operator+=(const std::string &rhs)
 {
-    lines.push_back(rhs);
+    std::stringstream stream(rhs);
+    std::string line;
+
+    while(std::getline(stream, line))
+    {
+        lines.push_back(line);
+    }
     return *this;
 }
 
 /*!
- * \brief                     Generator constructor
- * \details                   Read filenames from srcDirName directory
- * \param[in] rootDir         Path to TreeBinding library root directory
- * \param[in] srcDirName      Name of directory with TreeBinding library sources
- * \param[in] srcMainFileName Names of TreeBinding library main header
- * \param[in] outDirName      Output directory name
+ * \brief Insert file to position
+ * \param[in] position Position for insert
+ * \param[in] file     Inserted file
  */
+void File::insert(const std::size_t position, const File &file)
+{
+    lines.insert(lines.begin() + position, file.lines.begin(),file.lines.end());
+}
+
+/*!
+ * \brief                      Generator constructor
+ * \details                    Read filenames from srcDirName directory
+ * \param[in] rootDir          Path to TreeBinding library root directory
+ * \param[in] srcDirName       Name of directory with TreeBinding library sources
+ * \param[in] srcMainFileName  Names of TreeBinding library main header
+ * \param[in] outDirName       Output directory name
+ * \param[in] templateOutFile  Template of out file
+ * \param[in] contentLineIndex Index of line, where will be insert generated file
+ */
+
 Generator::Generator(const fs::path    &rootDir        ,
                      const std::string &srcDirName     ,
                      const std::string &srcMainFileName,
-                     const std::string &outDirName) :
-        rootDir(rootDir),
-        srcDirName(srcDirName),
+                     const std::string &outDirName,
+                     const std::string &templateOutFile,
+                     const std::size_t  contentLineIndex) :
+    rootDir(rootDir),
+    srcDirName(srcDirName),
     outDirPath(rootDir / outDirName),
-    outFilePath(rootDir / outDirName / srcMainFileName)
+    outFilePath(rootDir / outDirName / srcMainFileName),
+    contentLineIndex(contentLineIndex)
 {
+    this->templateOutFile += templateOutFile;
     srcFilesNames.push_back(srcMainFileName);
-    auto srcPath = rootDir/srcDirName;
+    auto srcPath = rootDir / srcDirName;
     for (const auto & srcFile : fs::directory_iterator(srcPath))
     {
         if(srcFile.status().type() == fs::file_type::regular &&
@@ -198,9 +226,10 @@ void Generator::generate()
     readSrcFiles();
     deleteIncludeMainFile();
     preprocessFile(outFile);
-    outFile.write(outFilePath);
-    deleteFileDescriptions();
+    outFile.deleteFileDescription();
     deleteIncludeGuards();
+    auto resultFile = insertOutFileInTemplate();
+    resultFile.write(outFilePath);
 }
 
 /*!
@@ -237,7 +266,8 @@ void Generator::deleteIncludeMainFile()
 {
     for(auto &line : outFile.lines)
     {
-        auto r = std::regex ( R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
+        auto r = std::regex ( 
+            R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
         if(std::regex_match(line, r))
         {
             line.clear();
@@ -252,28 +282,22 @@ void Generator::deleteIncludeMainFile()
  */
 void Generator::preprocessFile(File &file)
 {
-    for(auto &line : file.lines)
+    std::size_t size = file.lines.size();
+
+    for(std::size_t i = 0; i < size; ++i)
     {
         auto r = std::regex ( R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
         std::smatch includeMatch;
-        if(std::regex_match(line, includeMatch, r))
+        if(std::regex_match(file.lines[i], includeMatch, r))
         {
             auto includeFilePath = rootDir / includeMatch[1].str();
             auto includeFile = File(includeFilePath);
             preprocessFile(includeFile);
-            line = "\n" + includeFile.toString() + "\n";
+            file.lines[i].erase();
+            file.insert(i, includeFile);
+            size += includeFile.lines.size() - 1; // -1 - erased line
         }
     }
-}
-
-/*!
- * \brief Delete file description in Doxygen format from output file
- */
-void Generator::deleteFileDescriptions()
-{
-    auto file = File(outFilePath);
-    file.deleteFileDescription();
-    file.write(outFilePath);
 }
 
 /*!
@@ -287,33 +311,43 @@ void Generator::deleteFileDescriptions()
  */
 void Generator::deleteIncludeGuards()
 {
-    auto file = File(outFilePath);
     std::stack<std::string> guardIdentifiers;
-    for(size_t i = 0; i < file.lines.size(); ++i)
+    for(std::size_t i = 0; i < outFile.lines.size(); ++i)
     {
         auto ifdefRegex = std::regex ( R"(#ifndef[ \t]+([A-Z0-9_]+[ \t]*))");
         std::smatch match;
-        if(std::regex_match(file.lines[i], match, ifdefRegex))
+        if(std::regex_match(outFile.lines[i], match, ifdefRegex))
         {
             auto defineRegex = std::regex ( R"(#define[ \t]+)" + match[1].str() );
-            if(std::regex_match(file.lines[i + 1], defineRegex))
+            if(std::regex_match(outFile.lines[i + 1], defineRegex))
             {
                 guardIdentifiers.push(match[1].str());
-                file.lines[i].clear();
-                file.lines[i + 1].clear();
+                outFile.lines[i].clear();
+                outFile.lines[i + 1].clear();
             }
         }
 
         if(!guardIdentifiers.empty())
         {
             auto endifRegex = std::regex ( R"(#endif[ \t]+/\*[ \t+])" + guardIdentifiers.top() + R"([ \t]\*/)");
-            if(std::regex_match(file.lines[i], match, endifRegex)) {
-                file.lines[i].clear();
+            if(std::regex_match(outFile.lines[i], match, endifRegex)) {
+                outFile.lines[i].clear();
                 guardIdentifiers.pop();
             }
         }
     }
-    file.write(outFilePath);
+}
+
+/*!
+ * \brief  Insert generated output file in template
+ * \return Generated file, inserted in template
+ */
+File Generator::insertOutFileInTemplate()
+{
+    auto resultFile = File();
+    resultFile += templateOutFile;
+    resultFile.insert(contentLineIndex, outFile);
+    return resultFile;
 }
 
 /*!
@@ -353,6 +387,28 @@ bool Utils::isEndOfComment(const std::string &str)
 }
 
 /*!
+ * \brief Index of line, where will be insert generated file
+ */
+static const std::size_t CONTENT_LINE_INDEX = 7;
+
+/*!
+ * \brief Template of out file
+ */
+static const std::string OUT_FILE_TEMPLATE =
+R"(/*!
+ *  \file TreeBinding.h
+ *  \brief TODO
+ */
+
+#ifndef _TREE_BINDING_H_
+#define _TREE_BINDING_H_
+
+
+#endif /* _TREE_BINDING_H_ */
+
+)";
+
+/*!
  * \brief Main function
  */
 int main(int argc, char* argv[])
@@ -363,7 +419,9 @@ int main(int argc, char* argv[])
             "./../.."      ,
             "TreeBinding"  ,
             "TreeBinding.h",
-            "gen"
+            "gen",
+            OUT_FILE_TEMPLATE,
+            CONTENT_LINE_INDEX
         };
         generator.generate();
     }
