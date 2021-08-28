@@ -206,7 +206,20 @@ Generator::Generator(const fs::path    &rootDir        ,
 {
     this->templateOutFile += templateOutFile;
     srcFilesNames.push_back(srcMainFileName);
+
     auto srcPath = rootDir / srcDirName;
+    // add .cpp files from all nested folders
+    for(const auto &cppFile : fs::recursive_directory_iterator(srcPath))
+    {
+        if(cppFile.path().extension() == ".cpp")
+        {
+            auto cppFilePath = cppFile.path().string();
+            std::string cppFileName = cppFilePath.erase(0, srcPath.string().size() + std::string("/").size());
+            srcFilesNames.push_back(cppFileName);
+        }
+    }
+
+    // Add all header files from root sources directory
     for (const auto & srcFile : fs::directory_iterator(srcPath))
     {
         if(srcFile.status().type() == fs::file_type::regular &&
@@ -215,6 +228,7 @@ Generator::Generator(const fs::path    &rootDir        ,
             srcFilesNames.push_back(srcFile.path().filename());
         }
     }
+
 }
 
 /*!
