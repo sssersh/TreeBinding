@@ -33,6 +33,20 @@ struct File
  */
 struct Generator
 {
+    Generator(const fs::path    &rootDir      ,
+              const std::string &srcDirName   ,
+              const std::string &srcFilesNames,
+              const std::string &outDirName);
+    void generate();
+
+private:
+    void prepareOutDirAndFile() const;
+    void readSrcFiles();
+    void deleteIncludeMainFile();
+    void preprocessFile(File &file);
+    void deleteFileDescriptions();
+    void deleteIncludeGuards();
+
     fs::path                 rootDir      ; /*!< Path to TreeBinding library root directory         */
     std::string              srcDirName   ; /*!< Name of directory with TreeBinding library sources */
     std::vector<std::string> srcFilesNames; /*!< Names of TreeBinding library sources (first file used as 
@@ -41,18 +55,6 @@ struct Generator
     fs::path                 outDirPath   ; /*!< Output directory name */
     fs::path                 outFilePath  ; /*!< Path to out file */
     File                     outFile      ; /*!< Out file content */
-
-    Generator(const fs::path    &rootDir      ,
-              const std::string &srcDirName   ,
-              const std::string &srcFilesNames,
-              const std::string &outDirName);
-    void generate();
-    void prepareOutDirAndFile() const;
-    void readSrcFiles();
-    void deleteIncludeMainFile();
-    void preprocessFile(File &file);
-    void deleteFileDescriptions();
-    void deleteIncludeGuards();
 
     static const size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in srcFilesNames array */
 };
