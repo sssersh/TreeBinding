@@ -248,9 +248,10 @@ void Generator::prepareOutDirAndFile() const
  */
 void Generator::readSrcFiles()
 {
+    auto srcDirPath = rootDir / srcDirName;
     for(const auto& fileName : srcFilesNames)
     {
-        auto srcPath = rootDir / srcDirName / fileName;
+        auto srcPath = srcDirPath / fileName;
 
         outFile += "\n";
         outFile += File(srcPath);
@@ -264,10 +265,10 @@ void Generator::readSrcFiles()
  */
 void Generator::deleteIncludeMainFile()
 {
+    static const auto r = std::regex (
+            R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
     for(auto &line : outFile.lines)
     {
-        auto r = std::regex ( 
-            R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
         if(std::regex_match(line, r))
         {
             line.clear();
@@ -283,10 +284,10 @@ void Generator::deleteIncludeMainFile()
 void Generator::preprocessFile(File &file)
 {
     std::size_t size = file.lines.size();
+    static const auto r = std::regex ( R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
 
     for(std::size_t i = 0; i < size; ++i)
     {
-        auto r = std::regex ( R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
         std::smatch includeMatch;
         if(std::regex_match(file.lines[i], includeMatch, r))
         {
@@ -314,7 +315,7 @@ void Generator::deleteIncludeGuards()
     std::stack<std::string> guardIdentifiers;
     for(std::size_t i = 0; i < outFile.lines.size(); ++i)
     {
-        auto ifdefRegex = std::regex ( R"(#ifndef[ \t]+([A-Z0-9_]+[ \t]*))");
+        static const auto ifdefRegex = std::regex ( R"(#ifndef[ \t]+([A-Z0-9_]+[ \t]*))");
         std::smatch match;
         if(std::regex_match(outFile.lines[i], match, ifdefRegex))
         {
@@ -329,7 +330,8 @@ void Generator::deleteIncludeGuards()
 
         if(!guardIdentifiers.empty())
         {
-            auto endifRegex = std::regex ( R"(#endif[ \t]+/\*[ \t+])" + guardIdentifiers.top() + R"([ \t]\*/)");
+            auto endifRegex =
+                    std::regex ( R"(#endif[ \t]+/\*[ \t+])" + guardIdentifiers.top() + R"([ \t]\*/)");
             if(std::regex_match(outFile.lines[i], match, endifRegex)) {
                 outFile.lines[i].clear();
                 guardIdentifiers.pop();
@@ -358,7 +360,7 @@ File Generator::insertOutFileInTemplate()
  */
 bool Utils::isBeginOfDoxygenComment(const std::string &str)
 {
-    auto r = std::regex ( R"(.*/\*!.*)" );
+    static const auto r = std::regex ( R"(.*/\*!.*)" );
     return std::regex_match(str, r);
 }
 
@@ -370,7 +372,7 @@ bool Utils::isBeginOfDoxygenComment(const std::string &str)
  */
 bool Utils::isDoxygenFileDescription(const std::string &str)
 {
-    auto r = std::regex ( R"(.*\\file.*)" );
+    static const auto r = std::regex ( R"(.*\\file.*)" );
     return std::regex_match(str, r);
 }
 
@@ -382,7 +384,7 @@ bool Utils::isDoxygenFileDescription(const std::string &str)
  */
 bool Utils::isEndOfComment(const std::string &str)
 {
-    auto r = std::regex ( R"(.*\*/.*)" );
+    static const auto r = std::regex ( R"(.*\*/.*)" );
     return std::regex_match(str, r);
 }
 
