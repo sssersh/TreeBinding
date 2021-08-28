@@ -34,3 +34,4 @@
 build
 .*
 !.gitignore
+cmake-build-debug
