@@ -5,6 +5,7 @@
 
 #include <regex>
 #include <string>
+#include <set>
 #include <fstream>
 #include <iostream>
 #include <experimental/filesystem>
@@ -24,6 +25,7 @@ struct File
     std::string toString() const;
     void write(const fs::path &path) const;
     void deleteFileDescription();
+    void reprlaceInludes();
     const File& operator+=(const File &rhs);
     const File& operator+=(const std::string &rhs);
     void insert(const std::size_t position, const File &file);
@@ -143,6 +145,27 @@ void File::deleteFileDescription()
     }
 }
 
+void File::reprlaceInludes()
+{
+    const auto r = std::regex(R"((#include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
+    size_t size = lines.size();
+
+    std::set<std::string> includes;
+    std::smatch match;
+
+    for(size_t i = 0; i < size; ++i)
+    {
+        if(std::regex_match(lines[i], match, r))
+        {
+            includes.insert(match[1]);
+            lines[i].erase();
+            --i;
+        }
+    }
+
+    lines.insert(lines.begin(), includes.begin(), includes.end());
+}
+
 /*!
  * \brief Concatenate files
  * \param[in] rhs Right hand side file
@@ -242,6 +265,7 @@ void Generator::generate()
     preprocessFile(outFile);
     outFile.deleteFileDescription();
     deleteIncludeGuards();
+    outFile.reprlaceInludes();
     auto resultFile = insertOutFileInTemplate();
     resultFile.write(outFilePath);
 }
@@ -405,7 +429,7 @@ bool Utils::isEndOfComment(const std::string &str)
 /*!
  * \brief Index of line, where will be insert generated file
  */
-static const std::size_t CONTENT_LINE_INDEX = 7;
+static const std::size_t CONTENT_LINE_INDEX = 8;
 
 /*!
  * \brief Template of out file
@@ -435,7 +459,7 @@ int main(int argc, char* argv[])
             "./../.."      ,
             "TreeBinding"  ,
             "TreeBinding.h",
-            "gen",
+            "include",
             OUT_FILE_TEMPLATE,
             CONTENT_LINE_INDEX
         };

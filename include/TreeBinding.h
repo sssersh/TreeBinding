@@ -6,28 +6,47 @@
 #ifndef _TREE_BINDING_H_
 #define _TREE_BINDING_H_
 
-
-
-
-
-#include <string>
-#include <map>
+#include <algorithm>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/access.hpp>
-
-
-
-
+#include <boost/serialization/vector.hpp>
+#include <cctype>
+#include <cinttypes>
+#include <codecvt>
+#include <iostream>
+#include <locale>
+#include <map>
 #include <memory>
 #include <string>
-#include <cinttypes>
 #include <type_traits>
+#include <vector>
 
 
 
 
-#include <type_traits>
-#include <vector> // subtree containter
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 namespace TreeBinding
 {
@@ -80,20 +99,20 @@ struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
 
 
 
-#include <iostream> // debug
-
-#include <algorithm>
-#include <type_traits>
-#include <map>
-#include <vector>
-#include <locale>
-#include <codecvt>
 
 
 
 
-#include <type_traits>
-#include <vector> // subtree containter
+
+
+
+
+
+
+
+
+
+
 
 namespace TreeBinding
 {
@@ -313,8 +332,8 @@ TableParser::parse(NodeData<DataType> &node,
 
 
 
-#include <type_traits>
-#include <vector> // subtree containter
+
+
 
 namespace TreeBinding
 {
@@ -446,16 +465,16 @@ PtreeWriter::write(NodeData<DataType> const &node,
 
 
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
 
 
 
 
-#include <type_traits>
-#include <vector> // subtree containter
+
+
+
+
+
+
 
 namespace TreeBinding
 {
@@ -823,21 +842,21 @@ static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect
 
 
 
-#include <boost/serialization/vector.hpp>
 
 
 
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
 
 
 
 
-#include <type_traits>
-#include <vector> // subtree containter
+
+
+
+
+
+
+
 
 namespace TreeBinding
 {
@@ -1221,8 +1240,8 @@ private:
 
 
 
-#include <string>
-#include <type_traits>
+
+
 
 namespace TreeBinding
 {
@@ -1602,7 +1621,7 @@ Tree<Derived, NameContainer>::Tree() :
 
 
 
-#include <cctype> // std::isdigit
+
 
 
 namespace TreeBinding
@@ -2111,7 +2130,6 @@ typedef TreeBinding::NodesNum ItemNum;
 #define JSON_ELEMENT(dataType) TREE_TREE(dataType)
 
 } /* namespace JSON */
-
 
 
 
