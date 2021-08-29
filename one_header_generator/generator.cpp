@@ -146,6 +146,9 @@ void File::deleteFileDescription()
     }
 }
 
+/*!
+ * \brief Replace lines with "#include" in begin of file
+ */
 void File::reprlaceInludes()
 {
     const auto r = std::regex(R"((#include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
@@ -317,7 +320,8 @@ void Generator::deleteIncludeMainFile()
 
 /*!
  * \brief     Preprocess file
- * \details   Replace line contained "#include "srcDirName/*" with content of file
+ * \details   Replace line contained "#include "srcDirName/*" with content of file.
+ *            Multiply included of one file ignored.
  * \param[in] file Internal representation of file
  * \param[in] alreadyIncludedFiles Already included files
  */
