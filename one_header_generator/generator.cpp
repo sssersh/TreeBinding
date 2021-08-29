@@ -10,6 +10,7 @@
 #include <iostream>
 #include <experimental/filesystem>
 #include <stack>
+#include <tuple>
 
 namespace fs = std::experimental::filesystem;
 
@@ -48,7 +49,7 @@ private:
     void prepareOutDirAndFile() const;
     void readSrcFiles();
     void deleteIncludeMainFile();
-    void preprocessFile(File &file);
+    void preprocessFile(File &file, std::set<std::string> alreadyIncludedFiles = {});
     void deleteIncludeGuards();
     File insertOutFileInTemplate();
 
@@ -318,8 +319,9 @@ void Generator::deleteIncludeMainFile()
  * \brief     Preprocess file
  * \details   Replace line contained "#include "srcDirName/*" with content of file
  * \param[in] file Internal representation of file
+ * \param[in] alreadyIncludedFiles Already included files
  */
-void Generator::preprocessFile(File &file)
+void Generator::preprocessFile(File &file, std::set<std::string> alreadyIncludedFiles)
 {
     std::size_t size = file.lines.size();
     static const auto r = std::regex ( R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
@@ -329,12 +331,22 @@ void Generator::preprocessFile(File &file)
         std::smatch includeMatch;
         if(std::regex_match(file.lines[i], includeMatch, r))
         {
-            auto includeFilePath = rootDir / includeMatch[1].str();
-            auto includeFile = File(includeFilePath);
-            preprocessFile(includeFile);
-            file.lines[i].erase();
-            file.insert(i, includeFile);
-            size += includeFile.lines.size() - 1; // -1 - erased line
+            bool notYetIncluded;
+            std::tie(std::ignore, notYetIncluded) = alreadyIncludedFiles.insert(includeMatch[1].str());
+            if(notYetIncluded)
+            {
+                auto includeFilePath = rootDir / includeMatch[1].str();
+                auto includeFile = File(includeFilePath);
+                preprocessFile(includeFile, alreadyIncludedFiles);
+                file.lines[i].erase();
+                file.insert(i, includeFile);
+                size += includeFile.lines.size() - 1; // -1 - erased line
+            }
+            else
+            {
+                file.lines[i].erase();
+                size--;
+            }
         }
     }
 }
