@@ -4,27 +4,42 @@
 # Build file for the tests
 #
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.10.1)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(PROJECT_NAME tests)
+project(${PROJECT_NAME})
 
-# Build the Google Test library
-add_subdirectory(vendor)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
+set(TREE_BINDING_INC_DIR ../include)
+
+set(SOURCE_DIR src)
+set(SOURCES
+		${SOURCE_DIR}/test1.cpp
+		)
+
+set(INCLUDES
+		${TREE_BINDING_INC_DIR}/TreeBinding.h
+		)
+
+include_directories(${TREE_BINDING_INC_DIR})
 
 add_executable(
 	tests
-	src/tests.cpp
+    ${SOURCES}
+		${INCLUDES}
 )
-add_test(NAME check COMMAND tests)
 
-target_include_directories (
-    tests
+#add_test(NAME check COMMAND tests)
+
+enable_testing()
+
+target_link_directories (
+    ${PROJECT_NAME}
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/Details
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/Details/Parsers
 )
 
 # Link against Google Test library
-target_link_libraries(tests gmock_main)
+# try gtest_main
+target_link_libraries(tests gtest gmock gtest_main pthread)
