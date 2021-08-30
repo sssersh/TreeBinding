@@ -54,7 +54,7 @@ template<>
 std::string Translator::toString(const Integer* const value)
 {
   char buf[20];
-  std::sprintf(buf, "%ld", *const_cast<Integer*>(value));
+  std::sprintf(buf, "%d", *const_cast<Integer*>(value));
   return std::string(buf);
 }
 
@@ -386,4 +386,4 @@ const char* BasicTree::getKeyNodeName() const
   return keyNodeIt->name;
 }
 
-} /* namespace BoostTreeWrapper */
+} /* namespace TreeBinding */

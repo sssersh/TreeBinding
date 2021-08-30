@@ -182,7 +182,7 @@ bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
 
 template<typename DataType>
 template<typename KeyType, typename T>
-T NodeData<DataType>::operator[](const KeyType &key) const
+typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) const
 {
   static_assert(std::is_assignable< KeyType&, KeyType >::value, "Key type for operator [] should be assignable");
 
@@ -198,7 +198,7 @@ T NodeData<DataType>::operator[](const KeyType &key) const
 }
 
 template<typename T>
-void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER)
+void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
   parsePtreeImpl<T>(tree, pathDelimeter);
 }
@@ -257,7 +257,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 {
   auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
 
-  typedef DataType::value_type SubtreeElementType;
+  typedef typename DataType::value_type SubtreeElementType;
 
   if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
   {
@@ -355,14 +355,6 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
   TableParser::parse(*this, table, nameToIndex, rows);
 }
 
-// for print size
-template<int diff, int basicNodeSize>
-struct CheckSize
-{
-  static_assert(diff % basicNodeSize == 0, "Tree contains incorrect nodes");
-  static_assert((diff >= basicNodeSize || diff == 0), "Tree contains incorrect nodes"); // 0 - for empty tree
-};
-
 } /* namespace Details */
 
 /*! \brief   Tree constructor
@@ -370,13 +362,20 @@ struct CheckSize
  *  \tparam  Derived Derived class
  */
 template<typename Derived, typename NameContainer>
-template<typename T>
 Tree<Derived, NameContainer>::Tree() :
   BasicTree(NameContainer::getName())
 {
   checkSize();
   nodesNum = (sizeof(Derived) - sizeof(Tree<NameContainer, Derived>)) / Details::NodeDataSize;
 }
+
+// for print size
+template<int diff, int basicNodeSize>
+struct CheckSize
+{
+  static_assert(diff % basicNodeSize == 0, "Tree contains incorrect nodes");
+  static_assert((diff >= basicNodeSize || diff == 0), "Tree contains incorrect nodes"); // 0 - for empty tree
+};
 
 } /* namespace TreeBinding */
 

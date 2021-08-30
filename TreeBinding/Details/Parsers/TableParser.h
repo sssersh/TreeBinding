@@ -102,7 +102,7 @@ TableParser::parse(NodeData<DataType> &node,
 {
   auto subtreesSet = (DataType*)(node.getValue()); // DataType = SubtreesSet<>
 
-  typedef DataType::value_type SubtreeElementType;
+  typedef typename DataType::value_type SubtreeElementType;
 
   auto keyFieldName   = std::string(SubtreeElementType().getKeyNodeName());
   auto keyColumnIndex = columnNameToIndex(keyFieldName);

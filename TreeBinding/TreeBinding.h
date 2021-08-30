@@ -10,8 +10,8 @@
 #include <map>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/access.hpp>
+#include "TreeBinding/Details/Parsers/ArchiveSerializerDecl.h"
 #include "TreeBinding/Details/TreeBindingDetails.h"
-#include "TreeBinding/Details/Parsers/ArchiveSerializer.h"
 
 namespace TreeBinding
 {
@@ -77,7 +77,7 @@ std::string Translator::toString(const type* const value)       \
 /*!
  *  \brief Type for store integer fields of Tree
  */
-typedef int32_t Integer;
+typedef int Integer;
 
 /*!
  * \copydoc NodesNum
@@ -156,20 +156,6 @@ public:
 } BasicTree;
 
 /*!
- * \brief serialize BasicTree by boost serializer
- * \param[out] ar      Serialized archive
- * \param[in]  version Data structure version
- */
-template<class Archive>
-void BasicTree::serialize(Archive & ar, const unsigned int version)
-{
-  for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
-  {
-    ar & (*nodeIt);
-  }
-}
-
-/*!
  * \brief Iterator for iterate over fields in tree
  */
 struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
@@ -189,6 +175,21 @@ struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, D
 };
 
 /*!
+ * \brief serialize BasicTree by boost serializer
+ * \param[out] ar      Serialized archive
+ * \param[in]  version Data structure version
+ */
+// TODO: move to defs file
+template<class Archive>
+void BasicTree::serialize(Archive & ar, const unsigned int version)
+{
+  for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
+  {
+    ar & (*nodeIt);
+  }
+}
+
+/*!
  * \brief  Tree
  * \tparam T Structure, which represent tree (derived of current struct)
  * \tparam NameContainer Container with name of tree
@@ -200,7 +201,11 @@ struct Tree : public BasicTree
   typedef NameContainer NameContainer_;
 
 private:
-  template<typename T1 = Details::CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
+  template<int diff, int basicNodeSize>
+  struct CheckSize;
+
+  // Replace it by 
+//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
   static void checkSize() {}
 
 //  friend class boost::serialization::access;
@@ -214,6 +219,10 @@ private:
 #define TREE_TREE(...) TREE_BINDING_DETAILS_TREE_COMMON(__VA_ARGS__) 
 
 } /* namespace TreeBinding */
+
+#include "TreeBinding/Details/Parsers/TableParser.h"
+#include "TreeBinding/Details/Parsers/PtreeWriter.h"
+#include "TreeBinding/Details/Parsers/ArchiveSerializer.h"
 
 // Function definitions file
 #include "TreeBinding/Details/TreeBindingDefs.h"
