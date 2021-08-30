@@ -50,7 +50,6 @@ file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 # from list of files we'll create tests test_name.cpp -> test_name
 foreach(_test_file ${TEST_SRC_FILES})
-	message(_test_file)
 	get_filename_component(_test_name ${_test_file} NAME_WE)
 	add_executable(${_test_name} ${_test_file})
 	add_dependencies(${_test_name} "googletest.git")

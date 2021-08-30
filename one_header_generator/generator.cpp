@@ -470,10 +470,12 @@ R"(/*!
  */
 int main(int argc, char* argv[])
 {
+    if(argc != 2) return -1;
+
     try
     {
         Generator generator = {
-            "./../.."      ,
+            argv[1]      ,
             "TreeBinding"  ,
             "TreeBinding.h",
             "include",
@@ -481,9 +483,12 @@ int main(int argc, char* argv[])
             CONTENT_LINE_INDEX
         };
         generator.generate();
+        std::cout << "Succesfully generate one header include file in directory " << argv[1] << std::endl;
+        return 0;
     }
     catch(const std::exception& e)
     {
-        std::cout << e.what();
+        std::cout << "One header generator error: \n" << e.what();
+        return -1;
     }
 }

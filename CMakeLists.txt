@@ -24,6 +24,8 @@ set(INCLUDES
 # Include all directories to keep navigation in CLion in origin sources in folder TreeBindiing
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory (one_header_generator)
+
 set(TEST_DIR tests)
 
 #if(BUILD_TESTING)
