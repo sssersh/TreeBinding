@@ -1,0 +1,57 @@
+
+
+Как реализовать итерацию по полям и не обжечься об стандарт.
+
+
+
+Можно придумать различные методы итерации по полям структуры, которые будут работать. Но при детальном рассмотрении с точки
+зрения стандарта окажется, что там присутсвует пресловутый UB.
+
+
+Чтобы использовать оператор инкремента для итерации по полям, необходимо, чтобы все поля были layout-compatible: имели одинаковый размер и можно было
+преобразовывать корректно (почитать подробнее https://en.cppreference.com/w/cpp/language/data_members#Standard_layout).
+
+
+
+
+(может не добавлять в статью, просто указать, что структура должна удовлетворять st layout)
+standard-layout тип:
+
+
+
+
+Почитать про strict aliasing, не нарушает ли мой метод его (https://en.cppreference.com/w/cpp/language/reinterpret_cast#Type_aliasing)
+
+
+
+
+
+Метод 1:
+
+Если использовать для итерации по полям такой метод:
+
+Т.е. храним поле в виде данных и пытаемся сдвинуть 
+
+struct Data
+{
+	Field<int>         intField   ;
+	Field<std::string> stringField;
+}
+
+Data data;
+
+char* charPtr = static_cast<char*>(&data.intField); // Допустимое преобразование
+charPtr += sizeof(data.intField);
+std::string* stringPtr = reinterpret_cast<std::string*>(charPtr); // УТОЧНИТЬ: UB: нарушение string aliasing (в общем случае вдобавок - проблемы с выравниванием)
+
+
+
+Метод 2:
+
+offsetof(struct Numbers, FirstChar);
+
+Не подходит, т.к. необходимо указывать имя поля.
+
+
+
+
