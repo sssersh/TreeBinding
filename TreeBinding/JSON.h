@@ -21,8 +21,6 @@ typedef TreeBinding::Integer Integer;
  */
 typedef TreeBinding::NodesNum ItemNum;
 
-
-
 /*!
  * \brief   JSON child declaration
  * \warning Each macro call should be placed in different lines
@@ -51,4 +49,3 @@ typedef TreeBinding::NodesNum ItemNum;
 } /* namespace JSON */
 
 #endif /* _JSON_H_ */
-  

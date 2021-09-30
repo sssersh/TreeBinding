@@ -11,9 +11,6 @@
 #include <cinttypes>
 #include <type_traits>
 #include "TreeBinding/Details/TreeBindingDecl.h"
-#include "TreeBinding/Details/Parsers/TableParser.h"
-#include "TreeBinding/Details/Parsers/PtreeWriter.h"
-#include "TreeBinding/Details/Parsers/ArchiveSerializerDecl.h"
 
 namespace TreeBinding
 {
@@ -69,6 +66,7 @@ public:
                           RowsRange const &rows) = 0;
 
   virtual void writePtree(boost::property_tree::ptree &tree) const = 0;
+  bool operator== (BasicNodeData const &rhs) const;
 
   const char* const name;        /*!< Node name                        */
   const NodesNum    requiredNum; /*!< Required number of nodes in tree */
@@ -79,8 +77,6 @@ public:
 
 
 protected:
-  bool operator== (BasicNodeData const &rhs) const;
-
   friend class boost::serialization::access;
 
   friend class NodeTableParser;
@@ -127,8 +123,8 @@ public:
   virtual void serializeData(boost::archive::text_oarchive & ar, const unsigned int version) override final;
 
   // [] is accessible only when DataType is container
-  template<typename KeyType, typename T = DataType::const_iterator>
-  T operator[](const KeyType &key) const;
+  template<typename KeyType, typename T = DataType>
+  typename T::const_iterator operator[](const KeyType &key) const;
 
   virtual void* getValue()                            const override final;
 
@@ -197,21 +193,21 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
 //  template<typename T = std::remove_cv<DeducedDataType>::type>
   const DeducedDataType& operator=(const DeducedDataType& rhs)
   {
-    validity = true;
-    return *value = rhs;
+    this->validity = true;
+    return *this->value = rhs;
   }
 //  template<typename T = std::remove_cv<DeducedDataType>::type>
   const DeducedDataType& operator=(const DeducedDataType&& rhs)
   {
-    validity = true;
-    return *value = rhs;
+    this->validity = true;
+    return *this->value = rhs;
   }
   Node& operator=(const Node&) = default;
 
-  template<typename KeyType, typename T = DeducedDataType::const_iterator>
-  T operator[](const typename KeyType &key) const
+  template<typename KeyType, typename T = DeducedDataType>
+  typename T::const_iterator operator[](const KeyType &key) const
   {
-    return this->typename NodeData<DeducedDataType>::operator[](key);
+    return this->NodeData<DeducedDataType>::operator[](key);
   }
 
   DeducedDataType& operator*() { return *this->value; };
@@ -221,7 +217,14 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
   const DeducedDataType* const operator->() const { return this->value; };
 };
 
-static_assert(sizeof(Node<int, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
+struct AssertName 
+{
+  static const char* const getName()
+  {
+    return "";
+  }
+};
+static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
 #define TREE_BINDING_DETAILS_TOKEN_PASTE(x, y) x##y
 

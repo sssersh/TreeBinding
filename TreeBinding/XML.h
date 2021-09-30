@@ -27,7 +27,8 @@ typedef TreeBinding::NodesNum ItemNum;
  * \param[in] 2nd literal
  * \param[in] 3rd literal
  */
-#define XML_DETAILS_TOKEN_PASTE(x, y, z) x##y##z
+// may be use x##y##z for visual studio
+#define XML_DETAILS_TOKEN_PASTE(x, y, z) x y z 
 
 /*!
  * \brief Concatenate 3 string literals
