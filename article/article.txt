@@ -1,4 +1,6 @@
 
+
+
 **************************************
  П О С М О Т Р Е Т Ь 
 **************************************
@@ -15,6 +17,22 @@ http://govnokod.ru/25558
 Посмотреть слайд 5:
 https://llvm.org/devmtg/2017-10/slides/Finkel-The%20Type%20Sanitizer.pdf
 
+magic_get работает с вложенными структурами? Если нет, то указать, что это причина, почему не подходит.
+Для вложенных эл-ов должен быть массив.
+Если есть структура 
+struct A
+{
+    std::vector<int> a;
+}
+То ее можно инициализировать с помощью 
+A x = { 1, 2 };
+Вместо
+A x = { { 1, 2 } };
+Если можно, то magic_get не подходит.
+
+
+Посмотреть, magic_get перерос в boost или нет, рассматривать их как одну библиотеку или нет.
+
 **************************************
  К О М М Е Н Т А Р И И
 **************************************
@@ -29,7 +47,7 @@ https://llvm.org/devmtg/2017-10/slides/Finkel-The%20Type%20Sanitizer.pdf
 
 
 
-
+Здесь мы не будем писать yet another XML/JSON парсер, здесь будет реализация отображения property_tree из boost на пользовательские структуры данных.
 
 
 
@@ -39,6 +57,7 @@ https://llvm.org/devmtg/2017-10/slides/Finkel-The%20Type%20Sanitizer.pdf
 Объявление в чисто декларативном стиле, без ручной реализации парсеров
 one-header
 никаких сторонних утилит
+возможность обращаться к полям напрямую, используя их имя 
 возможность проверки схемы (например, требуемое кол-во эл-ов. посмотреть, что еще проверяется в XMLSchema кроме кол-ва - наверное что число лежит в нужном диапазоне )
 возможность хранить вместе с полем дополнительную информацию:
  - имя поля
@@ -46,13 +65,12 @@ one-header
  - валидность
  - возможность задавать функции-трансляторы (в основном для enum, так же для проверки вхождения в допустимый диапазон. enum в файле тоже могут иметь символы точка и т.д.)
 
-Имя поля необходимо хранить в виде строки, так как необходима возможность задавать имена с такими же ограничениям, как в XML, JSON (например, использовать "." в названии) 
-(посмотреть, можно ли называть в XML, JSON поля, начиная с цифры. Если да, то указать, что это необходимо )
+Имя поля необходимо хранить в виде строки, так как необходима возможность задавать имена с такими же ограничениям, как в XML (например, использовать "." в названии) JSON (использовать любую валидную строку в качестве имени поля) 
 
 
 Необходима простая интеграция в различные системы сборки. Поэтому - one header и без сторонних утилит.
 Так же необходимо задание имен полей в файле. Т.к. на именование идентификаторов в тексте программы на С++ наложены ограничения, 
-то использовать просто имя поля не получится, необходимо дополнительно задавать литерал.
+то использовать просто имя поля не получится, необходимо дополнительно задавать строку.
 Внутренне хочется подойти к решению этой проблемы с другого конца - поменять именование полей/элементов в JSON/XML. 
 Но эти файлы поступают извне, изменить их нет возможности, значительная часть оных вообще сгенерированна проприетарным ПО. 
 
@@ -108,6 +126,55 @@ standard-layout тип:
 type erasure не получится, т.к. в самом типе необходимо помнить, какой тип хранится в данный момент. 
 
 
+
+Cppreference:
+ (в определении layout): For non-union class types, non-zero-sized members are always allocated so that the members declared later have higher addresses within a class object. т.е. порядок следования определен.
+В определении standard layout: A pointer to an object of standard-layout class type can be reinterpret_cast to pointer to its first non-static non-bitfield data member (if it has non-static data members) or otherwise any of its base class subobjects (if it has any) (since C++11), and vice versa. In other words, padding is not allowed before the first data member of a standard-layout type. Note that strict aliasing rules still apply to the result of such cast.
+
+Стандарт:
+9.2 14
+Nonstatic data members of a (non-union) class with the same access control (Clause 11) are allocated so
+that later members have higher addresses within a class object. The order of allocation of non-static data
+members with different access control is unspecified (Clause 11). Implementation alignment requirements
+might cause two adjacent members not to be allocated immediately after each other; so might requirements
+for space for managing virtual functions (10.3) and virtual base classes (10.1).
+9.2 19
+ If a standard-layout class object has any non-static data members, its address is the same as the address
+of its first non-static data member. Otherwise, its address is the same as the address of its first base class
+subobject (if any). [ Note: There might therefore be unnamed padding within a standard-layout struct
+object, but not at its beginning, as necessary to achieve appropriate alignment. — end note ]
+
+
+
+По ходу нельзя итерироваться по полям, т.к. 
+struct A
+{
+    int a;
+    int b;
+    inc c;
+}
+и
+struct И
+{
+    int a[3];
+}
+Не являются layout compatible.
+
+Но:
+1. По стандарту адрес структуры А = адресу 1 поля
+2. Поля, объявленные раньше, располагаются в меньших адресах
+3. Ввести ограничение, что работаем только в случае, если sizeof(A) == sizeof(int[3]), т.е. выравнивания нет, то 
+
+вроде как должно работать.
+
+Загуглить "layout compatible array and struct"
+
+
+В случае просто расположения переменных в функции
+int x;
+int y;
+ничего в стандарте не сказано, что (&x)++ == &y.
+Но для структуры есть п. 9.2 19, поэтому, если выравнивания нет, то получим нужное поле.
 
 
 
