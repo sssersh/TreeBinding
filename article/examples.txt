@@ -6,3 +6,4 @@ https://github.com/deftio/travis-ci-cpp-example - get titles from it
 https://github.com/KanoComputing/googletest-sample
 https://github.com/mintomic/mintomic
 https://github.com/muellan/clipp
+https://github.com/izvolov/burst
