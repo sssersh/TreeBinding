@@ -26,7 +26,7 @@ namespace Details
  * \brief NodeData parser from table 
  * \note  Use indexes for range, because sort table
  */
-typedef struct TableParser
+struct TableParser
 {
 
   template<typename DataType>
@@ -50,7 +50,7 @@ typedef struct TableParser
           std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
-} TableParser;
+};
 
 // parse leaf
 template<typename DataType>

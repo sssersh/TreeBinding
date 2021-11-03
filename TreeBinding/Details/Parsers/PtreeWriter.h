@@ -17,7 +17,7 @@ namespace Details
 /*!
  * \brief NodeData writer to ptree
  */
-typedef class PtreeWriter
+class PtreeWriter
 {
 public:
 
@@ -36,7 +36,7 @@ public:
   write(NodeData<DataType> const &node,
         boost::property_tree::ptree &tree);
 
-} PtreeWriter;
+};
 
 template<typename DataType>
 typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>

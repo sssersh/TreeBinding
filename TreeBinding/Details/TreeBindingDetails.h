@@ -18,7 +18,7 @@ namespace TreeBinding
 /*!
  *  \brief Type for represent number of fields in Tree object
  */
-typedef struct NodesNum
+struct NodesNum
 {
   typedef int32_t ValueType;
 
@@ -35,7 +35,7 @@ typedef struct NodesNum
 
 private:
   ValueType value;
-} NodesNum;
+};
 
 namespace Details
 {
@@ -46,7 +46,7 @@ namespace Details
 static const char DEFAULT_DELIMETER = '/';
 
 // Base class used for iteration in Tree
-typedef class BasicNodeData : public Archivable
+class BasicNodeData : public Archivable
 {
 public:
 
@@ -83,7 +83,7 @@ protected:
   friend class PtreeWriter;
   friend class BasicTree;
   template <typename, typename> friend struct Tree;
-} BasicNodeData;
+};
 
 // for cast unrefenced iterator to target type
 template<typename T>

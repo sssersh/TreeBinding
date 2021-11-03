@@ -133,7 +133,7 @@ namespace TreeBinding
 /*!
  *  \brief Type for represent number of fields in Tree object
  */
-typedef struct NodesNum
+struct NodesNum
 {
   typedef int32_t ValueType;
 
@@ -150,7 +150,7 @@ typedef struct NodesNum
 
 private:
   ValueType value;
-} NodesNum;
+};
 
 namespace Details
 {
@@ -161,7 +161,7 @@ namespace Details
 static const char DEFAULT_DELIMETER = '/';
 
 // Base class used for iteration in Tree
-typedef class BasicNodeData : public Archivable
+class BasicNodeData : public Archivable
 {
 public:
 
@@ -198,7 +198,7 @@ protected:
   friend class PtreeWriter;
   friend class BasicTree;
   template <typename, typename> friend struct Tree;
-} BasicNodeData;
+};
 
 // for cast unrefenced iterator to target type
 template<typename T>
@@ -444,6 +444,7 @@ struct Translator
    *  \param[out] value Pointer to target value
    */
   template<typename T>
+  // TODO: T as return type
   static void fromString(std::string const &str, T* const value);
 
   /*! 
@@ -515,15 +516,15 @@ struct NodesNum;
 /*!
  * \brief Exception for signal wrong number of childs elements in tree
  */
-typedef struct WrongChildsNumException : public std::runtime_error
+struct WrongChildsNumException : public std::runtime_error
 {
   WrongChildsNumException(std::string const &nodeName, NodesNum const requiredNum, int const actuallyNum);
-} WrongChildsNumException;
+};
 
 /*!
  * \brief Basic tree
  */
-typedef class BasicTree
+class BasicTree
 {
 
 protected:
@@ -566,7 +567,7 @@ public:
   bool containValidNodes() const;
 
 //  template<typename, typename> friend class Tree;
-} BasicTree;
+};
 
 /*!
  * \brief Iterator for iterate over fields in tree
@@ -657,7 +658,7 @@ namespace Details
  * \brief NodeData parser from table 
  * \note  Use indexes for range, because sort table
  */
-typedef struct TableParser
+struct TableParser
 {
 
   template<typename DataType>
@@ -681,7 +682,7 @@ typedef struct TableParser
           std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
-} TableParser;
+};
 
 // parse leaf
 template<typename DataType>
@@ -824,7 +825,7 @@ namespace Details
 /*!
  * \brief NodeData writer to ptree
  */
-typedef class PtreeWriter
+class PtreeWriter
 {
 public:
 
@@ -843,7 +844,7 @@ public:
   write(NodeData<DataType> const &node,
         boost::property_tree::ptree &tree);
 
-} PtreeWriter;
+};
 
 template<typename DataType>
 typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>

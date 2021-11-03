@@ -31,6 +31,7 @@ struct Translator
    *  \param[out] value Pointer to target value
    */
   template<typename T>
+  // TODO: T as return type
   static void fromString(std::string const &str, T* const value);
 
   /*! 
@@ -102,15 +103,15 @@ struct NodesNum;
 /*!
  * \brief Exception for signal wrong number of childs elements in tree
  */
-typedef struct WrongChildsNumException : public std::runtime_error
+struct WrongChildsNumException : public std::runtime_error
 {
   WrongChildsNumException(std::string const &nodeName, NodesNum const requiredNum, int const actuallyNum);
-} WrongChildsNumException;
+};
 
 /*!
  * \brief Basic tree
  */
-typedef class BasicTree
+class BasicTree
 {
 
 protected:
@@ -153,7 +154,7 @@ public:
   bool containValidNodes() const;
 
 //  template<typename, typename> friend class Tree;
-} BasicTree;
+};
 
 /*!
  * \brief Iterator for iterate over fields in tree
