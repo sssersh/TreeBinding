@@ -1,0 +1,13 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+before_script:
+  - rm -rf build
+  - mkdir build
+  - cd build
+script:
+  - cmake ..
+  - make -j
+notifications:
+  email: false

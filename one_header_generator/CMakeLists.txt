@@ -24,5 +24,5 @@ execute_process(COMMAND ./${EXE} ${CMAKE_SOURCE_DIR}
 message("${GENERATOR_OUTPUT}")
 
 if(GENERATOR_RETURN)
-    message(FATAL_ERROR "")
+#    message(FATAL_ERROR "")
     endif()
