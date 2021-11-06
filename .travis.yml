@@ -46,8 +46,6 @@ before_script:
 script:
   - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON ..
   - make -j
-  - make project1_coverage
-  - ctest
 
 notifications:
   email: false
