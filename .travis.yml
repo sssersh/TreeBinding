@@ -1,16 +1,26 @@
 sudo: required
 language: cpp
 
+env:
+  global:
+    # Ubuntu version
+    - LINUX_DIST=bionic
+    - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
+    # Global build options and C++ flags
+    - CXX_FLAGS="-Wall -Wpedantic -Werror -Wno-variadic-macros -Wno-long-long -Wno-shadow"
+    # Misc
+    - RUN_TESTS=true
+    - COVERAGE=false
+
 cache:
   directories:
-    - ${TRAVIS_BUILD_DIR}/deps
+    - ${DEPS_DIR}
 
 compiler:
   - gcc
   - clang
 
 install:
-  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - |
     if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
 
@@ -34,8 +44,10 @@ before_script:
   - cd build
 
 script:
-  - cmake ..
+  - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON ..
   - make -j
+  - make project1_coverage
+  - ctest
 
 notifications:
   email: false
