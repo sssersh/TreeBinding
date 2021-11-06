@@ -238,8 +238,8 @@ public:
   virtual void serializeData(boost::archive::text_oarchive & ar, const unsigned int version) override final;
 
   // [] is accessible only when DataType is container
-  template<typename KeyType, typename T = DataType>
-  typename T::const_iterator operator[](const KeyType &key) const;
+//  template<typename KeyType, typename T = DataType>
+//  typename T::const_iterator operator[](const KeyType &key) const;
 
   virtual void* getValue()                            const override final;
 
@@ -319,11 +319,13 @@ struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTr
   }
   Node& operator=(const Node&) = default;
 
+  /*
   template<typename KeyType, typename T = DeducedDataType>
   typename T::const_iterator operator[](const KeyType &key) const
   {
     return this->NodeData<DeducedDataType>::operator[](key);
   }
+   */
 
   DeducedDataType& operator*() { return *this->value; };
   const DeducedDataType& operator*() const { return *this->value; };
@@ -1185,6 +1187,7 @@ bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
   return *this->value == *static_cast<DataType*>(rhs.getValue());
 }
 
+/*
 template<typename DataType>
 template<typename KeyType, typename T>
 typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) const
@@ -1192,7 +1195,7 @@ typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) co
   static_assert(std::is_assignable< KeyType&, KeyType >::value, "Key type for operator [] should be assignable");
 
   return std::find_if(this->value->cbegin(), this->value->cend(), [&](typename DataType::const_reference element)
-  {  
+  {
     auto keyField = std::find_if(element.begin(), element.end(), [&](const BasicNodeData &node)
     {
       return dynamic_cast<const NodeData<KeyType>*>(&node);
@@ -1201,6 +1204,7 @@ typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) co
     return static_cast<NodeData<KeyType>&>(*keyField) == key;
   });
 }
+*/
 
 template<typename T>
 void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter)
@@ -1835,7 +1839,7 @@ typedef TreeBinding::NodesNum ItemNum;
 #define XML_ATTR(name, ...) TREE_NODE( XML_DETAILS_CONCAT("<xmlattr>", XML_DETAILS_PATH_DELIMETER, name), __VA_ARGS__)
 
 /*!
- * \brief   XML child declaration
+ * \brief   XML childs declaration
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Child's data type 
  *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
@@ -1876,7 +1880,7 @@ typedef TreeBinding::Integer Integer;
 typedef TreeBinding::NodesNum ItemNum;
 
 /*!
- * \brief   JSON child declaration
+ * \brief   JSON childs declaration
  * \warning Each macro call should be placed in different lines
  * \param[in] ... 1. Child name. 
  * \param[in] ... 2. Child's data type

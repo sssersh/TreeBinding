@@ -180,6 +180,7 @@ bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
   return *this->value == *static_cast<DataType*>(rhs.getValue());
 }
 
+/*
 template<typename DataType>
 template<typename KeyType, typename T>
 typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) const
@@ -187,7 +188,7 @@ typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) co
   static_assert(std::is_assignable< KeyType&, KeyType >::value, "Key type for operator [] should be assignable");
 
   return std::find_if(this->value->cbegin(), this->value->cend(), [&](typename DataType::const_reference element)
-  {  
+  {
     auto keyField = std::find_if(element.begin(), element.end(), [&](const BasicNodeData &node)
     {
       return dynamic_cast<const NodeData<KeyType>*>(&node);
@@ -196,6 +197,7 @@ typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) co
     return static_cast<NodeData<KeyType>&>(*keyField) == key;
   });
 }
+*/
 
 template<typename T>
 void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter)
