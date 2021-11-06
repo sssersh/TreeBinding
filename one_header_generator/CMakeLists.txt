@@ -1,3 +1,6 @@
+#
+# Build one header generator and run it
+#
 
 cmake_minimum_required(VERSION 3.10.1)
 
@@ -22,7 +25,3 @@ execute_process(COMMAND ./${EXE} ${CMAKE_SOURCE_DIR}
         )
 
 message("${GENERATOR_OUTPUT}")
-
-if(GENERATOR_RETURN)
-#    message(FATAL_ERROR "")
-    endif()
