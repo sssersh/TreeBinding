@@ -33,7 +33,7 @@ install:
       # Install conan
       sudo apt install python3
       sudo apt install python3-pip
-      sudo pip install conan
+      sudo python3 -m pip install -U conan
 
       # Sets libcxx to C++11 ABI
       conan profile new default --detect
