@@ -31,7 +31,8 @@ install:
       export PATH=${DEPS_DIR}/cmake/bin:${PATH}
 
       # Install conan
-      pip install conan
+      sudo apt install python3-pip
+      sudo pip install conan
 
       # Sets libcxx to C++11 ABI
       conan profile new default --detect
