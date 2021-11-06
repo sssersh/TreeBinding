@@ -32,12 +32,6 @@ add_subdirectory (one_header_generator)
 
 set(TEST_DIR tests)
 
-# Boost
-#FIND_PACKAGE( Boost 1.67 COMPONENTS serialization REQUIRED )
-#include_directories( ${Boost_INCLUDE_DIR} )
-#set(LIBS ${Boost_LIBRARIES})
-
-#if(BUILD_TESTING)
-#    add_subdirectory (${TEST_DIR})
+#if(BUILD_TESTS)
+    add_subdirectory (${TEST_DIR})
 #endif()
-
