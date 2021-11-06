@@ -45,6 +45,8 @@ before_script:
 
 script:
   - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON ..
+  - conan install .. -s build_type=Debug --build=missing
+  - conan install .. -s build_type=Release --build=missing
   - make -j
 
 notifications:
