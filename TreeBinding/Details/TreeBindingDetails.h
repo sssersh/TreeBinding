@@ -297,12 +297,14 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
 
 #define TREE_BINDING_DETAILS_TREE_GET_MACRO(_1, _2, TARGET_MACRO, ...) TARGET_MACRO
 
-
+// Pass empty string to TREE_BINDING_DETAILS_TREE_GET_MACRO() to avoid error
+// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
 #define TREE_BINDING_DETAILS_TREE_COMMON(...)                       \
   TREE_BINDING_DETAILS_EXPAND(                                      \
     TREE_BINDING_DETAILS_TREE_GET_MACRO(__VA_ARGS__,                \
                                        TREE_BINDING_DETAILS_TREE_2, \
-                                       TREE_BINDING_DETAILS_TREE_1  \
+                                       TREE_BINDING_DETAILS_TREE_1, \
+                                       ""                           \
                                       )(__VA_ARGS__)                \
                              )
 

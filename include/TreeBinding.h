@@ -405,19 +405,21 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  */
 #define TREE_BINDING_DETAILS_TREE_2(type, name) \
   TREE_BINDING_DETAILS_STRING_CONTAINER(name);  \
-  struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
+  struct type : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
 
 
 #define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
 
 #define TREE_BINDING_DETAILS_TREE_GET_MACRO(_1, _2, TARGET_MACRO, ...) TARGET_MACRO
 
-
+// Pass empty string to TREE_BINDING_DETAILS_TREE_GET_MACRO() to avoid error
+// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
 #define TREE_BINDING_DETAILS_TREE_COMMON(...)                       \
   TREE_BINDING_DETAILS_EXPAND(                                      \
     TREE_BINDING_DETAILS_TREE_GET_MACRO(__VA_ARGS__,                \
                                        TREE_BINDING_DETAILS_TREE_2, \
-                                       TREE_BINDING_DETAILS_TREE_1  \
+                                       TREE_BINDING_DETAILS_TREE_1, \
+                                       ""                           \
                                       )(__VA_ARGS__)                \
                              )
 
@@ -1307,7 +1309,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
 
   /* Check num */
-  if ((requiredNum.isCertain()            && (decltype(requiredNum))subtreesSet->size() != requiredNum) ||
+  if ((requiredNum.isCertain()            && subtreesSet->size() != requiredNum) ||
     (NodesNum::MORE_THAN_0 == requiredNum && 0 == subtreesSet->size()))
   {
     throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, subtreesSet->size()));

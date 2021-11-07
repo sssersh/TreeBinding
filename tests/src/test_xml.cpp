@@ -22,11 +22,14 @@ enum class EnumType
     ENUM3
 };
 
+namespace TreeBinding
+{
+
 /*!
  * \brief \copydoc TreeBinding::Translator::fromString(std::string const &str,EnumType *value)
  */
 template<>
-void TreeBinding::Translator::fromString(std::string const &str, EnumType *value)
+void Translator::fromString(std::string const &str, EnumType *value)
 {
     static const std::map<std::string, EnumType> stringToEnum =
     {
@@ -53,6 +56,8 @@ std::string TreeBinding::Translator::toString(const EnumType* const value)
 
     return enumToString.at(*value);
 }
+
+} // namespace TreeBinding
 
 /*!
  * \brief Most nested element

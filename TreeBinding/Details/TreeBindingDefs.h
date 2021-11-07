@@ -24,7 +24,7 @@ NodeData<DataType>::NodeData(const char* const _name, NodesNum::ValueType const 
   BasicNodeData(_name, _requiredNum, !is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value)
 {
   value = new DataType(); // TODO: move to initialization list
-};
+}
 
 /*! \brief     NodeData constructor
  *  \details   Used virtual function for copy, specialized for this template arguments
@@ -36,7 +36,7 @@ NodeData<DataType>::NodeData(NodeData const &rhs) :
   NodeData(rhs.name, rhs.requiredNum)
 {
   this->copy(rhs);
-};
+}
 
 /*! 
  *  \brief     NodeData assignment operator
@@ -248,7 +248,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     }
     validity = true;
   }
-};
+}
 
 // parse subtree array
 // pathDelimeter not used
@@ -307,7 +307,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
   
   validity = true;
-};
+}
 
 // parse single subtree
 template<typename DataType>
@@ -347,7 +347,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
 
   validity = true;
-};
+}
 
 template<typename T>
 void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
