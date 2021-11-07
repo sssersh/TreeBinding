@@ -300,7 +300,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
 
   /* Check num */
-  if ((requiredNum.isCertain()            && subtreesSet->size() != requiredNum) ||
+  if ((requiredNum.isCertain()            && (decltype(requiredNum))subtreesSet->size() != requiredNum) ||
     (NodesNum::MORE_THAN_0 == requiredNum && 0 == subtreesSet->size()))
   {
     throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, subtreesSet->size()));

@@ -274,11 +274,14 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  */
 #define TREE_BINDING_DETAILS_NODE_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
 
+// Pass empty string to TREE_BINDING_DETAILS_NODE_GET_MACRO() to avoid error
+// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
 #define TREE_BINDING_DETAILS_NODE_COMMON(...)                       \
   TREE_BINDING_DETAILS_EXPAND(                                      \
     TREE_BINDING_DETAILS_NODE_GET_MACRO(__VA_ARGS__,                \
                                        TREE_BINDING_DETAILS_NODE_3, \
-                                       TREE_BINDING_DETAILS_NODE_2  \
+                                       TREE_BINDING_DETAILS_NODE_2, \
+                                       ""                           \
                                       )(__VA_ARGS__)                \
                              )
 
@@ -290,7 +293,7 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  */
 #define TREE_BINDING_DETAILS_TREE_2(type, name) \
   TREE_BINDING_DETAILS_STRING_CONTAINER(name);  \
-  struct type : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
+  struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
 
 
 #define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
