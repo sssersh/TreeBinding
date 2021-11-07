@@ -116,7 +116,7 @@ void File::write(const fs::path &path) const
 
 /*!
  * \brief   Delete file description in Doxygen format
- * \details 1. Find line with "/*!"
+ * \details 1. Find line with "{SLASH}*!"
  *          2. Find line with "\file"
  *          3. Find line with "*\/"
  *          4. Delete
@@ -320,7 +320,7 @@ void Generator::deleteIncludeMainFile()
 
 /*!
  * \brief     Preprocess file
- * \details   Recursively replace line contained "#include "srcDirName/*" with content of file.
+ * \details   Recursively replace line contained "#include "srcDirName{SLASH}*" with content of file.
  *            Multiply included of one file ignored.
  * \param[in] file Internal representation of file
  * \param[in] alreadyIncludedFiles Already included files (used rvalue reference because it's necessary to
@@ -363,7 +363,7 @@ void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyInclud
  *                2.1 Delete these lines.
  *                2.2 Save guard identifier
  *          b. If contains saved guard identifiers
- *             1. If line contain "#endif /* last_guard_identifier *\/, delete line.
+ *             1. If line contain "#endif {SLASH}* last_guard_identifier *\/, delete line.
  */
 void Generator::deleteIncludeGuards()
 {
@@ -408,7 +408,7 @@ File Generator::insertOutFileInTemplate()
 }
 
 /*!
- * \brief Determine, line contain start of Doxygen comment or not ("/*!")
+ * \brief Determine, line contain start of Doxygen comment or not ("{SLASH}*!")
  * \param[in] str Line from source file
  * \retval true  Line contain start of Doxygen comment
  * \retval false Otherwise
