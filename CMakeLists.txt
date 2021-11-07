@@ -13,7 +13,7 @@ project(${PROJECT_NAME} CXX)
 set (CMAKE_CXX_STANDARD 17)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g") #-Wall -ansi -Wno-deprecated
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wpedantic -Werror")
 endif()
 
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)

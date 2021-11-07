@@ -405,7 +405,7 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  */
 #define TREE_BINDING_DETAILS_TREE_2(type, name) \
   TREE_BINDING_DETAILS_STRING_CONTAINER(name);  \
-  struct type : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
+  struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
 
 
 #define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
@@ -1031,7 +1031,7 @@ NodeData<DataType>::NodeData(const char* const _name, NodesNum::ValueType const 
   BasicNodeData(_name, _requiredNum, !is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value)
 {
   value = new DataType(); // TODO: move to initialization list
-};
+}
 
 /*! \brief     NodeData constructor
  *  \details   Used virtual function for copy, specialized for this template arguments
@@ -1043,7 +1043,7 @@ NodeData<DataType>::NodeData(NodeData const &rhs) :
   NodeData(rhs.name, rhs.requiredNum)
 {
   this->copy(rhs);
-};
+}
 
 /*! 
  *  \brief     NodeData assignment operator
@@ -1255,7 +1255,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
     }
     validity = true;
   }
-};
+}
 
 // parse subtree array
 // pathDelimeter not used
@@ -1307,14 +1307,14 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
 
   /* Check num */
-  if ((requiredNum.isCertain()            && subtreesSet->size() != requiredNum) ||
+  if ((requiredNum.isCertain()            && (decltype(requiredNum))subtreesSet->size() != requiredNum) ||
     (NodesNum::MORE_THAN_0 == requiredNum && 0 == subtreesSet->size()))
   {
     throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, subtreesSet->size()));
   }
   
   validity = true;
-};
+}
 
 // parse single subtree
 template<typename DataType>
@@ -1354,7 +1354,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   }
 
   validity = true;
-};
+}
 
 template<typename T>
 void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
@@ -1839,7 +1839,7 @@ typedef TreeBinding::NodesNum ItemNum;
 #define XML_ATTR(name, ...) TREE_NODE( XML_DETAILS_CONCAT("<xmlattr>", XML_DETAILS_PATH_DELIMETER, name), __VA_ARGS__)
 
 /*!
- * \brief   XML childs declaration
+ * \brief   XML child declaration
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Child's data type 
  *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
@@ -1880,7 +1880,7 @@ typedef TreeBinding::Integer Integer;
 typedef TreeBinding::NodesNum ItemNum;
 
 /*!
- * \brief   JSON childs declaration
+ * \brief   JSON child declaration
  * \warning Each macro call should be placed in different lines
  * \param[in] ... 1. Child name. 
  * \param[in] ... 2. Child's data type

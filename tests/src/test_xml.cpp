@@ -86,7 +86,7 @@ static const std::string CORRECT_XML_DATA =
 R"(
 <RootElement StringAttrName="StringValue">
     <NestedElement IntegerAttrName="22">
-        <MostNestedElement StringAttrName="StringValue1"  IntegerAttrName="1"  EnumAttr="ENUM2"/>
+        <MostNestedElement StringAttrName="StringValue1" IntegerAttrName="1"  EnumAttr="ENUM2"/>
         <MostNestedElement StringAttrName="StringValue5" IntegerAttrName="11"/>
     </NestedElement>
 </RootElement>
@@ -103,11 +103,11 @@ TEST(get_number_test, returns_correct_value) {
     rootXmlElement.parsePtree(propertyTree);
 
     ASSERT_EQ(*rootXmlElement.strAttr, "StringValue");
-    ASSERT_EQ(rootXmlElement.childs->size(), 1 );
+    ASSERT_EQ(rootXmlElement.childs->size(), 1ul );
 
     auto& nested = rootXmlElement.childs->at(0);
     ASSERT_EQ(*nested.intAttr, 22);
-    ASSERT_EQ(nested.childs->size(), 2);
+    ASSERT_EQ(nested.childs->size(), 2ul);
 
     auto& mostNested0 = nested.childs->at(0);
     auto& mostNested1 = nested.childs->at(1);
