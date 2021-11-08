@@ -13,8 +13,29 @@ project(${PROJECT_NAME} CXX)
 set (CMAKE_CXX_STANDARD 17)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wpedantic -Werror")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wpedantic -Werror -std=c++17")
 endif()
+
+# Add conan depencies
+execute_process(COMMAND conan install ${CMAKE_BINARY_DIR}/.. -s build_type=Debug --build=missing
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        RESULTS_VARIABLE GENERATOR_RETURN
+        OUTPUT_VARIABLE GENERATOR_OUTPUT
+        )
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
+# Check, that origin sources builds
+add_subdirectory (TreeBinding)
+
+# Compile one header generator
+add_subdirectory (one_header_generator)
+
+# Generate one header file from all sources
+add_custom_target(run_one_header_generator ALL
+        COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generator ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS generator
+        )
 
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
@@ -27,8 +48,6 @@ set(INCLUDES
 
 # Include all directories to keep navigation in CLion in origin sources in folder TreeBindiing
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-add_subdirectory (one_header_generator)
 
 set(TEST_DIR tests)
 

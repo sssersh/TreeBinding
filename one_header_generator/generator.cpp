@@ -249,8 +249,9 @@ Generator::Generator(const fs::path    &rootDir        ,
     // Add all header files from root sources directory
     for (const auto & srcFile : fs::directory_iterator(srcPath))
     {
-        if(srcFile.status().type() == fs::file_type::regular &&
-           srcFile.path().filename() != srcMainFileName)
+        if(srcFile.status().type()    == fs::file_type::regular &&
+           srcFile.path().filename()  != srcMainFileName        &&
+           srcFile.path().extension() == ".h" )
         {
             srcFilesNames.push_back(srcFile.path().filename());
         }
