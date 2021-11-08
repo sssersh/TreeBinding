@@ -108,7 +108,7 @@ TEST(get_number_test, returns_correct_value) {
     rootXmlElement.parsePtree(propertyTree);
 
     ASSERT_EQ(*rootXmlElement.strAttr, "StringValue");
-    ASSERT_EQ(rootXmlElement.childs->size(), 2ul );
+    ASSERT_EQ(rootXmlElement.childs->size(), 1ul );
 
     auto& nested = rootXmlElement.childs->at(0);
     ASSERT_EQ(*nested.intAttr, 22);
