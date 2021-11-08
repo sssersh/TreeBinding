@@ -123,7 +123,7 @@ void File::write(const fs::path &path) const
  */
 void File::deleteFileDescription()
 {
-    std::size_t begin, size;
+    std::size_t begin = 0, size;
     bool isFileDescription = false;
 
     size = lines.size();
