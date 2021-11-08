@@ -25,13 +25,3 @@ endforeach()
 # Target for run all tests
 add_executable(runAllTests ${TEST_SRC_FILES})
 target_link_libraries(runAllTests ${CMAKE_THREAD_LIBS_INIT} ${LIBS} ${CONAN_LIBS})
-
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.travis/cmake)
-
-if (ENABLE_COVERAGE)
-	include(CodeCoverage)
-	setup_target_for_coverage(${TEST_PROJECT_NAME}_coverage runAllTests coverage)
-
-	SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-	SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-endif() #CMAKE_BUILD_TYPE STREQUAL "Coverage"

@@ -6,7 +6,6 @@ env:
     # Ubuntu version (xenial contain bug - cannot find g++)
     - LINUX_DIST=bionic
     - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
-    - COVERAGE=OFF
 
 cache:
   directories:
@@ -27,9 +26,7 @@ matrix:
             - g++-7
             - valgrind
             - python-yaml
-      env:
-        - BUILD_TYPE=Release
-        - COVERAGE=ON
+      env: BUILD_TYPE=Debug
 
     - os: linux
       dist: bionic
@@ -43,17 +40,17 @@ matrix:
             - valgrind
             - python-yaml
             - lcov
-      env: BUILD_TYPE=Debug
-
-    - os: linux
-      dist: bionic
-      compiler: clang
       env: BUILD_TYPE=Release
 
     - os: linux
       dist: bionic
       compiler: clang
       env: BUILD_TYPE=Debug
+
+    - os: linux
+      dist: bionic
+      compiler: clang
+      env: BUILD_TYPE=Release
 
     # }
 
@@ -102,7 +99,7 @@ before_script:
   - cd build
 
 script:
-  - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTS=ON -DENABLE_COVERAGE=${COVERAGE} ..
+  - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTS=ON ..
   - make -j
   - ctest
 

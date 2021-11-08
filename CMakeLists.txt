@@ -20,6 +20,13 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wpedantic -Werror -std=c++17")
 endif()
 
+if (ENABLE_COVERAGE)
+    message("Enable coverage")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 --coverage")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+endif()
+
 # Add conan depencies
 execute_process(COMMAND conan install ${CMAKE_BINARY_DIR}/.. -s build_type=${CMAKE_BUILD_TYPE} --build=missing
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
