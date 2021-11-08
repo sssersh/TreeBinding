@@ -21,11 +21,37 @@ matrix:
 
     - os: linux
       compiler: g++
+      addons:
+        apt:
+          packages:
+            - gcc-7
+            - g++-7
+            - valgrind
+            - python-yaml
       env: BUILD_TYPE=Release
 
     - os: linux
       compiler: g++
+      addons:
+        apt:
+          packages:
+            - gcc-7
+            - g++-7
+            - valgrind
+            - python-yaml
       env: BUILD_TYPE=Debug
+
+    - os: linux
+      compiler: g++
+      addons:
+        apt:
+          packages:
+            - gcc-7
+            - g++-7
+            - valgrind
+            - python-yaml
+            - lcov
+      env: BUILD_TYPE=Coverage
 
     - os: linux
       compiler: clang
@@ -51,6 +77,11 @@ install:
   - |
     if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
 
+      echo ${PATH}
+      echo ${CXX}
+      ${CXX} --version
+      ${CXX} -v
+
       # Download and install recent cmake
       CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-linux-x86_64.tar.gz"
       mkdir -p ${DEPS_DIR}/cmake
@@ -63,6 +94,8 @@ install:
       sudo apt install python3-pip
       sudo apt-get install python3-setuptools
       sudo python3 -m pip install -U conan
+
+      sudo pip install codecov
 
       # Sets libcxx to C++11 ABI
       conan profile new default --detect

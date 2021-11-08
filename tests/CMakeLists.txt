@@ -8,8 +8,6 @@ cmake_minimum_required(VERSION 3.10.1)
 set(TEST_PROJECT_NAME tests)
 project(${TEST_PROJECT_NAME} CXX)
 
-#find_package(Threads REQUIRED)
-
 file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 include(GoogleTest)
@@ -23,3 +21,17 @@ foreach(_test_file ${TEST_SRC_FILES})
 	#	add_test(${_test_name} ${_test_name})
     #	set_tests_properties(${_test_name} PROPERTIES TIMEOUT 5)
 endforeach()
+
+# Target for run all tests
+add_executable(runAllTests ${TEST_SRC_FILES})
+target_link_libraries(runAllTests ${CMAKE_THREAD_LIBS_INIT} ${LIBS} ${CONAN_LIBS})
+
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.travis/cmake)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Coverage")
+	include(CodeCoverage)
+	setup_target_for_coverage(${TEST_PROJECT_NAME}_coverage runAllTests coverage)
+
+	SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+	SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+endif() #CMAKE_BUILD_TYPE STREQUAL "Coverage"
