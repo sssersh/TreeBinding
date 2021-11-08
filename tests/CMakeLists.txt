@@ -28,7 +28,7 @@ target_link_libraries(runAllTests ${CMAKE_THREAD_LIBS_INIT} ${LIBS} ${CONAN_LIBS
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.travis/cmake)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Coverage")
+if (ENABLE_COVERAGE)
 	include(CodeCoverage)
 	setup_target_for_coverage(${TEST_PROJECT_NAME}_coverage runAllTests coverage)
 
