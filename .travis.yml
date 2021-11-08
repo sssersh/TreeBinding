@@ -20,6 +20,7 @@ matrix:
     # Linux {
 
     - os: linux
+      sudo: true
       compiler: g++
       addons:
         apt:
@@ -31,6 +32,7 @@ matrix:
       env: BUILD_TYPE=Release
 
     - os: linux
+      sudo: true
       compiler: g++
       addons:
         apt:
@@ -42,6 +44,7 @@ matrix:
       env: BUILD_TYPE=Debug
 
     - os: linux
+      sudo: true
       compiler: g++
       addons:
         apt:
