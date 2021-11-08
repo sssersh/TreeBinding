@@ -9,6 +9,10 @@ set(${PROJECT_NAME} treebinding)
 
 project(${PROJECT_NAME} CXX)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 # Use s++17, because gcc can't find std::enable_if_t for c++11
 set (CMAKE_CXX_STANDARD 17)
 
@@ -17,7 +21,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 # Add conan depencies
-execute_process(COMMAND conan install ${CMAKE_BINARY_DIR}/.. -s build_type=Debug --build=missing
+execute_process(COMMAND conan install ${CMAKE_BINARY_DIR}/.. -s build_type=${CMAKE_BUILD_TYPE} --build=missing
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         RESULTS_VARIABLE GENERATOR_RETURN
         OUTPUT_VARIABLE GENERATOR_OUTPUT
@@ -51,6 +55,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TEST_DIR tests)
 
-#if(BUILD_TESTS)
+if(BUILD_TESTS)
+    enable_testing()
     add_subdirectory (${TEST_DIR})
-#endif()
+endif()
+
+# REPORT
+message( STATUS "")
+message( STATUS "General configuration for ${PROJECT_NAME}")
+message( STATUS "======================================")
+message( STATUS "")
+message( STATUS "   Configuration: ${CMAKE_BUILD_TYPE}")
+message( STATUS "")
