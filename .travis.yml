@@ -15,9 +15,33 @@ cache:
   directories:
     - ${DEPS_DIR}
 
-compiler:
-  - gcc
-  - clang
+matrix:
+  include:
+    # Linux {
+
+    - os: linux
+      env: BUILD_TYPE=Release TOOLCHAIN=g++-5
+
+    - os: linux
+      env: BUILD_TYPE=Debug TOOLCHAIN=g++-5
+
+    - os: linux
+      env: BUILD_TYPE=Release TOOLCHAIN=clang
+
+    - os: linux
+      env: BUILD_TYPE=Debug TOOLCHAIN=clang
+
+    # }
+
+    # OSX {
+
+    - os: osx
+      env: BUILD_TYPE=Release TOOLCHAIN=libcxx
+
+    - os: osx
+      env: BUILD_TYPE=Debug TOOLCHAIN=libcxx
+
+    # }
 
 install:
   - |
@@ -47,9 +71,8 @@ before_script:
   - cd build
 
 script:
-  - conan install .. -s build_type=Debug --build=missing
-  - conan install .. -s build_type=Release --build=missing
-  - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON ..
+  - conan install .. -s build_type=${BUILD_TYPE} --build=missing
+  - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_CXX_COMPILER=${TOOLCHAIN} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTS=ON ..
   - make -j
 
 notifications:
