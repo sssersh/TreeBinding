@@ -11,8 +11,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/access.hpp>
 #include "TreeBinding/Details/Parsers/ArchiveSerializerDecl.h"
-#include "TreeBinding/Details/TreeBindingDetails.h"
-#include "TreeBinding/Details/Translator.h"
+#include "TreeBinding/Details/Node.h"
 
 namespace TreeBinding
 {

@@ -16,7 +16,6 @@ set(INCLUDES
         XML.h
         Details/TreeBindingDecl.h
         Details/TreeBindingDefs.h
-        Details/TreeBindingDetails.h
         Details/Parsers/ArchiveSerializerDecl.h
         Details/Parsers/ArchiveSerializer.h
         Details/Parsers/PtreeWriter.h
@@ -26,7 +25,7 @@ set(INCLUDES
         Details/Exceptions.h
         Details/BasicNodeData.h
         Details/NodeData.h
-        Details/StringContainer.h)
+        Details/StringContainer.h Details/Node.h)
 
 set(LIB TreeBindingOrigin)
 
