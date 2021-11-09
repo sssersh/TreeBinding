@@ -236,6 +236,8 @@ Generator::Generator(const fs::path    &rootDir        ,
 
     auto srcPath = rootDir / srcDirName;
     // add .cpp files from all nested folders
+    // Now library is one-header, ignore all cpp
+    /*
     for(const auto &cppFile : fs::recursive_directory_iterator(srcPath))
     {
         if(cppFile.path().extension() == ".cpp")
@@ -245,6 +247,7 @@ Generator::Generator(const fs::path    &rootDir        ,
             srcFilesNames.push_back(cppFileName);
         }
     }
+    */
 
     // Add all header files from root sources directory
     for (const auto & srcFile : fs::directory_iterator(srcPath))
