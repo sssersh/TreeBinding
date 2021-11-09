@@ -6,7 +6,8 @@
 #ifndef _NODESNUM_H_
 #define _NODESNUM_H_
 
-namespace TreeBinding {
+namespace TreeBinding
+{
 
 /*!
  *  \brief Type for represent number of fields in Tree object

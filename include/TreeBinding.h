@@ -130,12 +130,6 @@ public:
 
 
 
-//#include <memory>
-//#include <string>
-//#include <cinttypes>
-//#include <type_traits>
-//#include "TreeBinding/Details/TreeBindingDecl.h"
-//#include "TreeBinding/Details/NodesNum.h"
 
 
 
@@ -144,7 +138,8 @@ public:
 
 
 
-namespace TreeBinding {
+namespace TreeBinding
+{
 
 /*!
  *  \brief Type for represent number of fields in Tree object
@@ -1137,6 +1132,43 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
 
 
 
+
+
+
+/*!
+ * \brief Concatenate two tokens
+ */
+#define TREE_BINDING_DETAILS_TOKEN_PASTE(x, y) x##y
+
+/*!
+ * \brief Concatenate two tokens
+ */
+#define TREE_BINDING_DETAILS_CONCAT(x, y) TREE_BINDING_DETAILS_TOKEN_PASTE(x, y)
+
+/*!
+ * \brief   Build unique string container name
+ * \details Concatenate token "__StringContainer__" and current line number
+ */
+#define TREE_BINDING_DETAILS_STRING_CONTAINER_NAME \
+    TREE_BINDING_DETAILS_CONCAT(__StringContainer__, __LINE__)
+
+/*!
+ * \brief     Unique string container
+ * \details   template can't has string literal arguments, it's passed by it wrapper
+ * \param[in] String, which will hold in container
+ */
+#define TREE_BINDING_DETAILS_STRING_CONTAINER(str)   \
+  struct TREE_BINDING_DETAILS_STRING_CONTAINER_NAME  \
+  {                                                  \
+    static const char* const getName()               \
+    {                                                \
+      return str;                                    \
+    }                                                \
+  }
+
+
+
+
 namespace TreeBinding
 {
 
@@ -1204,23 +1236,6 @@ struct AssertName
 };
 static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
-#define TREE_BINDING_DETAILS_TOKEN_PASTE(x, y) x##y
-
-#define TREE_BINDING_CONCAT(x,y) TREE_BINDING_DETAILS_TOKEN_PASTE(x,y)
-
-// template can't has string literal arguments, it's passed by wrapper
-#define TREE_BINDING_DETAILS_STRING_CONTAINER_NAME TREE_BINDING_CONCAT(__StringContainer__, __LINE__)
-
-#define TREE_BINDING_DETAILS_STRING_CONTAINER(str)   \
-  struct TREE_BINDING_DETAILS_STRING_CONTAINER_NAME  \
-  {                                                  \
-    TREE_BINDING_DETAILS_STRING_CONTAINER_NAME() {}; \
-    static const char* const getName()               \
-    {                                                \
-      return str;                                    \
-    }                                                \
-  }
-
 /*! 
  *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
@@ -1236,7 +1251,8 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  *  \param[in] paramName Name of field
  *  \param[in] dataType Underlied type of field
  */
-#define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
+#define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) \
+    TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
 
 /*!
  * \brief     Macro for expand multiply parameters, because stupid MSVC passed __VA_ARGS__ as single parameter
@@ -1307,7 +1323,7 @@ namespace TreeBinding
   std::string Translator::toString(const type * const) \
   {                                                    \
     throw std::runtime_error                           \
-      (TREE_BINDING_CONCAT("Conversion to string not implementeted for", #type)); \
+      ("Conversion to string not implementeted for" #type); \
   }
 
 /*! 

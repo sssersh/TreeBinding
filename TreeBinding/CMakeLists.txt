@@ -21,7 +21,12 @@ set(INCLUDES
         Details/Parsers/ArchiveSerializer.h
         Details/Parsers/PtreeWriter.h
         Details/Parsers/TableParser.h
-        Details/Translator.h Details/NodesNum.h Details/Exceptions.h Details/BasicNodeData.h Details/NodeData.h)
+        Details/Translator.h
+        Details/NodesNum.h
+        Details/Exceptions.h
+        Details/BasicNodeData.h
+        Details/NodeData.h
+        Details/StringContainer.h)
 
 set(LIB TreeBindingOrigin)
 

@@ -12,6 +12,7 @@
 #include <type_traits>
 #include "TreeBinding/Details/TreeBindingDecl.h"
 #include "TreeBinding/Details/NodeData.h"
+#include "TreeBinding/Details/StringContainer.h"
 
 namespace TreeBinding
 {
@@ -80,23 +81,6 @@ struct AssertName
 };
 static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
-#define TREE_BINDING_DETAILS_TOKEN_PASTE(x, y) x##y
-
-#define TREE_BINDING_CONCAT(x,y) TREE_BINDING_DETAILS_TOKEN_PASTE(x,y)
-
-// template can't has string literal arguments, it's passed by wrapper
-#define TREE_BINDING_DETAILS_STRING_CONTAINER_NAME TREE_BINDING_CONCAT(__StringContainer__, __LINE__)
-
-#define TREE_BINDING_DETAILS_STRING_CONTAINER(str)   \
-  struct TREE_BINDING_DETAILS_STRING_CONTAINER_NAME  \
-  {                                                  \
-    TREE_BINDING_DETAILS_STRING_CONTAINER_NAME() {}; \
-    static const char* const getName()               \
-    {                                                \
-      return str;                                    \
-    }                                                \
-  }
-
 /*! 
  *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
@@ -112,7 +96,8 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  *  \param[in] paramName Name of field
  *  \param[in] dataType Underlied type of field
  */
-#define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
+#define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) \
+    TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
 
 /*!
  * \brief     Macro for expand multiply parameters, because stupid MSVC passed __VA_ARGS__ as single parameter

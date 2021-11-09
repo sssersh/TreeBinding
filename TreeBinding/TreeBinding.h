@@ -26,7 +26,7 @@ namespace TreeBinding
   std::string Translator::toString(const type * const) \
   {                                                    \
     throw std::runtime_error                           \
-      (TREE_BINDING_CONCAT("Conversion to string not implementeted for", #type)); \
+      ("Conversion to string not implementeted for" #type); \
   }
 
 /*! 
@@ -139,7 +139,6 @@ struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, D
  * \param[out] ar      Serialized archive
  * \param[in]  version Data structure version
  */
-// TODO: move to defs file
 template<class Archive>
 void BasicTree::serialize(Archive & ar, const unsigned int version)
 {
