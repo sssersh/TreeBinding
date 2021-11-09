@@ -1,6 +1,6 @@
 /*!
  *  \file  BasicNodeData.h
- *  \brief Base class used for iteration in Tree
+ *  \brief BasicNodeData class used for iteration in Tree
  */
 
 #ifndef _BASICNODEDATA_H_

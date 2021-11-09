@@ -8,7 +8,7 @@ project(TreeBindingOrigin)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-set(SOURCES Details/TreeBinding.cpp)
+set(SOURCES Details/Empty.cpp)
 
 set(INCLUDES
         JSON.h
@@ -27,7 +27,8 @@ set(INCLUDES
         Details/NodeData.h
         Details/StringContainer.h
         Details/Node.h
-        Details/NodeIterator.h)
+        Details/NodeIterator.h
+        Details/BasicTree.h Details/Empty.cpp)
 
 set(LIB TreeBindingOrigin)
 
