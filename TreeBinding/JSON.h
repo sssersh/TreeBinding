@@ -12,11 +12,6 @@ namespace JSON
 {
 
 /*!
- *  \copydoc TreeBinding::Integer
- */
-typedef TreeBinding::Integer Integer;
-
-/*!
  *  \copydoc TreeBinding::NodesNum
  */
 typedef TreeBinding::NodesNum ItemNum;

@@ -51,11 +51,6 @@
 namespace TreeBinding
 {
 
-/*!
- *  \brief Type for store integer fields of Tree
- */
-typedef int Integer;
-
 class BasicTree;
 
 template<typename, typename>
@@ -487,8 +482,8 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
 namespace TreeBinding
 {
 
-    // Overloaded translators declared for arithmetic types and strings
-    // Translator functions are templates, to keep it only in header file
+// Overloaded translators declared for arithmetic types and strings
+// Translator functions are templates, to keep it only in header file
 template<typename T>
 struct hasOverloadedTranslator
 {
@@ -1839,11 +1834,6 @@ namespace XML
 {
 
 /*!
- *  \copydoc TreeBinding::Integer
- */
-typedef TreeBinding::Integer Integer;
-
-/*!
  *  \copydoc TreeBinding::NodesNum
  */
 typedef TreeBinding::NodesNum ItemNum;
@@ -1916,11 +1906,6 @@ typedef TreeBinding::NodesNum ItemNum;
 
 namespace JSON
 {
-
-/*!
- *  \copydoc TreeBinding::Integer
- */
-typedef TreeBinding::Integer Integer;
 
 /*!
  *  \copydoc TreeBinding::NodesNum

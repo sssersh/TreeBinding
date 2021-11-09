@@ -6,15 +6,11 @@
 #ifndef _XML_H_
 #define _XML_H_
 
+#include <boost/property_tree/xml_parser.hpp>
 #include "TreeBinding/TreeBinding.h"
 
 namespace XML
 {
-
-/*!
- *  \copydoc TreeBinding::Integer
- */
-typedef TreeBinding::Integer Integer;
 
 /*!
  *  \copydoc TreeBinding::NodesNum
@@ -70,10 +66,10 @@ typedef TreeBinding::NodesNum ItemNum;
 /*!
  * \brief   XML element declaration
  * \warning Each macro call should be placed in different lines
- * \param   ... 1. Element name (in file)
- *              2. Data type name
+ * \param   ... 1. Data type name
+ *              2. Element name (in file). "type" by default.
  */
-#define XML_ELEMENT(name, dataType) TREE_TREE(name, dataType)
+#define XML_ELEMENT(...) TREE_TREE(__VA_ARGS__)
 
 } /* namespace XML */
 
