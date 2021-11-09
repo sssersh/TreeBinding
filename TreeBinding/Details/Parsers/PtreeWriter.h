@@ -7,6 +7,7 @@
 #define _TREE_BINDING_PTREE_WRITER_H_
 
 #include "TreeBinding/Details/TreeBindingDecl.h"
+#include "TreeBinding/Details/Translator.h"
 
 namespace TreeBinding
 {

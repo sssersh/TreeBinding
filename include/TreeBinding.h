@@ -130,6 +130,20 @@ public:
 
 
 
+//#include <memory>
+//#include <string>
+//#include <cinttypes>
+//#include <type_traits>
+//#include "TreeBinding/Details/TreeBindingDecl.h"
+//#include "TreeBinding/Details/NodesNum.h"
+
+
+
+
+
+
+
+
 namespace TreeBinding {
 
 /*!
@@ -184,11 +198,6 @@ private:
 };
 
 } // namespace TreeBinding
-
-
-
-
-
 
 
 
@@ -296,234 +305,7 @@ BasicNodeData::operator T&()
 
 
 
-namespace TreeBinding
-{
 
-namespace Details
-{
-
-// Store pointer to value, not value, to fix size of structure
-template<typename DataType>
-class NodeData : public BasicNodeData
-{
-public:
-  DataType* value; /*!< Value of parameter */
-
-  NodeData() = delete;
-  NodeData(const char* const _name, NodesNum::ValueType const _requiredNum);
-  NodeData(NodeData const &rhs);
-  virtual ~NodeData();
-  virtual const DataType& operator= (DataType const &value);
-  virtual const DataType& operator= (DataType const &&value);
-//  virtual operator DataType() const;
-  virtual operator const DataType&() const;
-  virtual bool operator==(DataType const &rhs);
-
-  virtual void  reset   ()                                  override final;
-  virtual void  copy    (BasicNodeData const &rhs)          override final;
-
-  virtual void  parsePtree(boost::property_tree::ptree &tree, 
-                           const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
-  virtual void parseTable(Table<std::wstring> &table,
-                          std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
-                          RowsRange const &rows) override final;
-
-  virtual void writePtree(boost::property_tree::ptree &tree) const override final;
-  virtual void serializeData(boost::archive::text_iarchive & ar, const unsigned int version) override final;
-  virtual void serializeData(boost::archive::text_oarchive & ar, const unsigned int version) override final;
-
-  // [] is accessible only when DataType is container
-//  template<typename KeyType, typename T = DataType>
-//  typename T::const_iterator operator[](const KeyType &key) const;
-
-  virtual void* getValue()                            const override final;
-
-  using ValueType = DataType;
-
-protected:
-
-  const NodeData& operator= (NodeData const &rhs);
-
-  // define separate functions for implementation, because SFINAE work only for overloading
-  template<typename T = DataType>
-  typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
-
-  template<typename T = DataType>
-  typename std::enable_if_t<is_subtrees_set<T>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
-
-  template<typename T = DataType>
-  typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
-
-  template<typename T = DataType>
-  std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
-    resetImpl();
-
-  template<typename T = DataType>
-  std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
-    resetImpl();
-
-  virtual bool compare (BasicNodeData const &rhs) const override;
-
-  friend class NodeTableParser;
-  friend class PtreeWriter;
-
-  typedef boost::property_tree::ptree::path_type path;
-}; /* class NodeData */
-
-// defined here for use in Tree constructor
-// declared not in class for get opportunity of declaration in header
-static const size_t NodeDataSize = sizeof(BasicNodeData) + sizeof(void*);
-
-/*! 
- *  \brief  Tree node
- *  \tparam NameContainer String wrapper class, which contain field name
- *  \tparam DataType      NodeData data type
- *  \tparam RequiredNum   Required number of fields
- */
-template< typename NameContainer, 
-          typename DataType     , 
-          NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
-        >
-struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
-                                                         SubtreesSet< DataType >,
-                                                         DataType
-                                                       > 
-                                   >
-{
-  using DeducedDataType = typename
-    std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
-                        SubtreesSet< DataType >,
-                        DataType
-                      >;
-
-  Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
-//  template<typename T = std::remove_cv<DeducedDataType>::type>
-  const DeducedDataType& operator=(const DeducedDataType& rhs)
-  {
-    this->validity = true;
-    return *this->value = rhs;
-  }
-//  template<typename T = std::remove_cv<DeducedDataType>::type>
-  const DeducedDataType& operator=(const DeducedDataType&& rhs)
-  {
-    this->validity = true;
-    return *this->value = rhs;
-  }
-  Node& operator=(const Node&) = default;
-
-  /*
-  template<typename KeyType, typename T = DeducedDataType>
-  typename T::const_iterator operator[](const KeyType &key) const
-  {
-    return this->NodeData<DeducedDataType>::operator[](key);
-  }
-   */
-
-  DeducedDataType& operator*() { return *this->value; };
-  const DeducedDataType& operator*() const { return *this->value; };
-
-  DeducedDataType* const operator->() { return this->value; };
-  const DeducedDataType* const operator->() const { return this->value; };
-};
-
-struct AssertName 
-{
-  static const char* const getName()
-  {
-    return "";
-  }
-};
-static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
-
-#define TREE_BINDING_DETAILS_TOKEN_PASTE(x, y) x##y
-
-#define TREE_BINDING_CONCAT(x,y) TREE_BINDING_DETAILS_TOKEN_PASTE(x,y)
-
-// template can't has string literal arguments, it's passed by wrapper
-#define TREE_BINDING_DETAILS_STRING_CONTAINER_NAME TREE_BINDING_CONCAT(__StringContainer__, __LINE__)
-
-#define TREE_BINDING_DETAILS_STRING_CONTAINER(str)   \
-  struct TREE_BINDING_DETAILS_STRING_CONTAINER_NAME  \
-  {                                                  \
-    TREE_BINDING_DETAILS_STRING_CONTAINER_NAME() {}; \
-    static const char* const getName()               \
-    {                                                \
-      return str;                                    \
-    }                                                \
-  }
-
-/*! 
- *  \copydoc TREE_BINDING_DETAILS_NODE_2()
- *  \param[in] num Required number of fields
- */
-#define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num) \
-  TREE_BINDING_DETAILS_STRING_CONTAINER(paramName);           \
-  TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, dataType, num >
-
-/*! 
- *  \brief     Declaration of reflection field (mandatory)
- *  \details   Declare and pass to field specialization wrapper class with uniq name, which contain name of field
- *  \warning   Each macro call should be placed in different lines
- *  \param[in] paramName Name of field
- *  \param[in] dataType Underlied type of field
- */
-#define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
-
-/*!
- * \brief     Macro for expand multiply parameters, because stupid MSVC passed __VA_ARGS__ as single parameter
- * \param[in] __VA_ARGS__ macro
- * \return    __VA_ARGS__ expanded to multiply parameters
- */
-#define TREE_BINDING_DETAILS_EXPAND( x ) x
-
-/*!
- * \brief Choose necessary overloaded macro (with 2 or 3 parameters) 
- */
-#define TREE_BINDING_DETAILS_NODE_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
-
-// Pass empty string to TREE_BINDING_DETAILS_NODE_GET_MACRO() to avoid error
-// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
-#define TREE_BINDING_DETAILS_NODE_COMMON(...)                       \
-  TREE_BINDING_DETAILS_EXPAND(                                      \
-    TREE_BINDING_DETAILS_NODE_GET_MACRO(__VA_ARGS__,                \
-                                       TREE_BINDING_DETAILS_NODE_3, \
-                                       TREE_BINDING_DETAILS_NODE_2, \
-                                       ""                           \
-                                      )(__VA_ARGS__)                \
-                             )
-
-
-
-/*! 
- *  \copydoc TREE_BINDING_DETAILS_TREE_1()
- *  \param[in] name Name of tree
- */
-#define TREE_BINDING_DETAILS_TREE_2(type, name) \
-  TREE_BINDING_DETAILS_STRING_CONTAINER(name);  \
-  struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
-
-
-#define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
-
-#define TREE_BINDING_DETAILS_TREE_GET_MACRO(_1, _2, TARGET_MACRO, ...) TARGET_MACRO
-
-// Pass empty string to TREE_BINDING_DETAILS_TREE_GET_MACRO() to avoid error
-// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
-#define TREE_BINDING_DETAILS_TREE_COMMON(...)                       \
-  TREE_BINDING_DETAILS_EXPAND(                                      \
-    TREE_BINDING_DETAILS_TREE_GET_MACRO(__VA_ARGS__,                \
-                                       TREE_BINDING_DETAILS_TREE_2, \
-                                       TREE_BINDING_DETAILS_TREE_1, \
-                                       ""                           \
-                                      )(__VA_ARGS__)                \
-                             )
-
-} /* namespace Details */
-
-} /* namespace TreeBinding */
 
 
 
@@ -642,168 +424,80 @@ struct Translator
 namespace TreeBinding
 {
 
-/*! 
- *  \brief     Declaration of stub for string translator
- *  \param[in] type Type of translated value
- */
-#define TREE_BINDING_TRANSLATOR_TO_STRING_STUB(type)   \
-  template<>                                           \
-  std::string Translator::toString(const type * const) \
-  {                                                    \
-    throw std::runtime_error                           \
-      (TREE_BINDING_CONCAT("Conversion to string not implementeted for", #type)); \
-  }
-
-/*! 
- *  \brief     Declaration of string <-> target type translators
- *  \param[in] type Type of translated value
- *  \param[in] table boost bimap, which map string value <-> target type
- */
-#define TREE_BINDING_TABLE_TRANSLATORS_DECLARATION(type, table) \
-template<>                                                      \
-void Translator::fromString(std::string const &str,             \
-                            type* const value)                  \
-{                                                               \
-  *value = table.left.find(str)->second;                        \
-}                                                               \
-template<>                                                      \
-std::string Translator::toString(const type* const value)       \
-{                                                               \
-  return table.right.find(*value)->second;                      \
-}
-
-/*!
- * \copydoc NodesNum
- * \note    Declared in private, because is necessary for forward declaration
- */
-struct NodesNum;
-
-/*! 
- * \brief   Declaration of field which binds with tree node
- * \details When passed 2 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_3 macro.
- *          When passed 3 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_4 macro.
- * \note    Name used as first parameter, because this macro can used in wrapper macro with constant name ("", for example),
- *          and it's necessary to pass another 2 parameters from wrapper to this macro. If use name as second parameter (between
- *          type and num, passing another 2 parameters became impossible.
- * \warning Each macro call should be placed in different lines
- * \param   ... 1. Node name.
- *              2. Node's data type
- *              3. Node are optional/mandatory
- */
-#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
-
-/*!
- * \brief Basic tree
- */
-class BasicTree
+namespace Details
 {
 
-protected:
-
-  BasicTree() = delete;
-  BasicTree(const char* const _name);
-  Details::BasicNodeData& operator[](size_t const index) const;
-  Details::BasicNodeData& getSameNode(const Details::BasicNodeData &rhs) const;
-
-  size_t            nodesNum; /*!< Number of fields in current tree */
-  const char* const name;     /*!< Name of tree                     */
-
-  struct NodeIterator;
-
-  friend class boost::serialization::access;
-  template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+/*!
+ * \brief NodeData writer to ptree
+ */
+class PtreeWriter
+{
 public:
- 
-  NodeIterator begin() const;
-  NodeIterator end()   const;
 
-  void parsePtree(boost::property_tree::ptree &tree, bool isRoot = true);
-  void parseTable(std::vector<std::vector<std::wstring>> &table,
-    std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
-    std::pair<size_t, size_t> const &rows);
+  template<typename DataType>
+  static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+  write(NodeData<DataType> const &node,
+        boost::property_tree::ptree &tree);
 
-  // true for XML, false for JSON
-  void writePtree(boost::property_tree::ptree &tree, const bool isRoot = true) const;
+  template<typename DataType>
+  static typename std::enable_if_t<is_subtrees_set<DataType>::value>
+    write(NodeData<DataType> const &node,
+        boost::property_tree::ptree &tree);
 
-  bool operator== (BasicTree const &rhs) const;
-  virtual BasicTree& operator= (BasicTree const &rhs);
-  bool isLeafsValid() const;
-  bool isMandatoryLeafsValid() const;
-  void reset();
-  const char* getKeyNodeName() const;
-  void copyLeafs(BasicTree const &rhs);
+  template<typename DataType>
+  static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+  write(NodeData<DataType> const &node,
+        boost::property_tree::ptree &tree);
 
-  bool isValid() const;
-  bool containValidNodes() const;
-
-//  template<typename, typename> friend class Tree;
 };
 
-/*!
- * \brief Iterator for iterate over fields in tree
- */
-struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
+template<typename DataType>
+typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+PtreeWriter::write(NodeData<DataType> const &node,
+                   boost::property_tree::ptree &tree)
 {
-  NodeIterator() = default;
-  NodeIterator(const NodeIterator&) = default;
-  NodeIterator& operator=(const NodeIterator&) = default;
-
-  bool operator!=(const NodeIterator&) const;
-  bool operator==(const NodeIterator&) const;
-  NodeIterator& operator+(int const index);
-  NodeIterator& operator++();
-  Details::BasicNodeData& operator*() const;
-  Details::BasicNodeData* operator->() const;
-
-  Details::BasicNodeData* ptr;
-};
-
-/*!
- * \brief serialize BasicTree by boost serializer
- * \param[out] ar      Serialized archive
- * \param[in]  version Data structure version
- */
-// TODO: move to defs file
-template<class Archive>
-void BasicTree::serialize(Archive & ar, const unsigned int version)
-{
-  for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
+  if (node.validity)
   {
-    ar & (*nodeIt);
+    const std::string str = Translator::toString(*node.value);
+    tree.add(boost::property_tree::path(node.name), str);
   }
 }
 
-/*!
- * \brief  Tree
- * \tparam T Structure, which represent tree (derived of current struct)
- * \tparam NameContainer Container with name of tree
- */
-template<typename T, typename NameContainer>
-struct Tree : public BasicTree
+template<typename DataType>
+typename std::enable_if_t<is_subtrees_set<DataType>::value>
+PtreeWriter::write(NodeData<DataType> const &node,
+                   boost::property_tree::ptree &tree)
 {
-  Tree();
-  typedef NameContainer NameContainer_;
+  if (node.validity)
+  {
+    auto subtreesSet = (DataType*)node.getValue(); // DataType = SubtreesSet<>
 
-private:
-  template<int diff, int basicNodeSize>
-  struct CheckSize;
+    boost::property_tree::ptree subtree;
 
-  // Replace it by 
-//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
-  static void checkSize() {}
+    for (auto &i : *subtreesSet)
+    {
+      boost::property_tree::ptree entry;
+      i.writePtree(entry);
+      subtree.push_back(std::make_pair("", entry));
+    }
 
-//  friend class boost::serialization::access;
-};
+    tree.add_child(node.name, subtree);
+  }
+}
 
-/*!
- * \brief  Define structure of tree
- * \tparam type Name of this type (in code)
- * \tparam name Name of tree (in file). "type" by default.
- */
-#define TREE_TREE(...) TREE_BINDING_DETAILS_TREE_COMMON(__VA_ARGS__) 
+template<typename DataType>
+typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+PtreeWriter::write(NodeData<DataType> const &node,
+                   boost::property_tree::ptree &tree)
+{
+  std::runtime_error("PtreeWriter::write Not implement!");
+}
+
+} /* namespace Details */
 
 } /* namespace TreeBinding */
+
+
 
 
 
@@ -986,6 +680,31 @@ TableParser::parse(NodeData<DataType> &node,
 
 
 
+namespace TreeBinding {
+
+/*!
+ * \brief Exception for signal wrong number of childs elements in tree
+ */
+struct WrongChildsNumException : public std::runtime_error
+{
+    /*!
+     * \brief     WrongChildsNumException constructor
+     * \param[in] nodeName Node name
+     * \param[in] requiredNum Required number of childs nodes
+     * \param[in] actuallyNum Actual number of childs nodes
+     */
+    WrongChildsNumException(std::string const &nodeName,
+                            NodesNum const requiredNum,
+                            NodesNum::ValueType const actuallyNum) :
+            std::runtime_error(
+                    "Invalid number of childs in node " + nodeName + ". Required: " + requiredNum.toString() +
+                    ", present: " + std::to_string(actuallyNum))
+    {}
+};
+
+} // namespace TreeBinding
+
+
 
 
 namespace TreeBinding
@@ -994,73 +713,750 @@ namespace TreeBinding
 namespace Details
 {
 
-/*!
- * \brief NodeData writer to ptree
- */
-class PtreeWriter
+// Store pointer to value, not value, to fix size of structure
+template<typename DataType>
+class NodeData : public BasicNodeData
 {
 public:
+    DataType* value; /*!< Value of parameter */
 
-  template<typename DataType>
-  static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
-  write(NodeData<DataType> const &node,
-        boost::property_tree::ptree &tree);
+    NodeData() = delete;
+    NodeData(const char* const _name, NodesNum::ValueType const _requiredNum);
+    NodeData(NodeData const &rhs);
+    virtual ~NodeData();
+    virtual const DataType& operator= (DataType const &value);
+    virtual const DataType& operator= (DataType const &&value);
+//  virtual operator DataType() const;
+    virtual operator const DataType&() const;
+    virtual bool operator==(DataType const &rhs);
 
-  template<typename DataType>
-  static typename std::enable_if_t<is_subtrees_set<DataType>::value>
-    write(NodeData<DataType> const &node,
-        boost::property_tree::ptree &tree);
+    virtual void  reset   ()                                  override final;
+    virtual void  copy    (BasicNodeData const &rhs)          override final;
 
-  template<typename DataType>
-  static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
-  write(NodeData<DataType> const &node,
-        boost::property_tree::ptree &tree);
+    virtual void  parsePtree(boost::property_tree::ptree &tree,
+                             const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
+    virtual void parseTable(Table<std::wstring> &table,
+                            std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
+                            RowsRange const &rows) override final;
 
-};
+    virtual void writePtree(boost::property_tree::ptree &tree) const override final;
+    virtual void serializeData(boost::archive::text_iarchive & ar, const unsigned int version) override final;
+    virtual void serializeData(boost::archive::text_oarchive & ar, const unsigned int version) override final;
 
+    // [] is accessible only when DataType is container
+//  template<typename KeyType, typename T = DataType>
+//  typename T::const_iterator operator[](const KeyType &key) const;
+
+    virtual void* getValue()                            const override final;
+
+    using ValueType = DataType;
+
+protected:
+
+    const NodeData& operator= (NodeData const &rhs);
+
+    // define separate functions for implementation, because SFINAE work only for overloading
+    template<typename T = DataType>
+    typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+
+    template<typename T = DataType>
+    typename std::enable_if_t<is_subtrees_set<T>::value>
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+
+    template<typename T = DataType>
+    typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+
+    template<typename T = DataType>
+    std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+    resetImpl();
+
+    template<typename T = DataType>
+    std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+    resetImpl();
+
+    virtual bool compare (BasicNodeData const &rhs) const override;
+
+    friend class NodeTableParser;
+    friend class PtreeWriter;
+
+    typedef boost::property_tree::ptree::path_type path;
+}; /* class NodeData */
+
+// defined here for use in Tree constructor
+// declared not in class for get opportunity of declaration in header
+static const size_t NodeDataSize = sizeof(BasicNodeData) + sizeof(void*);
+
+/*!
+ *  \brief  NodeData constructor
+ *  \tparam DataType NodeData data type
+ */
 template<typename DataType>
-typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
-PtreeWriter::write(NodeData<DataType> const &node,
-                   boost::property_tree::ptree &tree)
+NodeData<DataType>::NodeData(const char* const _name, NodesNum::ValueType const _requiredNum) :
+        BasicNodeData(_name, _requiredNum, !is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value)
 {
-  if (node.validity)
-  {
-    const std::string str = Translator::toString(*node.value);
-    tree.add(boost::property_tree::path(node.name), str);
-  }
+    value = new DataType(); // TODO1: move to initialization list and use allocators
+}
+
+/*! \brief     NodeData constructor
+ *  \details   Used virtual function for copy, specialized for this template arguments
+ *  \tparam    DataType  NodeData data type
+ *  \param[in] rhs Right hand side
+ */
+template<typename DataType>
+NodeData<DataType>::NodeData(NodeData const &rhs) :
+        NodeData(rhs.name, rhs.requiredNum)
+{
+    this->copy(rhs);
+}
+
+/*!
+ *  \brief     NodeData assignment operator
+ *  \details   Used virtual function for copy, specialized for this template arguments
+ *  \tparam    DataType  NodeData data type
+ *  \param[in] rhs Right hand side
+ */
+template<typename DataType>
+const NodeData<DataType>& NodeData<DataType>::operator= (NodeData const &rhs)
+{
+    this->copy(rhs);
+    return *this;
+}
+
+/*!
+ *  \brief  NodeData desstructor
+ *  \tparam DataType NodeData data type
+ */
+template<typename DataType>
+NodeData<DataType>::~NodeData()
+{
+    delete value;
+}
+
+/*!
+ *  \brief     NodeData assignment operator
+ *  \tparam    DataType NodeData data type
+ *  \param[in] value Right side value
+ *  \return    Assigned value
+ */
+template<typename DataType>
+const DataType& NodeData<DataType>::operator= (DataType const &value)
+{
+    *this->value = value;
+    validity = true;
+    return *this->value;
 }
 
 template<typename DataType>
-typename std::enable_if_t<is_subtrees_set<DataType>::value>
-PtreeWriter::write(NodeData<DataType> const &node,
-                   boost::property_tree::ptree &tree)
+const DataType& NodeData<DataType>::operator= (DataType const &&value)
 {
-  if (node.validity)
+    *this->value = value;
+    validity = true;
+    return *this->value;
+}
+
+/*!
+ *  \brief  NodeData cast to underlying type operator
+ *  \tparam DataType NodeData data type
+ *  \return Value of field
+ */
+/*
+template<typename DataType>
+NodeData<DataType>::operator DataType() const
+{
+  return *value;
+}
+*/
+
+template<typename DataType>
+NodeData<DataType>::operator const DataType&() const
+{
+    return *value;
+}
+
+template<typename DataType>
+bool NodeData<DataType>::operator==(DataType const &rhs)
+{
+    return *(this->value) == rhs;
+}
+
+/*!
+ *  \brief  Get pointer to value of field
+ *  \tparam DataType NodeData data type
+ *  \return Pointer to value of field
+ */
+template<typename DataType>
+void* NodeData<DataType>::getValue() const
+{
+    return (void*)value;
+}
+
+/*!
+ *  \brief  Reset validity of value
+ *  \tparam DataType NodeData data type
+ */
+/*
+template<typename DataType>
+void NodeData<DataType>::reset()
+{
+  validity = false;
+}
+*/
+
+template<typename DataType>
+void NodeData<DataType>::reset()
+{
+    resetImpl<DataType>();
+}
+
+template<typename DataType>
+template<typename T>
+typename std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+NodeData<DataType>::resetImpl()
+{
+    validity = false;
+}
+
+template<typename DataType>
+template<typename T>
+std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+NodeData<DataType>::resetImpl()
+{
+    value->clear();
+    validity = false;
+}
+
+/*!
+ *  \brief     Copy field with value and validity
+ *  \tparam    DataType NodeData data type
+ *  \param[in] rhs Right side value
+ */
+template<typename DataType>
+void NodeData<DataType>::copy(BasicNodeData const &rhs)
+{
+    *(this->value) = *static_cast<DataType*>(rhs.getValue());
+    validity = rhs.validity;
+}
+
+/*!
+ *  \brief     Compare values of fields (validity ignored)
+ *  \details   Used in compare operator in NodeData
+ *  \tparam    DataType    NodeData data type
+ *  \param[in] rhs   Right hand side
+ *  \retval    true  Values of fields are same
+ *  \retval    false Value of fields are different
+ */
+template<typename DataType>
+bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
+{
+    return *this->value == *static_cast<DataType*>(rhs.getValue());
+}
+
+/*
+template<typename DataType>
+template<typename KeyType, typename T>
+typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) const
+{
+  static_assert(std::is_assignable< KeyType&, KeyType >::value, "Key type for operator [] should be assignable");
+
+  return std::find_if(this->value->cbegin(), this->value->cend(), [&](typename DataType::const_reference element)
   {
-    auto subtreesSet = (DataType*)node.getValue(); // DataType = SubtreesSet<>
-
-    boost::property_tree::ptree subtree;
-
-    for (auto &i : *subtreesSet)
+    auto keyField = std::find_if(element.begin(), element.end(), [&](const BasicNodeData &node)
     {
-      boost::property_tree::ptree entry;
-      i.writePtree(entry);
-      subtree.push_back(std::make_pair("", entry));
+      return dynamic_cast<const NodeData<KeyType>*>(&node);
+    });
+    if (keyField == element.end()) throw std::runtime_error(std::string("There are not key field in ") + typeid(typename DataType::value_type).name() + "\n");
+    return static_cast<NodeData<KeyType>&>(*keyField) == key;
+  });
+}
+*/
+
+template<typename T>
+void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter)
+{
+    parsePtreeImpl<T>(tree, pathDelimeter);
+}
+
+template<typename T>
+void NodeData<T>::writePtree(boost::property_tree::ptree &tree) const
+{
+    PtreeWriter::write(*this, tree);
+}
+
+// parse leaf
+template<typename DataType>
+template<typename T>
+typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
+NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
+{
+    std::string str;
+    try
+    {
+        // Not used direct get<T>, because it's necessary for forward instance of boost translator_between
+        str = tree.get<std::string>(path(this->name, pathDelimeter));
+    }
+    catch (boost::exception const &) // not found such node in ptree
+    {
+        if (requiredNum.isCertain() || (NodesNum::MORE_THAN_0 == requiredNum))
+        {
+            throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
+        }
     }
 
-    tree.add_child(node.name, subtree);
+    if (str.empty() && !this->requiredNum.isCertain())
+    {
+        this->validity = false;
+    }
+    else
+    {
+        try
+        {
+            *value = Translator::fromString<DataType>(str);
+        }
+        catch (std::exception const &) // can't convert from string to taget type
+        {
+            throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str +
+                                    "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
+        }
+        validity = true;
+    }
+}
+
+// parse subtree array
+// pathDelimeter not used
+template<typename DataType>
+template<typename T>
+typename std::enable_if_t<is_subtrees_set<T>::value>
+NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
+{
+    auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
+
+    typedef typename DataType::value_type SubtreeElementType;
+
+    if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
+    {
+        static const int XML_ATTR_SUBTREE_NUM = 1;
+
+        auto elementName = SubtreeElementType::NameContainer_::getName();
+
+        // XML contain 1 pseudo subtree - xmlattr, not reserve for it
+        subtreesSet->reserve(tree.size() - XML_ATTR_SUBTREE_NUM);
+
+        // find if and error, if not found
+        for (auto& j : tree)
+        {
+            if (!std::strcmp(j.first.c_str(), elementName))
+            {
+                subtreesSet->emplace_back();
+                auto& subtreeElement = subtreesSet->back();
+                subtreeElement.parsePtree(j.second, false);
+            }
+        }
+    }
+    else // for JSON name of array stored in Subtree
+    {
+        try
+        {
+            auto &subtree = tree.get_child(this->name);
+            for (auto &j : subtree)
+            {
+                subtreesSet->emplace_back();
+                auto& subtreeElement = subtreesSet->back();
+                subtreeElement.parsePtree(j.second, false);
+            }
+        }
+        catch (const std::exception &)
+        {
+            if (requiredNum.isCertain()) throw;
+        }
+    }
+
+    /* Check num */
+    if ((requiredNum.isCertain()            && (decltype(requiredNum))subtreesSet->size() != requiredNum) ||
+        (NodesNum::MORE_THAN_0 == requiredNum && 0 == subtreesSet->size()))
+    {
+        throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, subtreesSet->size()));
+    }
+
+    validity = true;
+}
+
+// parse single subtree
+template<typename DataType>
+template<typename T>
+typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
+NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
+{
+    auto subtree = (DataType*)this->getValue();
+    size_t num = 0;
+
+    if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
+    {
+        auto elementName = DataType::NameContainer_::getName();
+
+        // find if and error, if not found
+        for (auto& j : tree)
+        {
+            if (!std::strcmp(j.first.c_str(), elementName))
+            {
+                subtree->parsePtree(j.second, false);
+                num++;
+            }
+        }
+    }
+    else // for JSON name of array stored in Subtree
+    {
+        auto &tree_ = tree.get_child(this->name);
+        subtree->parsePtree(tree_, false);
+        num = 1;
+    }
+
+    /* Check num */
+    if ((requiredNum.isCertain() && num != requiredNum) ||
+        (NodesNum::MORE_THAN_0 == requiredNum && 0 == num))
+    {
+        throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, num));
+    }
+
+    validity = true;
+}
+
+template<typename T>
+void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
+                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
+                             std::pair<size_t, size_t> const &rows)
+{
+    TableParser::parse(*this, table, nameToIndex, rows);
+}
+
+} // namespace Details
+
+}  // namespace TreeBinding
+
+
+
+
+namespace TreeBinding
+{
+
+namespace Details
+{
+
+/*! 
+ *  \brief  Tree node
+ *  \tparam NameContainer String wrapper class, which contain field name
+ *  \tparam DataType      NodeData data type
+ *  \tparam RequiredNum   Required number of fields
+ */
+template< typename NameContainer, 
+          typename DataType     , 
+          NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
+        >
+struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
+                                                         SubtreesSet< DataType >,
+                                                         DataType
+                                                       > 
+                                   >
+{
+  using DeducedDataType = typename
+    std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
+                        SubtreesSet< DataType >,
+                        DataType
+                      >;
+
+  Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
+//  template<typename T = std::remove_cv<DeducedDataType>::type>
+  const DeducedDataType& operator=(const DeducedDataType& rhs)
+  {
+    this->validity = true;
+    return *this->value = rhs;
+  }
+//  template<typename T = std::remove_cv<DeducedDataType>::type>
+  const DeducedDataType& operator=(const DeducedDataType&& rhs)
+  {
+    this->validity = true;
+    return *this->value = rhs;
+  }
+  Node& operator=(const Node&) = default;
+
+  /*
+  template<typename KeyType, typename T = DeducedDataType>
+  typename T::const_iterator operator[](const KeyType &key) const
+  {
+    return this->NodeData<DeducedDataType>::operator[](key);
+  }
+   */
+
+  DeducedDataType& operator*() { return *this->value; };
+  const DeducedDataType& operator*() const { return *this->value; };
+
+  DeducedDataType* const operator->() { return this->value; };
+  const DeducedDataType* const operator->() const { return this->value; };
+};
+
+struct AssertName 
+{
+  static const char* const getName()
+  {
+    return "";
+  }
+};
+static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
+
+#define TREE_BINDING_DETAILS_TOKEN_PASTE(x, y) x##y
+
+#define TREE_BINDING_CONCAT(x,y) TREE_BINDING_DETAILS_TOKEN_PASTE(x,y)
+
+// template can't has string literal arguments, it's passed by wrapper
+#define TREE_BINDING_DETAILS_STRING_CONTAINER_NAME TREE_BINDING_CONCAT(__StringContainer__, __LINE__)
+
+#define TREE_BINDING_DETAILS_STRING_CONTAINER(str)   \
+  struct TREE_BINDING_DETAILS_STRING_CONTAINER_NAME  \
+  {                                                  \
+    TREE_BINDING_DETAILS_STRING_CONTAINER_NAME() {}; \
+    static const char* const getName()               \
+    {                                                \
+      return str;                                    \
+    }                                                \
+  }
+
+/*! 
+ *  \copydoc TREE_BINDING_DETAILS_NODE_2()
+ *  \param[in] num Required number of fields
+ */
+#define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num) \
+  TREE_BINDING_DETAILS_STRING_CONTAINER(paramName);           \
+  TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, dataType, num >
+
+/*! 
+ *  \brief     Declaration of reflection field (mandatory)
+ *  \details   Declare and pass to field specialization wrapper class with uniq name, which contain name of field
+ *  \warning   Each macro call should be placed in different lines
+ *  \param[in] paramName Name of field
+ *  \param[in] dataType Underlied type of field
+ */
+#define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
+
+/*!
+ * \brief     Macro for expand multiply parameters, because stupid MSVC passed __VA_ARGS__ as single parameter
+ * \param[in] __VA_ARGS__ macro
+ * \return    __VA_ARGS__ expanded to multiply parameters
+ */
+#define TREE_BINDING_DETAILS_EXPAND( x ) x
+
+/*!
+ * \brief Choose necessary overloaded macro (with 2 or 3 parameters) 
+ */
+#define TREE_BINDING_DETAILS_NODE_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
+
+// Pass empty string to TREE_BINDING_DETAILS_NODE_GET_MACRO() to avoid error
+// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
+#define TREE_BINDING_DETAILS_NODE_COMMON(...)                       \
+  TREE_BINDING_DETAILS_EXPAND(                                      \
+    TREE_BINDING_DETAILS_NODE_GET_MACRO(__VA_ARGS__,                \
+                                       TREE_BINDING_DETAILS_NODE_3, \
+                                       TREE_BINDING_DETAILS_NODE_2, \
+                                       ""                           \
+                                      )(__VA_ARGS__)                \
+                             )
+
+
+
+/*! 
+ *  \copydoc TREE_BINDING_DETAILS_TREE_1()
+ *  \param[in] name Name of tree
+ */
+#define TREE_BINDING_DETAILS_TREE_2(type, name) \
+  TREE_BINDING_DETAILS_STRING_CONTAINER(name);  \
+  struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
+
+
+#define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
+
+#define TREE_BINDING_DETAILS_TREE_GET_MACRO(_1, _2, TARGET_MACRO, ...) TARGET_MACRO
+
+// Pass empty string to TREE_BINDING_DETAILS_TREE_GET_MACRO() to avoid error
+// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
+#define TREE_BINDING_DETAILS_TREE_COMMON(...)                       \
+  TREE_BINDING_DETAILS_EXPAND(                                      \
+    TREE_BINDING_DETAILS_TREE_GET_MACRO(__VA_ARGS__,                \
+                                       TREE_BINDING_DETAILS_TREE_2, \
+                                       TREE_BINDING_DETAILS_TREE_1, \
+                                       ""                           \
+                                      )(__VA_ARGS__)                \
+                             )
+
+} /* namespace Details */
+
+} /* namespace TreeBinding */
+
+
+
+
+
+namespace TreeBinding
+{
+
+/*! 
+ *  \brief     Declaration of stub for string translator
+ *  \param[in] type Type of translated value
+ */
+#define TREE_BINDING_TRANSLATOR_TO_STRING_STUB(type)   \
+  template<>                                           \
+  std::string Translator::toString(const type * const) \
+  {                                                    \
+    throw std::runtime_error                           \
+      (TREE_BINDING_CONCAT("Conversion to string not implementeted for", #type)); \
+  }
+
+/*! 
+ *  \brief     Declaration of string <-> target type translators
+ *  \param[in] type Type of translated value
+ *  \param[in] table boost bimap, which map string value <-> target type
+ */
+#define TREE_BINDING_TABLE_TRANSLATORS_DECLARATION(type, table) \
+template<>                                                      \
+void Translator::fromString(std::string const &str,             \
+                            type* const value)                  \
+{                                                               \
+  *value = table.left.find(str)->second;                        \
+}                                                               \
+template<>                                                      \
+std::string Translator::toString(const type* const value)       \
+{                                                               \
+  return table.right.find(*value)->second;                      \
+}
+
+/*!
+ * \copydoc NodesNum
+ * \note    Declared in private, because is necessary for forward declaration
+ */
+struct NodesNum;
+
+/*! 
+ * \brief   Declaration of field which binds with tree node
+ * \details When passed 2 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_3 macro.
+ *          When passed 3 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_4 macro.
+ * \note    Name used as first parameter, because this macro can used in wrapper macro with constant name ("", for example),
+ *          and it's necessary to pass another 2 parameters from wrapper to this macro. If use name as second parameter (between
+ *          type and num, passing another 2 parameters became impossible.
+ * \warning Each macro call should be placed in different lines
+ * \param   ... 1. Node name.
+ *              2. Node's data type
+ *              3. Node are optional/mandatory
+ */
+#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
+
+/*!
+ * \brief Basic tree
+ */
+class BasicTree
+{
+
+protected:
+
+  BasicTree() = delete;
+  BasicTree(const char* const _name);
+  Details::BasicNodeData& operator[](size_t const index) const;
+  Details::BasicNodeData& getSameNode(const Details::BasicNodeData &rhs) const;
+
+  size_t            nodesNum; /*!< Number of fields in current tree */
+  const char* const name;     /*!< Name of tree                     */
+
+  struct NodeIterator;
+
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version);
+public:
+ 
+  NodeIterator begin() const;
+  NodeIterator end()   const;
+
+  void parsePtree(boost::property_tree::ptree &tree, bool isRoot = true);
+  void parseTable(std::vector<std::vector<std::wstring>> &table,
+    std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
+    std::pair<size_t, size_t> const &rows);
+
+  // true for XML, false for JSON
+  void writePtree(boost::property_tree::ptree &tree, const bool isRoot = true) const;
+
+  bool operator== (BasicTree const &rhs) const;
+  virtual BasicTree& operator= (BasicTree const &rhs);
+  bool isLeafsValid() const;
+  bool isMandatoryLeafsValid() const;
+  void reset();
+  const char* getKeyNodeName() const;
+  void copyLeafs(BasicTree const &rhs);
+
+  bool isValid() const;
+  bool containValidNodes() const;
+
+//  template<typename, typename> friend class Tree;
+};
+
+/*!
+ * \brief Iterator for iterate over fields in tree
+ */
+struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
+{
+  NodeIterator() = default;
+  NodeIterator(const NodeIterator&) = default;
+  NodeIterator& operator=(const NodeIterator&) = default;
+
+  bool operator!=(const NodeIterator&) const;
+  bool operator==(const NodeIterator&) const;
+  NodeIterator& operator+(int const index);
+  NodeIterator& operator++();
+  Details::BasicNodeData& operator*() const;
+  Details::BasicNodeData* operator->() const;
+
+  Details::BasicNodeData* ptr;
+};
+
+/*!
+ * \brief serialize BasicTree by boost serializer
+ * \param[out] ar      Serialized archive
+ * \param[in]  version Data structure version
+ */
+template<class Archive>
+void BasicTree::serialize(Archive & ar, const unsigned int version)
+{
+  for (auto nodeIt = this->begin(); nodeIt != this->end(); ++nodeIt)
+  {
+    ar & (*nodeIt);
   }
 }
 
-template<typename DataType>
-typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
-PtreeWriter::write(NodeData<DataType> const &node,
-                   boost::property_tree::ptree &tree)
+/*!
+ * \brief  Tree
+ * \tparam T Structure, which represent tree (derived of current struct)
+ * \tparam NameContainer Container with name of tree
+ */
+template<typename T, typename NameContainer>
+struct Tree : public BasicTree
 {
-  std::runtime_error("PtreeWriter::write Not implement!");
-}
+  Tree();
+  typedef NameContainer NameContainer_;
 
-} /* namespace Details */
+private:
+  template<int diff, int basicNodeSize>
+  struct CheckSize;
+
+  // Replace it by 
+//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
+  static void checkSize() {}
+
+//  friend class boost::serialization::access;
+};
+
+/*!
+ * \brief  Define structure of tree
+ * \tparam type Name of this type (in code)
+ * \tparam name Name of tree (in file). "type" by default.
+ */
+#define TREE_TREE(...) TREE_BINDING_DETAILS_TREE_COMMON(__VA_ARGS__) 
 
 } /* namespace TreeBinding */
 
@@ -1187,384 +1583,8 @@ void NodeData<DataType>::serializeData(boost::archive::text_iarchive & ar, const
 
 
 
-
-
-namespace TreeBinding {
-
-/*!
- * \brief Exception for signal wrong number of childs elements in tree
- */
-struct WrongChildsNumException : public std::runtime_error
-{
-    /*!
-     * \brief     WrongChildsNumException constructor
-     * \param[in] nodeName Node name
-     * \param[in] requiredNum Required number of childs nodes
-     * \param[in] actuallyNum Actual number of childs nodes
-     */
-    WrongChildsNumException(std::string const &nodeName,
-                            NodesNum const requiredNum,
-                            NodesNum::ValueType const actuallyNum) :
-            std::runtime_error(
-                    "Invalid number of childs in node " + nodeName + ". Required: " + requiredNum.toString() +
-                    ", present: " + std::to_string(actuallyNum))
-    {}
-};
-
-} // namespace TreeBinding
-
-
-
-
 namespace TreeBinding
 {
-
-namespace Details
-{
-
-/*! 
- *  \brief  NodeData constructor
- *  \tparam DataType NodeData data type
- */
-template<typename DataType>
-NodeData<DataType>::NodeData(const char* const _name, NodesNum::ValueType const _requiredNum) :
-  BasicNodeData(_name, _requiredNum, !is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value)
-{
-  value = new DataType(); // TODO: move to initialization list
-}
-
-/*! \brief     NodeData constructor
- *  \details   Used virtual function for copy, specialized for this template arguments
- *  \tparam    DataType  NodeData data type
- *  \param[in] rhs Right hand side
- */
-template<typename DataType>
-NodeData<DataType>::NodeData(NodeData const &rhs) :
-  NodeData(rhs.name, rhs.requiredNum)
-{
-  this->copy(rhs);
-}
-
-/*! 
- *  \brief     NodeData assignment operator
- *  \details   Used virtual function for copy, specialized for this template arguments
- *  \tparam    DataType  NodeData data type
- *  \param[in] rhs Right hand side
- */
-template<typename DataType>
-const NodeData<DataType>& NodeData<DataType>::operator= (NodeData const &rhs)
-{
-  this->copy(rhs);
-  return *this;
-}
-
-/*! 
- *  \brief  NodeData desstructor
- *  \tparam DataType NodeData data type
- */
-template<typename DataType>
-NodeData<DataType>::~NodeData()
-{
-  delete value;
-}
-
-/*! 
- *  \brief     NodeData assignment operator
- *  \tparam    DataType NodeData data type
- *  \param[in] value Right side value
- *  \return    Assigned value
- */
-template<typename DataType>
-const DataType& NodeData<DataType>::operator= (DataType const &value)
-{
-  *this->value = value;
-  validity = true;
-  return *this->value;
-} 
-
-template<typename DataType>
-const DataType& NodeData<DataType>::operator= (DataType const &&value)
-{
-  *this->value = value;
-  validity = true;
-  return *this->value;
-}
-
-/*! 
- *  \brief  NodeData cast to underlying type operator
- *  \tparam DataType NodeData data type
- *  \return Value of field
- */
-/*
-template<typename DataType>
-NodeData<DataType>::operator DataType() const
-{
-  return *value;
-}
-*/
-
-template<typename DataType>
-NodeData<DataType>::operator const DataType&() const
-{
-  return *value;
-}
-
-template<typename DataType>
-bool NodeData<DataType>::operator==(DataType const &rhs)
-{
-  return *(this->value) == rhs;
-}
-
-/*! 
- *  \brief  Get pointer to value of field
- *  \tparam DataType NodeData data type
- *  \return Pointer to value of field
- */
-template<typename DataType>
-void* NodeData<DataType>::getValue() const
-{
-  return (void*)value;
-}
-
-/*! 
- *  \brief  Reset validity of value
- *  \tparam DataType NodeData data type
- */
-/*
-template<typename DataType>
-void NodeData<DataType>::reset()
-{
-  validity = false;
-}
-*/
-
-template<typename DataType>
-void NodeData<DataType>::reset()
-{
-  resetImpl<DataType>();
-}
-
-template<typename DataType>
-template<typename T>
-typename std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
-NodeData<DataType>::resetImpl()
-{
-  validity = false;
-}
-
-template<typename DataType>
-template<typename T>
-std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
-NodeData<DataType>::resetImpl()
-{
-  value->clear();
-  validity = false;
-}
-
-/*! 
- *  \brief     Copy field with value and validity
- *  \tparam    DataType NodeData data type
- *  \param[in] rhs Right side value
- */
-template<typename DataType>
-void NodeData<DataType>::copy(BasicNodeData const &rhs)
-{
-  *(this->value) = *static_cast<DataType*>(rhs.getValue());
-  validity = rhs.validity;
-}
-
-/*!
- *  \brief     Compare values of fields (validity ignored)
- *  \details   Used in compare operator in NodeData
- *  \tparam    DataType    NodeData data type
- *  \param[in] rhs   Right hand side
- *  \retval    true  Values of fields are same
- *  \retval    false Value of fields are different
- */
-template<typename DataType>
-bool NodeData<DataType>::compare(BasicNodeData const &rhs) const
-{
-  return *this->value == *static_cast<DataType*>(rhs.getValue());
-}
-
-/*
-template<typename DataType>
-template<typename KeyType, typename T>
-typename T::const_iterator NodeData<DataType>::operator[](const KeyType &key) const
-{
-  static_assert(std::is_assignable< KeyType&, KeyType >::value, "Key type for operator [] should be assignable");
-
-  return std::find_if(this->value->cbegin(), this->value->cend(), [&](typename DataType::const_reference element)
-  {
-    auto keyField = std::find_if(element.begin(), element.end(), [&](const BasicNodeData &node)
-    {
-      return dynamic_cast<const NodeData<KeyType>*>(&node);
-    });
-    if (keyField == element.end()) throw std::runtime_error(std::string("There are not key field in ") + typeid(typename DataType::value_type).name() + "\n");
-    return static_cast<NodeData<KeyType>&>(*keyField) == key;
-  });
-}
-*/
-
-template<typename T>
-void NodeData<T>::parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter)
-{
-  parsePtreeImpl<T>(tree, pathDelimeter);
-}
-
-template<typename T>
-void NodeData<T>::writePtree(boost::property_tree::ptree &tree) const
-{
-  PtreeWriter::write(*this, tree);
-}
-
-// parse leaf
-template<typename DataType>
-template<typename T>
-typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
-NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
-{
-  std::string str;
-  try
-  {
-    // Not used direct get<T>, because it's necessary for forward instance of boost translator_between
-    str = tree.get<std::string>(path(this->name, pathDelimeter));
-  }
-  catch (boost::exception const &) // not found such node in ptree
-  {
-    if (requiredNum.isCertain() || (NodesNum::MORE_THAN_0 == requiredNum))
-    {
-      throw(WrongChildsNumException(std::string(this->name) + " (" + typeid(DataType).name() + ")", requiredNum, 0));
-    }
-  }
-
-  if (str.empty() && !this->requiredNum.isCertain())
-  {
-    this->validity = false;
-  }
-  else
-  {
-    try
-    {
-        *value = Translator::fromString<DataType>(str);
-    }
-    catch (std::exception const &) // can't convert from string to taget type
-    {
-      throw(std::out_of_range("Tree node " + std::string(this->name) + " contain wrong value: \"" + str +
-        "\", could not convert to " + std::string(typeid(DataType).name()) + "\n"));
-    }
-    validity = true;
-  }
-}
-
-// parse subtree array
-// pathDelimeter not used
-template<typename DataType>
-template<typename T>
-typename std::enable_if_t<is_subtrees_set<T>::value>
-NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
-{
-  auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
-
-  typedef typename DataType::value_type SubtreeElementType;
-
-  if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
-  {
-    static const int XML_ATTR_SUBTREE_NUM = 1;
-
-    auto elementName = SubtreeElementType::NameContainer_::getName();
-
-    // XML contain 1 pseudo subtree - xmlattr, not reserve for it
-    subtreesSet->reserve(tree.size() - XML_ATTR_SUBTREE_NUM);
-
-    // find if and error, if not found 
-    for (auto& j : tree)
-    {
-      if (!std::strcmp(j.first.c_str(), elementName))
-      {
-        subtreesSet->emplace_back(); 
-        auto& subtreeElement = subtreesSet->back();
-        subtreeElement.parsePtree(j.second, false);
-      }
-    }
-  }
-  else // for JSON name of array stored in Subtree
-  {
-    try
-    {
-      auto &subtree = tree.get_child(this->name);
-      for (auto &j : subtree)
-      {
-        subtreesSet->emplace_back();
-        auto& subtreeElement = subtreesSet->back();
-        subtreeElement.parsePtree(j.second, false);
-      }
-    }
-    catch (const std::exception &)
-    {
-      if (requiredNum.isCertain()) throw;
-    }
-  }
-
-  /* Check num */
-  if ((requiredNum.isCertain()            && (decltype(requiredNum))subtreesSet->size() != requiredNum) ||
-    (NodesNum::MORE_THAN_0 == requiredNum && 0 == subtreesSet->size()))
-  {
-    throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, subtreesSet->size()));
-  }
-  
-  validity = true;
-}
-
-// parse single subtree
-template<typename DataType>
-template<typename T>
-typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
-NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
-{
-  auto subtree = (DataType*)this->getValue();
-  size_t num = 0;
-
-  if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
-  {
-    auto elementName = DataType::NameContainer_::getName();
-
-    // find if and error, if not found 
-    for (auto& j : tree)
-    {
-      if (!std::strcmp(j.first.c_str(), elementName))
-      {
-        subtree->parsePtree(j.second, false);
-        num++;
-      }
-    }
-  }
-  else // for JSON name of array stored in Subtree
-  {
-    auto &tree_ = tree.get_child(this->name);
-    subtree->parsePtree(tree_, false);
-    num = 1;
-  }
-
-  /* Check num */
-  if ((requiredNum.isCertain() && num != requiredNum) ||
-      (NodesNum::MORE_THAN_0 == requiredNum && 0 == num))
-  {
-    throw(WrongChildsNumException(typeid(DataType).name(), requiredNum, num));
-  }
-
-  validity = true;
-}
-
-template<typename T>
-void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
-                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
-                             std::pair<size_t, size_t> const &rows)
-{
-  TableParser::parse(*this, table, nameToIndex, rows);
-}
-
-} /* namespace Details */
 
 /*! \brief   Tree constructor
  *  \details Calculate number of values: size of Derived - size of current Tree / size of field specialization

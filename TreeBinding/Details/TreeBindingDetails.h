@@ -11,89 +11,13 @@
 #include <cinttypes>
 #include <type_traits>
 #include "TreeBinding/Details/TreeBindingDecl.h"
-#include "TreeBinding/Details/NodesNum.h"
-#include "TreeBinding/Details/BasicNodeData.h"
+#include "TreeBinding/Details/NodeData.h"
 
 namespace TreeBinding
 {
 
 namespace Details
 {
-
-// Store pointer to value, not value, to fix size of structure
-template<typename DataType>
-class NodeData : public BasicNodeData
-{
-public:
-  DataType* value; /*!< Value of parameter */
-
-  NodeData() = delete;
-  NodeData(const char* const _name, NodesNum::ValueType const _requiredNum);
-  NodeData(NodeData const &rhs);
-  virtual ~NodeData();
-  virtual const DataType& operator= (DataType const &value);
-  virtual const DataType& operator= (DataType const &&value);
-//  virtual operator DataType() const;
-  virtual operator const DataType&() const;
-  virtual bool operator==(DataType const &rhs);
-
-  virtual void  reset   ()                                  override final;
-  virtual void  copy    (BasicNodeData const &rhs)          override final;
-
-  virtual void  parsePtree(boost::property_tree::ptree &tree, 
-                           const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
-  virtual void parseTable(Table<std::wstring> &table,
-                          std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
-                          RowsRange const &rows) override final;
-
-  virtual void writePtree(boost::property_tree::ptree &tree) const override final;
-  virtual void serializeData(boost::archive::text_iarchive & ar, const unsigned int version) override final;
-  virtual void serializeData(boost::archive::text_oarchive & ar, const unsigned int version) override final;
-
-  // [] is accessible only when DataType is container
-//  template<typename KeyType, typename T = DataType>
-//  typename T::const_iterator operator[](const KeyType &key) const;
-
-  virtual void* getValue()                            const override final;
-
-  using ValueType = DataType;
-
-protected:
-
-  const NodeData& operator= (NodeData const &rhs);
-
-  // define separate functions for implementation, because SFINAE work only for overloading
-  template<typename T = DataType>
-  typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
-
-  template<typename T = DataType>
-  typename std::enable_if_t<is_subtrees_set<T>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
-
-  template<typename T = DataType>
-  typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
-
-  template<typename T = DataType>
-  std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
-    resetImpl();
-
-  template<typename T = DataType>
-  std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
-    resetImpl();
-
-  virtual bool compare (BasicNodeData const &rhs) const override;
-
-  friend class NodeTableParser;
-  friend class PtreeWriter;
-
-  typedef boost::property_tree::ptree::path_type path;
-}; /* class NodeData */
-
-// defined here for use in Tree constructor
-// declared not in class for get opportunity of declaration in header
-static const size_t NodeDataSize = sizeof(BasicNodeData) + sizeof(void*);
 
 /*! 
  *  \brief  Tree node
