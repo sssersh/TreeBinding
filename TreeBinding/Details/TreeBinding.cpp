@@ -54,33 +54,6 @@ void BasicNodeData::operator= (BasicNodeData const &rhs)
 } /* namespace Details */
 
 /*!
- * \brief  Show that number of nodes is certain or not
- * \retval true Number of nodes is certain
- * \retval false Number of nodes is float
- */
-bool NodesNum::isCertain() const
-{
-  return value >= 0;
-}
-
-/*!
- * \brief  Get number of nodes in string representation
- * \return Number of nodes in string representation
- */
-std::string NodesNum::toString() const
-{
-  switch (value)
-  {
-  case NOT_SPECIFIED:
-    return "not specified";
-  case MORE_THAN_0:
-    return "more than 0";
-  default:
-    return std::to_string(value);
-  }
-}
-
-/*!
  * \brief     WrongChildsNumException constructor
  * \param[in] nodeName Node name
  * \param[in] requiredNum Required number of childs nodes

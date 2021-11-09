@@ -132,30 +132,69 @@ public:
 
 
 
-namespace TreeBinding
-{
+
+
+
+namespace TreeBinding {
 
 /*!
  *  \brief Type for represent number of fields in Tree object
  */
-struct NodesNum
-{
-  typedef int32_t ValueType;
+struct NodesNum {
+    typedef int32_t ValueType;
 
-  static const ValueType NOT_SPECIFIED = -1; /*!< Number of nodes not specified         */
-  static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0 */
+    static const ValueType NOT_SPECIFIED = -1; /*!< Number of nodes not specified         */
+    static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0 */
 
-  NodesNum() = delete;
-  NodesNum(ValueType const value) { this->value = value; }
-  operator ValueType() const { return value; }
-//  ValueType operator<(ValueType const rhs) { return value < rhs; }
+    NodesNum(ValueType const value) :
+        value(value)
+    {}
 
-  bool isCertain() const;
-  std::string toString() const;
+    operator ValueType() const
+    {
+        return value;
+    }
+
+    /*!
+     * \brief  Show that number of nodes is certain or not
+     * \retval true Number of nodes is certain
+     * \retval false Number of nodes is float
+     */
+    bool isCertain() const
+    {
+        return value >= 0;
+    }
+
+    /*!
+     * \brief  Get number of nodes in string representation
+     * \return Number of nodes in string representation
+     */
+    std::string toString() const
+    {
+        switch (value)
+        {
+            case NOT_SPECIFIED:
+                return "not specified";
+            case MORE_THAN_0:
+                return "more than 0";
+            default:
+                return std::to_string(value);
+        }
+    }
 
 private:
-  ValueType value;
+    NodesNum() = delete;
+
+    ValueType value;
 };
+
+} // namespace TreeBinding
+
+
+
+
+namespace TreeBinding
+{
 
 namespace Details
 {
@@ -1532,33 +1571,6 @@ void BasicNodeData::operator= (BasicNodeData const &rhs)
 }
 
 } /* namespace Details */
-
-/*!
- * \brief  Show that number of nodes is certain or not
- * \retval true Number of nodes is certain
- * \retval false Number of nodes is float
- */
-bool NodesNum::isCertain() const
-{
-  return value >= 0;
-}
-
-/*!
- * \brief  Get number of nodes in string representation
- * \return Number of nodes in string representation
- */
-std::string NodesNum::toString() const
-{
-  switch (value)
-  {
-  case NOT_SPECIFIED:
-    return "not specified";
-  case MORE_THAN_0:
-    return "more than 0";
-  default:
-    return std::to_string(value);
-  }
-}
 
 /*!
  * \brief     WrongChildsNumException constructor

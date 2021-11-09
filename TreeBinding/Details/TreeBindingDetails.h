@@ -11,31 +11,10 @@
 #include <cinttypes>
 #include <type_traits>
 #include "TreeBinding/Details/TreeBindingDecl.h"
+#include "TreeBinding/Details/NodesNum.h"
 
 namespace TreeBinding
 {
-
-/*!
- *  \brief Type for represent number of fields in Tree object
- */
-struct NodesNum
-{
-  typedef int32_t ValueType;
-
-  static const ValueType NOT_SPECIFIED = -1; /*!< Number of nodes not specified         */
-  static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0 */
-
-  NodesNum() = delete;
-  NodesNum(ValueType const value) { this->value = value; }
-  operator ValueType() const { return value; }
-//  ValueType operator<(ValueType const rhs) { return value < rhs; }
-
-  bool isCertain() const;
-  std::string toString() const;
-
-private:
-  ValueType value;
-};
 
 namespace Details
 {
