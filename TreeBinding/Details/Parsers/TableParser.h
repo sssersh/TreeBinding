@@ -14,6 +14,7 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
+#include "TreeBinding/Details/Translator.h"
 #include "TreeBinding/Details/TreeBindingDecl.h"
 
 namespace TreeBinding
@@ -81,7 +82,7 @@ TableParser::parse(NodeData<DataType> &node,
   {
     try
     {
-      Translator::fromString(str, node.value);
+        *node.value = Translator::fromString<DataType>(str);
     }
     catch (std::exception const &) // can't convert from string to taget type
     {

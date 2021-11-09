@@ -12,6 +12,11 @@
 namespace TreeBinding
 {
 
+/*!
+ *  \brief Type for store integer fields of Tree
+ */
+typedef int Integer;
+
 class BasicTree;
 
 template<typename, typename>

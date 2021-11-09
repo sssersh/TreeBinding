@@ -29,7 +29,7 @@ namespace TreeBinding
  * \brief \copydoc TreeBinding::Translator::fromString(std::string const &str,EnumType *value)
  */
 template<>
-void Translator::fromString(std::string const &str, EnumType *value)
+EnumType Translator::fromString<EnumType>(std::string const &str)
 {
     static const std::map<std::string, EnumType> stringToEnum =
     {
@@ -38,14 +38,14 @@ void Translator::fromString(std::string const &str, EnumType *value)
         {"ENUM3", EnumType::ENUM3}
     };
 
-    *value = stringToEnum.at(str);
+    return stringToEnum.at(str);
 }
 
 /*!
  * \brief \copydoc std::string TreeBinding::Translator::toString(const EnumType* const value)
  */
 template<>
-std::string TreeBinding::Translator::toString(const EnumType* const value)
+std::string Translator::toString(const EnumType& value)
 {
     static const std::map<EnumType, std::string> enumToString =
     {
@@ -54,7 +54,7 @@ std::string TreeBinding::Translator::toString(const EnumType* const value)
         {EnumType::ENUM3, "ENUM3"}
     };
 
-    return enumToString.at(*value);
+    return enumToString.at(value);
 }
 
 } // namespace TreeBinding
@@ -97,7 +97,7 @@ R"(
 </RootElement>
 )";
 
-TEST(get_number_test, returns_correct_value) {
+TEST(common, test_xml) {
     RootElement rootXmlElement;
 
     boost::property_tree::ptree propertyTree;

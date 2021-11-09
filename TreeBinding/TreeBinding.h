@@ -12,38 +12,10 @@
 #include <boost/serialization/access.hpp>
 #include "TreeBinding/Details/Parsers/ArchiveSerializerDecl.h"
 #include "TreeBinding/Details/TreeBindingDetails.h"
+#include "TreeBinding/Details/Translator.h"
 
 namespace TreeBinding
 {
-
-/*! 
- * \brief Declaration of function, which translate string value to target type
- */
-struct Translator
-{
-  static bool isNumber(const std::string& s);
-
-  /*! 
-   *  \brief  Translate string value to target type
-   *  \note   Not used direct get<T2> from boost tree, because it's necessary for forward instance of boost translator_between
-   *  \tparam Target type
-   *  \param[in]  str   String representation of value
-   *  \param[out] value Pointer to target value
-   */
-  template<typename T>
-  // TODO: T as return type
-  static void fromString(std::string const &str, T* const value);
-
-  /*! 
-   *  \brief     Translate target type to string value
-   *  \tparam    Target type
-   *  \param[in] value Pointer to target value
-   *  \return    String representation of value
-   */
-  template<typename T>
-  static std::string toString(const T* const value);
-
-};
 
 /*! 
  *  \brief     Declaration of stub for string translator
@@ -74,11 +46,6 @@ std::string Translator::toString(const type* const value)       \
 {                                                               \
   return table.right.find(*value)->second;                      \
 }
-
-/*!
- *  \brief Type for store integer fields of Tree
- */
-typedef int Integer;
 
 /*!
  * \copydoc NodesNum
@@ -215,7 +182,7 @@ private:
 /*!
  * \brief  Define structure of tree
  * \tparam type Name of this type (in code)
- * \tparam name Name of tree (in file)
+ * \tparam name Name of tree (in file). "type" by default.
  */
 #define TREE_TREE(...) TREE_BINDING_DETAILS_TREE_COMMON(__VA_ARGS__) 
 

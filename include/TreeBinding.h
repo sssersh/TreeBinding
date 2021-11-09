@@ -12,9 +12,9 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
-#include <cctype>
 #include <cinttypes>
 #include <codecvt>
 #include <iostream>
@@ -50,6 +50,11 @@
 
 namespace TreeBinding
 {
+
+/*!
+ *  \brief Type for store integer fields of Tree
+ */
+typedef int Integer;
 
 class BasicTree;
 
@@ -433,37 +438,119 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
 
 
 
+
+
+
+
+
+
+
 namespace TreeBinding
 {
 
-/*! 
- * \brief Declaration of function, which translate string value to target type
+    // Overloaded translators declared for arithmetic types and strings
+    // Translator functions are templates, to keep it only in header file
+template<typename T>
+struct hasOverloadedTranslator
+{
+    static const bool value = std::is_arithmetic<T>::value || std::is_same<T, std::string>::value;
+};
+
+/*!
+ *  \brief  Translate string value to target type and visa versa
  */
 struct Translator
 {
-  static bool isNumber(const std::string& s);
+    /*!
+     *  \brief  Translate string value to target type
+     *  \note   Not used direct get<T2> from boost tree, because it's necessary for forward instance of boost translator_between
+     *  \tparam Target type
+     *  \param[in]  str   String representation of value
+     *  \return     value Target value
+     */
+    template<typename T>
+    static std::enable_if_t<!hasOverloadedTranslator<T>::value, T>
+    fromString(std::string const &str);
 
-  /*! 
-   *  \brief  Translate string value to target type
-   *  \note   Not used direct get<T2> from boost tree, because it's necessary for forward instance of boost translator_between
-   *  \tparam Target type
-   *  \param[in]  str   String representation of value
-   *  \param[out] value Pointer to target value
-   */
-  template<typename T>
-  // TODO: T as return type
-  static void fromString(std::string const &str, T* const value);
+    /*!
+     *  \brief     Translate target type to string value
+     *  \tparam    Target type
+     *  \param[in] value Target value
+     *  \return    String representation of value
+     */
+    template<typename T>
+    static std::enable_if_t<!hasOverloadedTranslator<T>::value, std::string>
+    toString(const T& value);
 
-  /*! 
-   *  \brief     Translate target type to string value
-   *  \tparam    Target type
-   *  \param[in] value Pointer to target value
-   *  \return    String representation of value
-   */
-  template<typename T>
-  static std::string toString(const T* const value);
+    /*!
+     *  \brief     Translate arithmetic to string value
+     *  \param[in] value Arithmetic value
+     *  \return    String representation of value
+     */
+    template<typename T>
+    static std::enable_if_t<std::is_arithmetic<T>::value, std::string>
+    toString(const T& value)
+    {
+        return std::to_string(value);
+    }
+
+    /*!
+     *  \brief     Translate string to string value
+     *  \param[in] value Source value
+     *  \return    Copy of same string
+     */
+    template<typename T>
+    static std::enable_if_t<std::is_same<T, std::string>::value, std::string>
+    toString(const T& value)
+    {
+        return value;
+    }
+
+    /*!
+     *  \brief      Translate string value to integer
+     *  \param[in]  str   String representation of value
+     *  \return     Integer value
+     */
+    template<typename T>
+    static std::enable_if_t<std::is_integral<T>::value, T>
+    fromString(const std::string& str)
+    {
+        return std::stoll(str);
+    }
+
+    /*!
+     *  \brief      Translate string value to floating
+     *  \param[in]  str   String representation of value
+     *  \return     Float value
+     */
+    template<typename T>
+    static std::enable_if_t<std::is_floating_point<T>::value, T>
+    fromString(const std::string& str)
+    {
+        return std::stod(str.c_str());
+    }
+
+    /*!
+     *  \brief     Translate string value to string value
+     *  \param[in] str   Source string
+     *  \return    Same string
+     */
+    template<typename T>
+    static std::enable_if_t<std::is_same<T, std::string>::value, std::string>
+    fromString(const std::string &str)
+    {
+        return str;
+    }
 
 };
+
+} // namespace TreeBinding
+
+
+
+
+namespace TreeBinding
+{
 
 /*! 
  *  \brief     Declaration of stub for string translator
@@ -494,11 +581,6 @@ std::string Translator::toString(const type* const value)       \
 {                                                               \
   return table.right.find(*value)->second;                      \
 }
-
-/*!
- *  \brief Type for store integer fields of Tree
- */
-typedef int Integer;
 
 /*!
  * \copydoc NodesNum
@@ -635,11 +717,12 @@ private:
 /*!
  * \brief  Define structure of tree
  * \tparam type Name of this type (in code)
- * \tparam name Name of tree (in file)
+ * \tparam name Name of tree (in file). "type" by default.
  */
 #define TREE_TREE(...) TREE_BINDING_DETAILS_TREE_COMMON(__VA_ARGS__) 
 
 } /* namespace TreeBinding */
+
 
 
 
@@ -720,7 +803,7 @@ TableParser::parse(NodeData<DataType> &node,
   {
     try
     {
-      Translator::fromString(str, node.value);
+        *node.value = Translator::fromString<DataType>(str);
     }
     catch (std::exception const &) // can't convert from string to taget type
     {
@@ -860,7 +943,7 @@ PtreeWriter::write(NodeData<DataType> const &node,
 {
   if (node.validity)
   {
-    const std::string str = Translator::toString(node.value);
+    const std::string str = Translator::toString(*node.value);
     tree.add(boost::property_tree::path(node.name), str);
   }
 }
@@ -1251,7 +1334,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   {
     try
     {
-      Translator::fromString(str, value);
+        *value = Translator::fromString<DataType>(str);
     }
     catch (std::exception const &) // can't convert from string to taget type
     {
@@ -1402,69 +1485,8 @@ struct CheckSize
 
 
 
-
 namespace TreeBinding
 {
-
-/*!
- * \brief     Check that string contain only digits
- * \param[in] s string for check
- * \retval    true string contain only digits
- * \retval    false otherwise
- */
-bool Translator::isNumber(const std::string& s)
-{
-  auto it = s.cbegin();
-  while (it != s.end() && std::isdigit(static_cast<unsigned char>(*it))) ++it;
-  return !s.empty() && it == s.end();
-}
-
-/*! 
- *  \brief      Translate string value to integer
- *  \param[in]  str   String representation of value
- *  \param[out] value Pointer to integer value
- */
-template<>
-void Translator::fromString(std::string const &str, Integer* const value)
-{
-  if (isNumber(str)) *value = atol(str.c_str());
-  else throw(std::out_of_range("Integer contain incorrect value: " + str + "\n"));
-}
-
-/*! 
- *  \brief      Translate string value to string value
- *  \param[in]  str   Source string
- *  \param[out] value Target string
- */
-template<>
-void Translator::fromString(std::string const &str, std::string* const value)
-{
-  *value = str;
-}
-
-/*!
- *  \brief     Translate integer to string value
- *  \param[in] value Pointer to integer value
- *  \return    String representation of value
- */
-template<>
-std::string Translator::toString(const Integer* const value)
-{
-  char buf[20];
-  std::sprintf(buf, "%d", *const_cast<Integer*>(value));
-  return std::string(buf);
-}
-
-/*!
- *  \brief     Translate string to string value
- *  \param[in] value Pointer to source value
- *  \return    Copy of source string
- */
-template<>
-std::string Translator::toString(const std::string* const value)
-{
-  return *value;
-}
 
 namespace Details
 {
@@ -1792,6 +1814,7 @@ const char* BasicTree::getKeyNodeName() const
 
 
 
+
 namespace XML
 {
 
@@ -1854,10 +1877,10 @@ typedef TreeBinding::NodesNum ItemNum;
 /*!
  * \brief   XML element declaration
  * \warning Each macro call should be placed in different lines
- * \param   ... 1. Element name (in file)
- *              2. Data type name
+ * \param   ... 1. Data type name
+ *              2. Element name (in file). "type" by default.
  */
-#define XML_ELEMENT(name, dataType) TREE_TREE(name, dataType)
+#define XML_ELEMENT(...) TREE_TREE(__VA_ARGS__)
 
 } /* namespace XML */
 

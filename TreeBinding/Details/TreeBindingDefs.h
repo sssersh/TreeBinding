@@ -239,7 +239,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
   {
     try
     {
-      Translator::fromString(str, value);
+        *value = Translator::fromString<DataType>(str);
     }
     catch (std::exception const &) // can't convert from string to taget type
     {

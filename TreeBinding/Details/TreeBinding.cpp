@@ -3,71 +3,10 @@
  *  \brief Implementation of tree and classes/structures binding
  */
 
-#include <cctype> // std::isdigit
 #include "TreeBinding/TreeBinding.h"
 
 namespace TreeBinding
 {
-
-/*!
- * \brief     Check that string contain only digits
- * \param[in] s string for check
- * \retval    true string contain only digits
- * \retval    false otherwise
- */
-bool Translator::isNumber(const std::string& s)
-{
-  auto it = s.cbegin();
-  while (it != s.end() && std::isdigit(static_cast<unsigned char>(*it))) ++it;
-  return !s.empty() && it == s.end();
-}
-
-/*! 
- *  \brief      Translate string value to integer
- *  \param[in]  str   String representation of value
- *  \param[out] value Pointer to integer value
- */
-template<>
-void Translator::fromString(std::string const &str, Integer* const value)
-{
-  if (isNumber(str)) *value = atol(str.c_str());
-  else throw(std::out_of_range("Integer contain incorrect value: " + str + "\n"));
-}
-
-/*! 
- *  \brief      Translate string value to string value
- *  \param[in]  str   Source string
- *  \param[out] value Target string
- */
-template<>
-void Translator::fromString(std::string const &str, std::string* const value)
-{
-  *value = str;
-}
-
-/*!
- *  \brief     Translate integer to string value
- *  \param[in] value Pointer to integer value
- *  \return    String representation of value
- */
-template<>
-std::string Translator::toString(const Integer* const value)
-{
-  char buf[20];
-  std::sprintf(buf, "%d", *const_cast<Integer*>(value));
-  return std::string(buf);
-}
-
-/*!
- *  \brief     Translate string to string value
- *  \param[in] value Pointer to source value
- *  \return    Copy of source string
- */
-template<>
-std::string Translator::toString(const std::string* const value)
-{
-  return *value;
-}
 
 namespace Details
 {

@@ -45,7 +45,7 @@ PtreeWriter::write(NodeData<DataType> const &node,
 {
   if (node.validity)
   {
-    const std::string str = Translator::toString(node.value);
+    const std::string str = Translator::toString(*node.value);
     tree.add(boost::property_tree::path(node.name), str);
   }
 }

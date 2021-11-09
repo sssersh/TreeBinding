@@ -21,7 +21,7 @@ set(INCLUDES
         Details/Parsers/ArchiveSerializer.h
         Details/Parsers/PtreeWriter.h
         Details/Parsers/TableParser.h
-        )
+        Details/Translator.h)
 
 set(LIB TreeBindingOrigin)
 
