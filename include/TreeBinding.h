@@ -1308,6 +1308,62 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
 
 
 
+
+
+
+namespace TreeBinding
+{
+
+/*!
+ * \brief Iterator for iterate over fields in tree
+ */
+struct NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
+{
+    NodeIterator() = default;
+    NodeIterator(const NodeIterator&) = default;
+    NodeIterator& operator=(const NodeIterator&) = default;
+
+    NodeIterator& operator+(int const index)
+    {
+        ptr = (Details::BasicNodeData*)((uint8_t*)ptr + Details::NodeDataSize * index);
+        return *this;
+    }
+
+    NodeIterator& operator++()
+    {
+        return *this + 1;
+    }
+
+    bool operator== (const NodeIterator& rhs) const
+    {
+        return this->ptr == rhs.ptr;
+    }
+
+//deprecated
+    bool operator!= (const NodeIterator& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    Details::BasicNodeData& operator*() const
+    {
+        return *this->ptr;
+    }
+
+    Details::BasicNodeData* operator->() const
+    {
+        return this->ptr;
+    }
+
+    Details::BasicNodeData* ptr;
+
+}; // struct NodeIterator
+
+} // namespace TreeBinding
+
+
+
+
 namespace TreeBinding
 {
 
@@ -1377,8 +1433,6 @@ protected:
   size_t            nodesNum; /*!< Number of fields in current tree */
   const char* const name;     /*!< Name of tree                     */
 
-  struct NodeIterator;
-
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);
@@ -1409,24 +1463,7 @@ public:
 //  template<typename, typename> friend class Tree;
 };
 
-/*!
- * \brief Iterator for iterate over fields in tree
- */
-struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
-{
-  NodeIterator() = default;
-  NodeIterator(const NodeIterator&) = default;
-  NodeIterator& operator=(const NodeIterator&) = default;
 
-  bool operator!=(const NodeIterator&) const;
-  bool operator==(const NodeIterator&) const;
-  NodeIterator& operator+(int const index);
-  NodeIterator& operator++();
-  Details::BasicNodeData& operator*() const;
-  Details::BasicNodeData* operator->() const;
-
-  Details::BasicNodeData* ptr;
-};
 
 /*!
  * \brief serialize BasicTree by boost serializer
@@ -1702,63 +1739,6 @@ Details::BasicNodeData& BasicTree::getSameNode(const Details::BasicNodeData &rhs
   throw(std::runtime_error("Cannot find same field"));
 }
 
-
-BasicTree::NodeIterator& BasicTree::NodeIterator::operator+(int const index)
-{
-  ptr = (Details::BasicNodeData*)((uint8_t*)ptr + Details::NodeDataSize * index);
-  return *this;
-}
-
-BasicTree::NodeIterator& BasicTree::NodeIterator::operator++()
-{
-  return *this + 1;
-}
-
-bool BasicTree::NodeIterator::operator== (const BasicTree::NodeIterator& rhs) const
-{
-  return this->ptr == rhs.ptr;
-}
-
-//deprecated
-bool BasicTree::NodeIterator::operator!= (const BasicTree::NodeIterator& rhs) const
-{
-  return !(*this == rhs);
-}
-
-Details::BasicNodeData& BasicTree::NodeIterator::operator*() const
-{
-  return *this->ptr;
-}
-
-Details::BasicNodeData* BasicTree::NodeIterator::operator->() const
-{
-  return this->ptr;
-}
-
-/*! 
- *  \brief   Get iterator on first node
- *  \details Calculate pointer as offset from this equals to size of BasicTree
- *  \return  Iterator on first node
- */
-BasicTree::NodeIterator BasicTree::begin() const
-{
-  BasicTree::NodeIterator ret{};
-  ret.ptr = (Details::BasicNodeData*)((uint8_t*)this + sizeof(*this));
-  return ret;
-}
-
-/*! \brief   Get iterator on end node
- *  \warning Iterator contain pointer after last node. Only for equal, not unrefernce.
- *  \return  Iterator on end node
- */
-BasicTree::NodeIterator BasicTree::end() const
-{
-  BasicTree::NodeIterator ret{}, beg;
-  beg = begin();
-  ret.ptr = (Details::BasicNodeData*)((uint8_t*)beg.ptr + nodesNum * Details::NodeDataSize);
-  return ret;
-}
-
 /*! 
  *  \brief   Equal operator
  *  \note    Equal operator for Node compare values, only when both are valid. Otherwise, return true.
@@ -1862,6 +1842,30 @@ const char* BasicTree::getKeyNodeName() const
 {
   auto keyNodeIt = this->begin();
   return keyNodeIt->name;
+}
+
+/*!
+ *  \brief   Get iterator on first node
+ *  \details Calculate pointer as offset from this equals to size of BasicTree
+ *  \return  Iterator on first node
+ */
+NodeIterator BasicTree::begin() const
+{
+    NodeIterator ret{};
+    ret.ptr = (Details::BasicNodeData*)((uint8_t*)this + sizeof(*this));
+    return ret;
+}
+
+/*! \brief   Get iterator on end node
+ *  \warning Iterator contain pointer after last node. Only for equal, not unrefernce.
+ *  \return  Iterator on end node
+ */
+NodeIterator BasicTree::end() const
+{
+    NodeIterator ret{}, beg;
+    beg = begin();
+    ret.ptr = (Details::BasicNodeData*)((uint8_t*)beg.ptr + nodesNum * Details::NodeDataSize);
+    return ret;
 }
 
 } /* namespace TreeBinding */

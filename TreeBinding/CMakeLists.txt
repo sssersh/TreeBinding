@@ -25,7 +25,9 @@ set(INCLUDES
         Details/Exceptions.h
         Details/BasicNodeData.h
         Details/NodeData.h
-        Details/StringContainer.h Details/Node.h)
+        Details/StringContainer.h
+        Details/Node.h
+        Details/NodeIterator.h)
 
 set(LIB TreeBindingOrigin)
 

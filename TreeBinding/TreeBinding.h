@@ -12,6 +12,7 @@
 #include <boost/serialization/access.hpp>
 #include "TreeBinding/Details/Parsers/ArchiveSerializerDecl.h"
 #include "TreeBinding/Details/Node.h"
+#include "TreeBinding/Details/NodeIterator.h"
 
 namespace TreeBinding
 {
@@ -82,8 +83,6 @@ protected:
   size_t            nodesNum; /*!< Number of fields in current tree */
   const char* const name;     /*!< Name of tree                     */
 
-  struct NodeIterator;
-
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);
@@ -114,24 +113,7 @@ public:
 //  template<typename, typename> friend class Tree;
 };
 
-/*!
- * \brief Iterator for iterate over fields in tree
- */
-struct BasicTree::NodeIterator : public std::iterator<std::input_iterator_tag, Details::BasicNodeData>
-{
-  NodeIterator() = default;
-  NodeIterator(const NodeIterator&) = default;
-  NodeIterator& operator=(const NodeIterator&) = default;
 
-  bool operator!=(const NodeIterator&) const;
-  bool operator==(const NodeIterator&) const;
-  NodeIterator& operator+(int const index);
-  NodeIterator& operator++();
-  Details::BasicNodeData& operator*() const;
-  Details::BasicNodeData* operator->() const;
-
-  Details::BasicNodeData* ptr;
-};
 
 /*!
  * \brief serialize BasicTree by boost serializer
