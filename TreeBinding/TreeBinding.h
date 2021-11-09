@@ -68,14 +68,6 @@ struct NodesNum;
 #define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
 
 /*!
- * \brief Exception for signal wrong number of childs elements in tree
- */
-struct WrongChildsNumException : public std::runtime_error
-{
-  WrongChildsNumException(std::string const &nodeName, NodesNum const requiredNum, int const actuallyNum);
-};
-
-/*!
  * \brief Basic tree
  */
 class BasicTree

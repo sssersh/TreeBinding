@@ -642,14 +642,6 @@ struct NodesNum;
 #define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
 
 /*!
- * \brief Exception for signal wrong number of childs elements in tree
- */
-struct WrongChildsNumException : public std::runtime_error
-{
-  WrongChildsNumException(std::string const &nodeName, NodesNum const requiredNum, int const actuallyNum);
-};
-
-/*!
  * \brief Basic tree
  */
 class BasicTree
@@ -1143,6 +1135,36 @@ void NodeData<DataType>::serializeData(boost::archive::text_iarchive & ar, const
 
 
 
+
+
+
+namespace TreeBinding {
+
+/*!
+ * \brief Exception for signal wrong number of childs elements in tree
+ */
+struct WrongChildsNumException : public std::runtime_error
+{
+    /*!
+     * \brief     WrongChildsNumException constructor
+     * \param[in] nodeName Node name
+     * \param[in] requiredNum Required number of childs nodes
+     * \param[in] actuallyNum Actual number of childs nodes
+     */
+    WrongChildsNumException(std::string const &nodeName,
+                            NodesNum const requiredNum,
+                            NodesNum::ValueType const actuallyNum) :
+            std::runtime_error(
+                    "Invalid number of childs in node " + nodeName + ". Required: " + requiredNum.toString() +
+                    ", present: " + std::to_string(actuallyNum))
+    {}
+};
+
+} // namespace TreeBinding
+
+
+
+
 namespace TreeBinding
 {
 
@@ -1571,20 +1593,6 @@ void BasicNodeData::operator= (BasicNodeData const &rhs)
 }
 
 } /* namespace Details */
-
-/*!
- * \brief     WrongChildsNumException constructor
- * \param[in] nodeName Node name
- * \param[in] requiredNum Required number of childs nodes
- * \param[in] actuallyNum Actual number of childs nodes
- */
-WrongChildsNumException::WrongChildsNumException
-  (std::string         const &nodeName , 
-   NodesNum            const  requiredNum, 
-   NodesNum::ValueType const  actuallyNum) :
-   std::runtime_error("Invalid number of childs in node " + nodeName + ". Required: " + requiredNum.toString() +
-                     ", present: " + std::to_string(actuallyNum))
-{}
 
 BasicTree::BasicTree(const char* const name) :
   name(name)
