@@ -8,51 +8,6 @@
 namespace TreeBinding
 {
 
-namespace Details
-{
-
-/*!
- * \brief     BasicNodeData constructor
- * \param[in] name        Name of node
- * \param[in] requiredNum Required numbers of node
- * \param[in] isLeaf      Node is leaf (not subtree container)
- */
-BasicNodeData::BasicNodeData(const char* const name, NodesNum::ValueType const requiredNum, bool const isLeaf) :
-  name(name),
-  requiredNum(requiredNum),
-  validity(false),
-  isLeaf(isLeaf)
-{}
-
-/*!
- * \brief     BasicNodeData compare operator
- * \note      Compare nodes only if both are valid.
- *            Comparison function are declared in derived class.
- * \param[in] rhs Right hand side value
- * \retval    true Both are valid and are equals
- * \retval    false One/both are invalid or are not equals
- */
-bool BasicNodeData::operator== (BasicNodeData const &rhs) const
-{
-  if (this->validity && rhs.validity)
-  {
-    return this->compare(rhs);
-  }
-  else return true;
-}
-
-/*!
- * \brief     BasicNodeData assignment operator
- * \note      Assignment function are declared in derived class.
- * \param[in] rhs Right hand side value
- */
-void BasicNodeData::operator= (BasicNodeData const &rhs)
-{
-  this->copy(rhs);
-}
-
-} /* namespace Details */
-
 BasicTree::BasicTree(const char* const name) :
   name(name)
 {}

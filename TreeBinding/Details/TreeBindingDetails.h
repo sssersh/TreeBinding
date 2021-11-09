@@ -12,6 +12,7 @@
 #include <type_traits>
 #include "TreeBinding/Details/TreeBindingDecl.h"
 #include "TreeBinding/Details/NodesNum.h"
+#include "TreeBinding/Details/BasicNodeData.h"
 
 namespace TreeBinding
 {
@@ -19,58 +20,6 @@ namespace TreeBinding
 namespace Details
 {
 
-/*!
- * \brief Default path delimeter in ptree
- */
-static const char DEFAULT_DELIMETER = '/';
-
-// Base class used for iteration in Tree
-class BasicNodeData : public Archivable
-{
-public:
-
-  BasicNodeData() = delete;
-  BasicNodeData(const char* const name, NodesNum::ValueType const num, bool const isLeaf);
-  BasicNodeData(BasicNodeData const &rhs) = delete;
-  virtual ~BasicNodeData() = default;
-  void operator= (BasicNodeData const &rhs);
-
-  virtual void* getValue ()                            const = 0;
-  virtual void  reset    ()                                  = 0;
-  virtual bool  compare  (BasicNodeData const &rhs)    const = 0;
-  virtual void  copy     (BasicNodeData const &rhs)          = 0;
-  virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER) = 0;
-  virtual void parseTable(Table<std::wstring> &table,
-                          std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
-                          RowsRange const &rows) = 0;
-
-  virtual void writePtree(boost::property_tree::ptree &tree) const = 0;
-  bool operator== (BasicNodeData const &rhs) const;
-
-  const char* const name;        /*!< Node name                        */
-  const NodesNum    requiredNum; /*!< Required number of nodes in tree */
-  bool              validity;    /*!< Value of node is valid           */
-  bool              isLeaf;      /*!< Value is leaf (not subtree containter and not Tree) */
-
-  template <typename T> operator T&();
-
-
-protected:
-  friend class boost::serialization::access;
-
-  friend class NodeTableParser;
-  friend class PtreeWriter;
-  friend class BasicTree;
-  template <typename, typename> friend struct Tree;
-};
-
-// for cast unrefenced iterator to target type
-template<typename T>
-BasicNodeData::operator T&()
-{
-  return static_cast<T&>(*static_cast<NodeData<T>*>(this));
-}
- 
 // Store pointer to value, not value, to fix size of structure
 template<typename DataType>
 class NodeData : public BasicNodeData
