@@ -204,7 +204,7 @@ namespace Details
 /*!
  * \brief Default path delimeter in ptree
  */
-static const char DEFAULT_DELIMETER = '/';
+#define TREE_BINDING_DEFAULT_DELIMETER "/"
 
 // Base class used for iteration in Tree
 class BasicNodeData : public Archivable
@@ -257,7 +257,7 @@ public:
     virtual void  reset    ()                                  = 0;
     virtual bool  compare  (BasicNodeData const &rhs)    const = 0;
     virtual void  copy     (BasicNodeData const &rhs)          = 0;
-    virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER) = 0;
+    virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER) = 0;
     virtual void parseTable(Table<std::wstring> &table,
                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                             RowsRange const &rows) = 0;
@@ -727,7 +727,7 @@ public:
     virtual void  copy    (BasicNodeData const &rhs)          override final;
 
     virtual void  parsePtree(boost::property_tree::ptree &tree,
-                             const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
+                             const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER) override final;
     virtual void parseTable(Table<std::wstring> &table,
                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                             RowsRange const &rows) override final;
@@ -751,15 +751,15 @@ protected:
     // define separate functions for implementation, because SFINAE work only for overloading
     template<typename T = DataType>
     typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     typename std::enable_if_t<is_subtrees_set<T>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
@@ -1869,34 +1869,6 @@ namespace XML
 typedef TreeBinding::NodesNum ItemNum;
 
 /*!
- * \brief Concatenate 3 string literals
- * \param[in] 1st literal
- * \param[in] 2nd literal
- * \param[in] 3rd literal
- */
-// may be use x##y##z for visual studio
-#define XML_DETAILS_TOKEN_PASTE(x, y, z) x y z 
-
-/*!
- * \brief Concatenate 3 string literals
- * \note  Used this wrapper over XML_DETAILS_TOKEN_PASTE, because it's imposible without it
- * \param[in] 1st literal
- * \param[in] 2nd literal
- * \param[in] 3rd literal
- */
-#define XML_DETAILS_CONCAT(x,y,z) XML_DETAILS_TOKEN_PASTE(x,y,z)
-
-/*!
- * \brief XML default path delimeter (string representation)
- */
-#define XML_DETAILS_PATH_DELIMETER "/"
-
-/*!
- * \brief XML default path delimeter (char representation)
- */
-#define XML_PATH_DELIMETER (*(XML_DETAILS_PATH_DELIMETER))
-
-/*!
  * \brief   XML attribute declaration
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Attribute name. 
@@ -1904,7 +1876,7 @@ typedef TreeBinding::NodesNum ItemNum;
  *              3. Attribute are optional/mandatory (mandatory(TreeBinding::NodesNum::MORE_THAN_ONE) by default(if this parameter not passed)). 
  *                 If attribute are optional, pass TreeBinding::NodesNum::NOT_SPECIFIED
  */
-#define XML_ATTR(name, ...) TREE_NODE( XML_DETAILS_CONCAT("<xmlattr>", XML_DETAILS_PATH_DELIMETER, name), __VA_ARGS__)
+#define XML_ATTR(name, ...) TREE_NODE( "<xmlattr>" TREE_BINDING_DEFAULT_DELIMETER name , __VA_ARGS__)
 
 /*!
  * \brief   XML child declaration

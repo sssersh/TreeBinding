@@ -15,9 +15,13 @@ namespace Details
 {
 
 /*!
- * \brief Default path delimeter in ptree
+ * \brief   Default path delimeter in ptree
+ * \details Use macro, not constant, to keep opportunity concatenate delimeter with another string literals.
+ *          Used only for parsing XML, because for parsing XML used pseudo-tree xmlattr, and it's necessary
+ *          separate "xmlattr" and attribute name. For other cases used only name, without delimeter.
+ *          Use "/" because it's prohibited symbol for attribute/element name in XML.
  */
-static const char DEFAULT_DELIMETER = '/';
+#define TREE_BINDING_DEFAULT_DELIMETER "/"
 
 // Base class used for iteration in Tree
 class BasicNodeData : public Archivable
@@ -70,7 +74,7 @@ public:
     virtual void  reset    ()                                  = 0;
     virtual bool  compare  (BasicNodeData const &rhs)    const = 0;
     virtual void  copy     (BasicNodeData const &rhs)          = 0;
-    virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER) = 0;
+    virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER) = 0;
     virtual void parseTable(Table<std::wstring> &table,
                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                             RowsRange const &rows) = 0;
@@ -97,7 +101,7 @@ private:
     BasicNodeData(BasicNodeData const &rhs) = delete;
 };
 
-// for cast unrefenced iterator to target type
+// for cast unreferenced iterator to target type
 template<typename T>
 BasicNodeData::operator T&()
 {

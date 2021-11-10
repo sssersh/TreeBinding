@@ -38,7 +38,7 @@ public:
     virtual void  copy    (BasicNodeData const &rhs)          override final;
 
     virtual void  parsePtree(boost::property_tree::ptree &tree,
-                             const char pathDelimeter = Details::DEFAULT_DELIMETER) override final;
+                             const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER) override final;
     virtual void parseTable(Table<std::wstring> &table,
                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                             RowsRange const &rows) override final;
@@ -62,15 +62,15 @@ protected:
     // define separate functions for implementation, because SFINAE work only for overloading
     template<typename T = DataType>
     typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     typename std::enable_if_t<is_subtrees_set<T>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = Details::DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>

@@ -15,8 +15,8 @@ namespace TreeBinding
 struct NodesNum {
     typedef int32_t ValueType;
 
-    static const ValueType NOT_SPECIFIED = -1; /*!< Number of nodes not specified         */
-    static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0 */
+    static const ValueType NOT_SPECIFIED = -1; /*!< Number of nodes not specified (optional) */
+    static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0    */
 
     NodesNum(ValueType const value) :
         value(value)
