@@ -145,8 +145,8 @@ namespace TreeBinding
 struct NodesNum {
     typedef int32_t ValueType;
 
-    static const ValueType NOT_SPECIFIED = -1; /*!< Number of nodes not specified         */
-    static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0 */
+    static const ValueType NOT_SPECIFIED = -1; /*!< Number of nodes not specified (optional) */
+    static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0    */
 
     NodesNum(ValueType const value) :
         value(value)
@@ -202,7 +202,11 @@ namespace Details
 {
 
 /*!
- * \brief Default path delimeter in ptree
+ * \brief   Default path delimeter in ptree
+ * \details Use macro, not constant, to keep opportunity concatenate delimeter with another string literals.
+ *          Used only for parsing XML, because for parsing XML used pseudo-tree xmlattr, and it's necessary
+ *          separate "xmlattr" and attribute name. For other cases used only name, without delimeter.
+ *          Use "/" because it's prohibited symbol for attribute/element name in XML.
  */
 #define TREE_BINDING_DEFAULT_DELIMETER "/"
 
@@ -284,7 +288,7 @@ private:
     BasicNodeData(BasicNodeData const &rhs) = delete;
 };
 
-// for cast unrefenced iterator to target type
+// for cast unreferenced iterator to target type
 template<typename T>
 BasicNodeData::operator T&()
 {
@@ -1133,6 +1137,10 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
 
 
 
+
+
+
+
 /*!
  * \brief Concatenate two tokens
  */
@@ -1144,25 +1152,77 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
 #define TREE_BINDING_DETAILS_CONCAT(x, y) TREE_BINDING_DETAILS_TOKEN_PASTE(x, y)
 
 /*!
- * \brief   Build unique string container name
- * \details Concatenate token "__StringContainer__" and current line number
+ * \brief     Macro for expand multiply parameters, because stupid MSVC passed __VA_ARGS__ as single parameter
+ * \param[in] __VA_ARGS__ macro
+ * \return    __VA_ARGS__ expanded to multiply parameters
  */
-#define TREE_BINDING_DETAILS_STRING_CONTAINER_NAME \
-    TREE_BINDING_DETAILS_CONCAT(__StringContainer__, __LINE__)
+#define TREE_BINDING_DETAILS_EXPAND( x ) x
+
+/*!
+ * \brief   Choose overloaded macro
+ * \details First args - arguments, passes to target macro. After it passed overloaded macroses in descent order.
+ */
+#define TREE_BINDING_DETAILS_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
+
+/*!
+ * \brief    Overload macro
+ * \details  Pass empty string to TREE_BINDING_DETAILS_GET_MACRO() to avoid error
+ *           "ISO C++11 requires at least one argument for the "..." in a variadic macro"
+ * \warning  Overload macroses only with 1, 2 or 3 arguments
+ * \param[in] overload1 Overload with 1 argument
+ * \param[in] overload2 Overload with 2 argument
+ * \param[in] overload3 Overload with 3 argument
+ * \param[in] ... arguments of overloaded macro
+ */
+#define TREE_BINDING_DETAILS_OVERLOAD_MACRO(overload1, overload2, overload3, ...) \
+    TREE_BINDING_DETAILS_EXPAND(                                                  \
+        TREE_BINDING_DETAILS_GET_MACRO(__VA_ARGS__,                               \
+                                       overload3, overload2, overload1, ""        \
+                                      )(__VA_ARGS__)                              \
+                               )
+
+
+
+
+/*!
+ * \brief      Unique suffix for string container name
+ * \details    __COUNTER__ is unique macro, but it's non-standard
+ * \warning If __COUNTER__ macro not exists, suffix will not unique in one line
+ * \note       Now use only __LINE__, because there is not possible to pass declared
+ *             string contaner as template parameter (issue #113)
+ */
+
+//#ifdef __COUNTER__
+//#define TREE_BINDING_DEFAULT_UNIQUE_SUFFIX __COUNTER__
+//#else
+#define TREE_BINDING_DEFAULT_UNIQUE_SUFFIX __LINE__
+//#endif
+
+/*!
+ * \brief     Build string container name
+ * \details   Concatenate token "__StringContainer__" and suffix
+ * \param[in] uniqSuffix Unique suffix
+ */
+#define TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(uniqSuffix) \
+    TREE_BINDING_DETAILS_CONCAT(__StringContainer__, uniqSuffix)
 
 /*!
  * \brief     Unique string container
  * \details   template can't has string literal arguments, it's passed by it wrapper
- * \param[in] String, which will hold in container
+ * \note      Not used template for string container and different specialization for it,
+ *            because it's impossible to specialize container inside struct/class definition.
+ * \param[in] str String, which will hold in container
+ * \param[in] uniqSuffix Unique suffix
  */
-#define TREE_BINDING_DETAILS_STRING_CONTAINER(str)   \
-  struct TREE_BINDING_DETAILS_STRING_CONTAINER_NAME  \
-  {                                                  \
-    static const char* const getName()               \
-    {                                                \
-      return str;                                    \
-    }                                                \
+#define TREE_BINDING_DETAILS_STRING_CONTAINER(str, uniqSuffix)  \
+  struct TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(uniqSuffix) \
+  {                                                             \
+    static const char* const getName()                          \
+    {                                                           \
+      return str;                                               \
+    }                                                           \
   }
+
 
 
 
@@ -1238,9 +1298,9 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num) \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName);         \
-    TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, dataType, num >
+#define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num)   \
+    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, TREE_BINDING_DEFAULT_UNIQUE_SUFFIX); \
+    TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(TREE_BINDING_DEFAULT_UNIQUE_SUFFIX), dataType, num >
 
 /*!
  *  \brief     Declaration of reflection field (mandatory)
@@ -1252,54 +1312,32 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
 #define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) \
     TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
 
-/*!
- * \brief     Macro for expand multiply parameters, because stupid MSVC passed __VA_ARGS__ as single parameter
- * \param[in] __VA_ARGS__ macro
- * \return    __VA_ARGS__ expanded to multiply parameters
- */
-#define TREE_BINDING_DETAILS_EXPAND( x ) x
 
-/*!
- * \brief Choose necessary overloaded macro (with 2 or 3 parameters)
- */
-#define TREE_BINDING_DETAILS_NODE_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
-
-// Pass empty string to TREE_BINDING_DETAILS_NODE_GET_MACRO() to avoid error
-// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
-#define TREE_BINDING_DETAILS_NODE_COMMON(...)                       \
-    TREE_BINDING_DETAILS_EXPAND(                                    \
-        TREE_BINDING_DETAILS_NODE_GET_MACRO(__VA_ARGS__,            \
-                                       TREE_BINDING_DETAILS_NODE_3, \
-                                       TREE_BINDING_DETAILS_NODE_2, \
-                                       ""                           \
-                                      )(__VA_ARGS__)                \
-                             )
-
+#define TREE_BINDING_DETAILS_NODE(...)     \
+    TREE_BINDING_DETAILS_OVERLOAD_MACRO(   \
+        "Not contain overload with 1 arg", \
+        TREE_BINDING_DETAILS_NODE_2,       \
+        TREE_BINDING_DETAILS_NODE_3,       \
+        __VA_ARGS__ )
 
 
 /*!
  *  \copydoc TREE_BINDING_DETAILS_TREE_1()
  *  \param[in] name Name of tree
  */
-#define TREE_BINDING_DETAILS_TREE_2(type, name) \
-  TREE_BINDING_DETAILS_STRING_CONTAINER(name);  \
-  struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
+#define TREE_BINDING_DETAILS_TREE_2(type, name)         \
+    TREE_BINDING_DETAILS_STRING_CONTAINER(name, type);  \
+    struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(type) >
 
 
 #define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
 
-#define TREE_BINDING_DETAILS_TREE_GET_MACRO(_1, _2, TARGET_MACRO, ...) TARGET_MACRO
-
-// Pass empty string to TREE_BINDING_DETAILS_TREE_GET_MACRO() to avoid error
-// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
-#define TREE_BINDING_DETAILS_TREE_COMMON(...)                       \
-    TREE_BINDING_DETAILS_EXPAND(                                    \
-        TREE_BINDING_DETAILS_TREE_GET_MACRO(__VA_ARGS__,            \
-                                       TREE_BINDING_DETAILS_TREE_2, \
-                                       TREE_BINDING_DETAILS_TREE_1, \
-                                       ""                           \
-                                      )(__VA_ARGS__)                \
-                             )
+#define TREE_BINDING_DETAILS_TREE(...)      \
+    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
+        TREE_BINDING_DETAILS_TREE_1,        \
+        TREE_BINDING_DETAILS_TREE_2,        \
+        "Not contain overload with 3 args", \
+        __VA_ARGS__ )
 
 } /* namespace Details */
 
@@ -1664,7 +1702,7 @@ struct NodesNum;
  *              2. Node's data type
  *              3. Node are optional/mandatory
  */
-#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
+#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(__VA_ARGS__)
 
 
 
@@ -1695,7 +1733,7 @@ private:
  * \tparam type Name of this type (in code)
  * \tparam name Name of tree (in file). "type" by default.
  */
-#define TREE_TREE(...) TREE_BINDING_DETAILS_TREE_COMMON(__VA_ARGS__) 
+#define TREE_TREE(...) TREE_BINDING_DETAILS_TREE(__VA_ARGS__)
 
 } /* namespace TreeBinding */
 

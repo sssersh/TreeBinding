@@ -28,7 +28,8 @@ set(INCLUDES
         Details/StringContainer.h
         Details/Node.h
         Details/NodeIterator.h
-        Details/BasicTree.h Details/Empty.cpp)
+        Details/BasicTree.h
+        Details/MacroUtils.h)
 
 set(LIB TreeBindingOrigin)
 

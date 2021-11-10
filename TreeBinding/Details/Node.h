@@ -13,6 +13,7 @@
 #include "TreeBinding/Details/TreeBindingDecl.h"
 #include "TreeBinding/Details/NodeData.h"
 #include "TreeBinding/Details/StringContainer.h"
+#include "TreeBinding/Details/MacroUtils.h"
 
 namespace TreeBinding
 {
@@ -85,9 +86,9 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num) \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName);         \
-    TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME, dataType, num >
+#define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num)   \
+    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, TREE_BINDING_DEFAULT_UNIQUE_SUFFIX); \
+    TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(TREE_BINDING_DEFAULT_UNIQUE_SUFFIX), dataType, num >
 
 /*!
  *  \brief     Declaration of reflection field (mandatory)
@@ -99,54 +100,32 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
 #define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) \
     TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
 
-/*!
- * \brief     Macro for expand multiply parameters, because stupid MSVC passed __VA_ARGS__ as single parameter
- * \param[in] __VA_ARGS__ macro
- * \return    __VA_ARGS__ expanded to multiply parameters
- */
-#define TREE_BINDING_DETAILS_EXPAND( x ) x
 
-/*!
- * \brief Choose necessary overloaded macro (with 2 or 3 parameters)
- */
-#define TREE_BINDING_DETAILS_NODE_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
-
-// Pass empty string to TREE_BINDING_DETAILS_NODE_GET_MACRO() to avoid error
-// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
-#define TREE_BINDING_DETAILS_NODE_COMMON(...)                       \
-    TREE_BINDING_DETAILS_EXPAND(                                    \
-        TREE_BINDING_DETAILS_NODE_GET_MACRO(__VA_ARGS__,            \
-                                       TREE_BINDING_DETAILS_NODE_3, \
-                                       TREE_BINDING_DETAILS_NODE_2, \
-                                       ""                           \
-                                      )(__VA_ARGS__)                \
-                             )
-
+#define TREE_BINDING_DETAILS_NODE(...)     \
+    TREE_BINDING_DETAILS_OVERLOAD_MACRO(   \
+        "Not contain overload with 1 arg", \
+        TREE_BINDING_DETAILS_NODE_2,       \
+        TREE_BINDING_DETAILS_NODE_3,       \
+        __VA_ARGS__ )
 
 
 /*!
  *  \copydoc TREE_BINDING_DETAILS_TREE_1()
  *  \param[in] name Name of tree
  */
-#define TREE_BINDING_DETAILS_TREE_2(type, name) \
-  TREE_BINDING_DETAILS_STRING_CONTAINER(name);  \
-  struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME >
+#define TREE_BINDING_DETAILS_TREE_2(type, name)         \
+    TREE_BINDING_DETAILS_STRING_CONTAINER(name, type);  \
+    struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(type) >
 
 
 #define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
 
-#define TREE_BINDING_DETAILS_TREE_GET_MACRO(_1, _2, TARGET_MACRO, ...) TARGET_MACRO
-
-// Pass empty string to TREE_BINDING_DETAILS_TREE_GET_MACRO() to avoid error
-// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
-#define TREE_BINDING_DETAILS_TREE_COMMON(...)                       \
-    TREE_BINDING_DETAILS_EXPAND(                                    \
-        TREE_BINDING_DETAILS_TREE_GET_MACRO(__VA_ARGS__,            \
-                                       TREE_BINDING_DETAILS_TREE_2, \
-                                       TREE_BINDING_DETAILS_TREE_1, \
-                                       ""                           \
-                                      )(__VA_ARGS__)                \
-                             )
+#define TREE_BINDING_DETAILS_TREE(...)      \
+    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
+        TREE_BINDING_DETAILS_TREE_1,        \
+        TREE_BINDING_DETAILS_TREE_2,        \
+        "Not contain overload with 3 args", \
+        __VA_ARGS__ )
 
 } /* namespace Details */
 

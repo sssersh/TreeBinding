@@ -66,7 +66,7 @@ struct NodesNum;
  *              2. Node's data type
  *              3. Node are optional/mandatory
  */
-#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE_COMMON(__VA_ARGS__)
+#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(__VA_ARGS__)
 
 
 
@@ -97,7 +97,7 @@ private:
  * \tparam type Name of this type (in code)
  * \tparam name Name of tree (in file). "type" by default.
  */
-#define TREE_TREE(...) TREE_BINDING_DETAILS_TREE_COMMON(__VA_ARGS__) 
+#define TREE_TREE(...) TREE_BINDING_DETAILS_TREE(__VA_ARGS__)
 
 } /* namespace TreeBinding */
 
