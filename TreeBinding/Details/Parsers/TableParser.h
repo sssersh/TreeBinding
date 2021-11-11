@@ -31,21 +31,24 @@ struct TableParser
 {
 
   template<typename DataType>
-  static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+  static
+  typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
     parse(NodeData<DataType> &node,
           Table<std::wstring> const &table,
           std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
   template<typename DataType>
-  static typename std::enable_if_t<is_subtrees_set<DataType>::value>
+  static
+  typename std::enable_if<is_subtrees_set<DataType>::value>::type
     parse(NodeData<DataType> &node,
           Table<std::wstring> &table,
           std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
   template<typename DataType>
-  static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+  static
+  typename std::enable_if<std::is_base_of<BasicTree, DataType>::value>::type
     parse(NodeData<DataType> &node,
           Table<std::wstring> &table,
           std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
@@ -55,7 +58,7 @@ struct TableParser
 
 // parse leaf
 template<typename DataType>
-typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> const &table,
                    std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
@@ -95,7 +98,7 @@ TableParser::parse(NodeData<DataType> &node,
 
 // parse subtree array
 template<typename DataType>
-typename std::enable_if_t<is_subtrees_set<DataType>::value>
+typename std::enable_if<is_subtrees_set<DataType>::value>::type
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> &table,
                    std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
@@ -164,7 +167,7 @@ TableParser::parse(NodeData<DataType> &node,
 }
 
 template<typename DataType>
-typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<std::is_base_of<BasicTree, DataType>::value>::type
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> &table,
                    std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,

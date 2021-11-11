@@ -61,23 +61,23 @@ protected:
 
     // define separate functions for implementation, because SFINAE work only for overloading
     template<typename T = DataType>
-    typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
+    typename std::enable_if<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>::type
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
-    typename std::enable_if_t<is_subtrees_set<T>::value>
+    typename std::enable_if<is_subtrees_set<T>::value>::type
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
-    typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
+    typename std::enable_if<std::is_base_of<BasicTree, T>::value>::type
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
-    std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+    typename std::enable_if<!TreeBinding::Details::is_subtrees_set<T>::value>::type
     resetImpl();
 
     template<typename T = DataType>
-    std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+    typename std::enable_if<TreeBinding::Details::is_subtrees_set<T>::value>::type
     resetImpl();
 
     virtual bool compare (BasicNodeData const &rhs) const override;
@@ -216,7 +216,7 @@ void NodeData<DataType>::reset()
 
 template<typename DataType>
 template<typename T>
-typename std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+typename std::enable_if<!TreeBinding::Details::is_subtrees_set<T>::value>::type
 NodeData<DataType>::resetImpl()
 {
     validity = false;
@@ -224,7 +224,7 @@ NodeData<DataType>::resetImpl()
 
 template<typename DataType>
 template<typename T>
-std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+typename std::enable_if<TreeBinding::Details::is_subtrees_set<T>::value>::type
 NodeData<DataType>::resetImpl()
 {
     value->clear();
@@ -291,7 +291,7 @@ void NodeData<T>::writePtree(boost::property_tree::ptree &tree) const
 // parse leaf
 template<typename DataType>
 template<typename T>
-typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>::type
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
     std::string str;
@@ -331,7 +331,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 // pathDelimeter not used
 template<typename DataType>
 template<typename T>
-typename std::enable_if_t<is_subtrees_set<T>::value>
+typename std::enable_if<is_subtrees_set<T>::value>::type
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
     auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
@@ -389,7 +389,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 // parse single subtree
 template<typename DataType>
 template<typename T>
-typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
+typename std::enable_if<std::is_base_of<BasicTree, T>::value>::type
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
     auto subtree = (DataType*)this->getValue();

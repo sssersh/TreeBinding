@@ -23,24 +23,27 @@ class PtreeWriter
 public:
 
   template<typename DataType>
-  static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+  static
+  typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
   write(NodeData<DataType> const &node,
         boost::property_tree::ptree &tree);
 
   template<typename DataType>
-  static typename std::enable_if_t<is_subtrees_set<DataType>::value>
+  static
+  typename std::enable_if<is_subtrees_set<DataType>::value>::type
     write(NodeData<DataType> const &node,
         boost::property_tree::ptree &tree);
 
   template<typename DataType>
-  static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+  static
+  typename std::enable_if<std::is_base_of<BasicTree, DataType>::value>::type
   write(NodeData<DataType> const &node,
         boost::property_tree::ptree &tree);
 
 };
 
 template<typename DataType>
-typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
 PtreeWriter::write(NodeData<DataType> const &node,
                    boost::property_tree::ptree &tree)
 {
@@ -52,7 +55,7 @@ PtreeWriter::write(NodeData<DataType> const &node,
 }
 
 template<typename DataType>
-typename std::enable_if_t<is_subtrees_set<DataType>::value>
+typename std::enable_if<is_subtrees_set<DataType>::value>::type
 PtreeWriter::write(NodeData<DataType> const &node,
                    boost::property_tree::ptree &tree)
 {
@@ -74,7 +77,7 @@ PtreeWriter::write(NodeData<DataType> const &node,
 }
 
 template<typename DataType>
-typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<std::is_base_of<BasicTree, DataType>::value>::type
 PtreeWriter::write(NodeData<DataType> const &node,
                    boost::property_tree::ptree &tree)
 {

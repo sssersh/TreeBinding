@@ -80,7 +80,7 @@ serialize(Archive & ar, Node& tree, const unsigned int version)
 
 // for implementations of NodeData<>
 template<class Archive, typename DataType>
-typename std::enable_if_t<!std::is_same<BasicNodeData, NodeData<DataType>>::value && std::is_base_of<BasicNodeData, NodeData<DataType>>::value>
+typename std::enable_if<!std::is_same<BasicNodeData, NodeData<DataType>>::value && std::is_base_of<BasicNodeData, NodeData<DataType>>::value>::type
 serialize(Archive & ar, NodeData<DataType>& node, const unsigned int version)
 {
   ar & *(node.value);

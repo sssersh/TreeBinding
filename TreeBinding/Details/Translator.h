@@ -34,7 +34,8 @@ struct Translator
      *  \return     value Target value
      */
     template<typename T>
-    static std::enable_if_t<!hasOverloadedTranslator<T>::value, T>
+    static
+    typename std::enable_if<!hasOverloadedTranslator<T>::value, T>::type
     fromString(std::string const &str);
 
     /*!
@@ -44,7 +45,8 @@ struct Translator
      *  \return    String representation of value
      */
     template<typename T>
-    static std::enable_if_t<!hasOverloadedTranslator<T>::value, std::string>
+    static
+    typename std::enable_if<!hasOverloadedTranslator<T>::value, std::string>::type
     toString(const T& value);
 
     /*!
@@ -53,7 +55,8 @@ struct Translator
      *  \return    String representation of value
      */
     template<typename T>
-    static std::enable_if_t<std::is_arithmetic<T>::value, std::string>
+    static
+    typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type
     toString(const T& value)
     {
         return std::to_string(value);
@@ -65,7 +68,8 @@ struct Translator
      *  \return    Copy of same string
      */
     template<typename T>
-    static std::enable_if_t<std::is_same<T, std::string>::value, std::string>
+    static
+    typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type
     toString(const T& value)
     {
         return value;
@@ -77,7 +81,8 @@ struct Translator
      *  \return     Integer value
      */
     template<typename T>
-    static std::enable_if_t<std::is_integral<T>::value, T>
+    static
+    typename std::enable_if<std::is_integral<T>::value, T>::type
     fromString(const std::string& str)
     {
         return std::stoll(str);
@@ -89,7 +94,8 @@ struct Translator
      *  \return     Float value
      */
     template<typename T>
-    static std::enable_if_t<std::is_floating_point<T>::value, T>
+    static
+    typename std::enable_if<std::is_floating_point<T>::value, T>::type
     fromString(const std::string& str)
     {
         return std::stod(str.c_str());
@@ -101,7 +107,8 @@ struct Translator
      *  \return    Same string
      */
     template<typename T>
-    static std::enable_if_t<std::is_same<T, std::string>::value, std::string>
+    static
+    typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type
     fromString(const std::string &str)
     {
         return str;

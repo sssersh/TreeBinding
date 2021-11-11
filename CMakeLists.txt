@@ -14,10 +14,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Use s++17, because gcc can't find std::enable_if_t for c++11
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 11)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wpedantic -Werror -std=c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wpedantic -Werror")
 endif()
 
 if (ENABLE_COVERAGE)

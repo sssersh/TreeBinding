@@ -31,17 +31,17 @@ template< typename NameContainer,
         typename DataType     ,
         NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
 >
-struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
+struct Node final : public NodeData< typename std::conditional< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
         SubtreesSet< DataType >,
         DataType
->
+>::type
 >
 {
     using DeducedDataType = typename
-    std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
+    std::conditional< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
             SubtreesSet< DataType >,
             DataType
-    >;
+    >::type;
 
     Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
 //  template<typename T = std::remove_cv<DeducedDataType>::type>

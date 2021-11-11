@@ -338,7 +338,8 @@ struct Translator
      *  \return     value Target value
      */
     template<typename T>
-    static std::enable_if_t<!hasOverloadedTranslator<T>::value, T>
+    static
+    typename std::enable_if<!hasOverloadedTranslator<T>::value, T>::type
     fromString(std::string const &str);
 
     /*!
@@ -348,7 +349,8 @@ struct Translator
      *  \return    String representation of value
      */
     template<typename T>
-    static std::enable_if_t<!hasOverloadedTranslator<T>::value, std::string>
+    static
+    typename std::enable_if<!hasOverloadedTranslator<T>::value, std::string>::type
     toString(const T& value);
 
     /*!
@@ -357,7 +359,8 @@ struct Translator
      *  \return    String representation of value
      */
     template<typename T>
-    static std::enable_if_t<std::is_arithmetic<T>::value, std::string>
+    static
+    typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type
     toString(const T& value)
     {
         return std::to_string(value);
@@ -369,7 +372,8 @@ struct Translator
      *  \return    Copy of same string
      */
     template<typename T>
-    static std::enable_if_t<std::is_same<T, std::string>::value, std::string>
+    static
+    typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type
     toString(const T& value)
     {
         return value;
@@ -381,7 +385,8 @@ struct Translator
      *  \return     Integer value
      */
     template<typename T>
-    static std::enable_if_t<std::is_integral<T>::value, T>
+    static
+    typename std::enable_if<std::is_integral<T>::value, T>::type
     fromString(const std::string& str)
     {
         return std::stoll(str);
@@ -393,7 +398,8 @@ struct Translator
      *  \return     Float value
      */
     template<typename T>
-    static std::enable_if_t<std::is_floating_point<T>::value, T>
+    static
+    typename std::enable_if<std::is_floating_point<T>::value, T>::type
     fromString(const std::string& str)
     {
         return std::stod(str.c_str());
@@ -405,7 +411,8 @@ struct Translator
      *  \return    Same string
      */
     template<typename T>
-    static std::enable_if_t<std::is_same<T, std::string>::value, std::string>
+    static
+    typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type
     fromString(const std::string &str)
     {
         return str;
@@ -432,24 +439,27 @@ class PtreeWriter
 public:
 
   template<typename DataType>
-  static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+  static
+  typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
   write(NodeData<DataType> const &node,
         boost::property_tree::ptree &tree);
 
   template<typename DataType>
-  static typename std::enable_if_t<is_subtrees_set<DataType>::value>
+  static
+  typename std::enable_if<is_subtrees_set<DataType>::value>::type
     write(NodeData<DataType> const &node,
         boost::property_tree::ptree &tree);
 
   template<typename DataType>
-  static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+  static
+  typename std::enable_if<std::is_base_of<BasicTree, DataType>::value>::type
   write(NodeData<DataType> const &node,
         boost::property_tree::ptree &tree);
 
 };
 
 template<typename DataType>
-typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
 PtreeWriter::write(NodeData<DataType> const &node,
                    boost::property_tree::ptree &tree)
 {
@@ -461,7 +471,7 @@ PtreeWriter::write(NodeData<DataType> const &node,
 }
 
 template<typename DataType>
-typename std::enable_if_t<is_subtrees_set<DataType>::value>
+typename std::enable_if<is_subtrees_set<DataType>::value>::type
 PtreeWriter::write(NodeData<DataType> const &node,
                    boost::property_tree::ptree &tree)
 {
@@ -483,7 +493,7 @@ PtreeWriter::write(NodeData<DataType> const &node,
 }
 
 template<typename DataType>
-typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<std::is_base_of<BasicTree, DataType>::value>::type
 PtreeWriter::write(NodeData<DataType> const &node,
                    boost::property_tree::ptree &tree)
 {
@@ -525,21 +535,24 @@ struct TableParser
 {
 
   template<typename DataType>
-  static typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+  static
+  typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
     parse(NodeData<DataType> &node,
           Table<std::wstring> const &table,
           std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
   template<typename DataType>
-  static typename std::enable_if_t<is_subtrees_set<DataType>::value>
+  static
+  typename std::enable_if<is_subtrees_set<DataType>::value>::type
     parse(NodeData<DataType> &node,
           Table<std::wstring> &table,
           std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
           RowsRange const &rows);
 
   template<typename DataType>
-  static typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+  static
+  typename std::enable_if<std::is_base_of<BasicTree, DataType>::value>::type
     parse(NodeData<DataType> &node,
           Table<std::wstring> &table,
           std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
@@ -549,7 +562,7 @@ struct TableParser
 
 // parse leaf
 template<typename DataType>
-typename std::enable_if_t<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> const &table,
                    std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
@@ -589,7 +602,7 @@ TableParser::parse(NodeData<DataType> &node,
 
 // parse subtree array
 template<typename DataType>
-typename std::enable_if_t<is_subtrees_set<DataType>::value>
+typename std::enable_if<is_subtrees_set<DataType>::value>::type
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> &table,
                    std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
@@ -658,7 +671,7 @@ TableParser::parse(NodeData<DataType> &node,
 }
 
 template<typename DataType>
-typename std::enable_if_t<std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<std::is_base_of<BasicTree, DataType>::value>::type
 TableParser::parse(NodeData<DataType> &node,
                    Table<std::wstring> &table,
                    std::function<boost::optional<size_t>(const std::string&)> const &columnNameToIndex,
@@ -754,23 +767,23 @@ protected:
 
     // define separate functions for implementation, because SFINAE work only for overloading
     template<typename T = DataType>
-    typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
+    typename std::enable_if<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>::type
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
-    typename std::enable_if_t<is_subtrees_set<T>::value>
+    typename std::enable_if<is_subtrees_set<T>::value>::type
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
-    typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
+    typename std::enable_if<std::is_base_of<BasicTree, T>::value>::type
     parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
-    std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+    typename std::enable_if<!TreeBinding::Details::is_subtrees_set<T>::value>::type
     resetImpl();
 
     template<typename T = DataType>
-    std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+    typename std::enable_if<TreeBinding::Details::is_subtrees_set<T>::value>::type
     resetImpl();
 
     virtual bool compare (BasicNodeData const &rhs) const override;
@@ -909,7 +922,7 @@ void NodeData<DataType>::reset()
 
 template<typename DataType>
 template<typename T>
-typename std::enable_if_t<!TreeBinding::Details::is_subtrees_set<T>::value>
+typename std::enable_if<!TreeBinding::Details::is_subtrees_set<T>::value>::type
 NodeData<DataType>::resetImpl()
 {
     validity = false;
@@ -917,7 +930,7 @@ NodeData<DataType>::resetImpl()
 
 template<typename DataType>
 template<typename T>
-std::enable_if_t<TreeBinding::Details::is_subtrees_set<T>::value>
+typename std::enable_if<TreeBinding::Details::is_subtrees_set<T>::value>::type
 NodeData<DataType>::resetImpl()
 {
     value->clear();
@@ -984,7 +997,7 @@ void NodeData<T>::writePtree(boost::property_tree::ptree &tree) const
 // parse leaf
 template<typename DataType>
 template<typename T>
-typename std::enable_if_t<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>
+typename std::enable_if<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>::type
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
     std::string str;
@@ -1024,7 +1037,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 // pathDelimeter not used
 template<typename DataType>
 template<typename T>
-typename std::enable_if_t<is_subtrees_set<T>::value>
+typename std::enable_if<is_subtrees_set<T>::value>::type
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
     auto subtreesSet = (DataType*)this->getValue(); // DataType = SubtreesSet<>
@@ -1082,7 +1095,7 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 // parse single subtree
 template<typename DataType>
 template<typename T>
-typename std::enable_if_t<std::is_base_of<BasicTree, T>::value>
+typename std::enable_if<std::is_base_of<BasicTree, T>::value>::type
 NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter)
 {
     auto subtree = (DataType*)this->getValue();
@@ -1243,17 +1256,17 @@ template< typename NameContainer,
         typename DataType     ,
         NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
 >
-struct Node final : public NodeData< std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
+struct Node final : public NodeData< typename std::conditional< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
         SubtreesSet< DataType >,
         DataType
->
+>::type
 >
 {
     using DeducedDataType = typename
-    std::conditional_t< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
+    std::conditional< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
             SubtreesSet< DataType >,
             DataType
-    >;
+    >::type;
 
     Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
 //  template<typename T = std::remove_cv<DeducedDataType>::type>
@@ -1817,7 +1830,7 @@ serialize(Archive & ar, Node& tree, const unsigned int version)
 
 // for implementations of NodeData<>
 template<class Archive, typename DataType>
-typename std::enable_if_t<!std::is_same<BasicNodeData, NodeData<DataType>>::value && std::is_base_of<BasicNodeData, NodeData<DataType>>::value>
+typename std::enable_if<!std::is_same<BasicNodeData, NodeData<DataType>>::value && std::is_base_of<BasicNodeData, NodeData<DataType>>::value>::type
 serialize(Archive & ar, NodeData<DataType>& node, const unsigned int version)
 {
   ar & *(node.value);
