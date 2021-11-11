@@ -317,12 +317,18 @@ BasicNodeData::operator T&()
 namespace TreeBinding
 {
 
+template<typename T>
+struct isString
+{
+    static const bool value = std::is_same<T, std::string>::value || std::is_same<T, std::wstring>::value;
+};
+
 // Overloaded translators declared for arithmetic types and strings
 // Translator functions are templates, to keep it only in header file
 template<typename T>
 struct hasOverloadedTranslator
 {
-    static const bool value = std::is_arithmetic<T>::value || std::is_same<T, std::string>::value;
+    static const bool value = std::is_arithmetic<T>::value || isString<T>::value;
 };
 
 /*!
@@ -373,7 +379,7 @@ struct Translator
      */
     template<typename T>
     static
-    typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type
+    typename std::enable_if<std::is_same<T, std::string>::value, T>::type
     toString(const T& value)
     {
         return value;
@@ -412,7 +418,7 @@ struct Translator
      */
     template<typename T>
     static
-    typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type
+    typename std::enable_if<isString<T>::value, T>::type
     fromString(const std::string &str)
     {
         return str;
