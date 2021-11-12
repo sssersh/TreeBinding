@@ -1339,25 +1339,6 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
         TREE_BINDING_DETAILS_NODE_3,       \
         __VA_ARGS__ )
 
-
-/*!
- *  \copydoc TREE_BINDING_DETAILS_TREE_1()
- *  \param[in] name Name of tree
- */
-#define TREE_BINDING_DETAILS_TREE_2(type, name)         \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(name, type);  \
-    struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(type) >
-
-
-#define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
-
-#define TREE_BINDING_DETAILS_TREE(...)      \
-    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
-        TREE_BINDING_DETAILS_TREE_1,        \
-        TREE_BINDING_DETAILS_TREE_2,        \
-        "Not contain overload with 3 args", \
-        __VA_ARGS__ )
-
 } /* namespace Details */
 
 } /* namespace TreeBinding */
@@ -1670,6 +1651,81 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
 
 
 
+
+
+
+
+
+
+
+namespace TreeBinding
+{
+
+/*!
+ * \brief  Tree
+ * \tparam T Structure, which represent tree (derived of current struct)
+ * \tparam NameContainer Container with name of tree
+ */
+template<typename T, typename NameContainer>
+struct Tree : public BasicTree
+{
+    Tree();
+    typedef NameContainer NameContainer_;
+
+private:
+    template<int diff, int basicNodeSize>
+    struct CheckSize;
+
+    // Replace it by
+//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
+    static void checkSize() {}
+
+//  friend class boost::serialization::access;
+};
+
+// for print size
+template<int diff, int basicNodeSize>
+struct CheckSize
+{
+    static_assert(diff % basicNodeSize == 0, "Tree contains incorrect nodes");
+    static_assert((diff >= basicNodeSize || diff == 0), "Tree contains incorrect nodes"); // 0 - for empty tree
+};
+
+/*! \brief   Tree constructor
+ *  \details Calculate number of values: size of Derived - size of current Tree / size of field specialization
+ *  \tparam  Derived Derived class
+ */
+template<typename Derived, typename NameContainer>
+Tree<Derived, NameContainer>::Tree() :
+        BasicTree(NameContainer::getName())
+{
+    checkSize();
+    nodesNum = (sizeof(Derived) - sizeof(Tree<NameContainer, Derived>)) / Details::NodeDataSize;
+}
+
+/*!
+ *  \copydoc TREE_BINDING_DETAILS_TREE_1()
+ *  \param[in] name Name of tree
+ */
+#define TREE_BINDING_DETAILS_TREE_2(type, name)         \
+    TREE_BINDING_DETAILS_STRING_CONTAINER(name, type);  \
+    struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(type) >
+
+
+#define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
+
+#define TREE_BINDING_DETAILS_TREE(...)      \
+    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
+        TREE_BINDING_DETAILS_TREE_1,        \
+        TREE_BINDING_DETAILS_TREE_2,        \
+        "Not contain overload with 3 args", \
+        __VA_ARGS__ )
+
+} /* namespace TreeBinding */
+
+
+
+
 namespace TreeBinding
 {
 
@@ -1722,30 +1778,6 @@ struct NodesNum;
  *              3. Node are optional/mandatory
  */
 #define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(__VA_ARGS__)
-
-
-
-/*!
- * \brief  Tree
- * \tparam T Structure, which represent tree (derived of current struct)
- * \tparam NameContainer Container with name of tree
- */
-template<typename T, typename NameContainer>
-struct Tree : public BasicTree
-{
-  Tree();
-  typedef NameContainer NameContainer_;
-
-private:
-  template<int diff, int basicNodeSize>
-  struct CheckSize;
-
-  // Replace it by 
-//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
-  static void checkSize() {}
-
-//  friend class boost::serialization::access;
-};
 
 /*!
  * \brief  Define structure of tree
@@ -1868,41 +1900,6 @@ void NodeData<DataType>::serializeData(boost::archive::text_iarchive & ar, const
 } /* namespace TreeBinding */
 
 
-
-
-// Function definitions file
-
-
-
-
-
-
-
-
-namespace TreeBinding
-{
-
-/*! \brief   Tree constructor
- *  \details Calculate number of values: size of Derived - size of current Tree / size of field specialization
- *  \tparam  Derived Derived class
- */
-template<typename Derived, typename NameContainer>
-Tree<Derived, NameContainer>::Tree() :
-  BasicTree(NameContainer::getName())
-{
-  checkSize();
-  nodesNum = (sizeof(Derived) - sizeof(Tree<NameContainer, Derived>)) / Details::NodeDataSize;
-}
-
-// for print size
-template<int diff, int basicNodeSize>
-struct CheckSize
-{
-  static_assert(diff % basicNodeSize == 0, "Tree contains incorrect nodes");
-  static_assert((diff >= basicNodeSize || diff == 0), "Tree contains incorrect nodes"); // 0 - for empty tree
-};
-
-} /* namespace TreeBinding */
 
 
 

@@ -108,25 +108,6 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
         TREE_BINDING_DETAILS_NODE_3,       \
         __VA_ARGS__ )
 
-
-/*!
- *  \copydoc TREE_BINDING_DETAILS_TREE_1()
- *  \param[in] name Name of tree
- */
-#define TREE_BINDING_DETAILS_TREE_2(type, name)         \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(name, type);  \
-    struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(type) >
-
-
-#define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
-
-#define TREE_BINDING_DETAILS_TREE(...)      \
-    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
-        TREE_BINDING_DETAILS_TREE_1,        \
-        TREE_BINDING_DETAILS_TREE_2,        \
-        "Not contain overload with 3 args", \
-        __VA_ARGS__ )
-
 } /* namespace Details */
 
 } /* namespace TreeBinding */

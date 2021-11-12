@@ -14,6 +14,7 @@
 #include "TreeBinding/Details/Node.h"
 #include "TreeBinding/Details/NodeIterator.h"
 #include "TreeBinding/Details/BasicTree.h"
+#include "TreeBinding/Details/Tree.h"
 
 namespace TreeBinding
 {
@@ -56,46 +57,22 @@ struct NodesNum;
 
 /*! 
  * \brief   Declaration of field which binds with tree node
- * \details When passed 2 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_3 macro.
- *          When passed 3 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_4 macro.
+ * \details When passed 2 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_2 macro.
+ *          When passed 3 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_3 macro.
  * \note    Name used as first parameter, because this macro can used in wrapper macro with constant name ("", for example),
  *          and it's necessary to pass another 2 parameters from wrapper to this macro. If use name as second parameter (between
  *          type and num, passing another 2 parameters became impossible.
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Node name.
  *              2. Node's data type
- *              3. Node are optional/mandatory
+ *              3. Node are optional/mandatory (optional parameter)
  */
 #define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(__VA_ARGS__)
-
-
-
-/*!
- * \brief  Tree
- * \tparam T Structure, which represent tree (derived of current struct)
- * \tparam NameContainer Container with name of tree
- */
-template<typename T, typename NameContainer>
-struct Tree : public BasicTree
-{
-  Tree();
-  typedef NameContainer NameContainer_;
-
-private:
-  template<int diff, int basicNodeSize>
-  struct CheckSize;
-
-  // Replace it by 
-//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
-  static void checkSize() {}
-
-//  friend class boost::serialization::access;
-};
 
 /*!
  * \brief  Define structure of tree
  * \tparam type Name of this type (in code)
- * \tparam name Name of tree (in file). "type" by default.
+ * \tparam name Name of tree (in file). "type" by default (optional parameter).
  */
 #define TREE_TREE(...) TREE_BINDING_DETAILS_TREE(__VA_ARGS__)
 
@@ -105,7 +82,6 @@ private:
 #include "TreeBinding/Details/Parsers/PtreeWriter.h"
 #include "TreeBinding/Details/Parsers/ArchiveSerializer.h"
 
-// Function definitions file
-#include "TreeBinding/Details/TreeBindingDefs.h"
+
 
 #endif /* _TREE_BINDING_H_ */
