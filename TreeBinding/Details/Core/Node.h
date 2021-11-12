@@ -10,10 +10,10 @@
 //#include <string>
 //#include <cinttypes>
 //#include <type_traits>
-#include "TreeBinding/Details/TreeBindingDecl.h"
-#include "TreeBinding/Details/NodeData.h"
-#include "TreeBinding/Details/StringContainer.h"
-#include "TreeBinding/Details/MacroUtils.h"
+#include "TreeBinding/Details/Core/TreeBindingDecl.h"
+#include "TreeBinding/Details/Core/NodeData.h"
+#include "TreeBinding/Details/Core/StringContainer.h"
+#include "TreeBinding/Details/Core/MacroUtils.h"
 
 namespace TreeBinding
 {

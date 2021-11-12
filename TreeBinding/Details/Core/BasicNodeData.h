@@ -6,7 +6,7 @@
 #ifndef _BASICNODEDATA_H_
 #define _BASICNODEDATA_H_
 
-#include "TreeBinding/Details/NodesNum.h"
+#include "TreeBinding/Details/Core/NodesNum.h"
 
 namespace TreeBinding
 {

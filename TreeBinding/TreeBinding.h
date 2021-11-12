@@ -10,11 +10,11 @@
 #include <map>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/access.hpp>
-#include "TreeBinding/Details/Parsers/ArchiveSerializerDecl.h"
-#include "TreeBinding/Details/Node.h"
-#include "TreeBinding/Details/NodeIterator.h"
-#include "TreeBinding/Details/BasicTree.h"
-#include "TreeBinding/Details/Tree.h"
+#include "TreeBinding/Details/ArchiveSerializerDecl.h"
+#include "TreeBinding/Details/Core/Node.h"
+#include "TreeBinding/Details/Core/NodeIterator.h"
+#include "TreeBinding/Details/Core/BasicTree.h"
+#include "TreeBinding/Details/Core/Tree.h"
 
 namespace TreeBinding
 {
@@ -78,9 +78,9 @@ struct NodesNum;
 
 } /* namespace TreeBinding */
 
-#include "TreeBinding/Details/Parsers/TableParser.h"
-#include "TreeBinding/Details/Parsers/PtreeWriter.h"
-#include "TreeBinding/Details/Parsers/ArchiveSerializer.h"
+#include "TreeBinding/Details/TableParser.h"
+#include "TreeBinding/Details/PtreeWriter.h"
+#include "TreeBinding/Details/ArchiveSerializer.h"
 
 
 

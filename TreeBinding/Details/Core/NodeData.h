@@ -6,10 +6,10 @@
 #ifndef _NODEDATA_H_
 #define _NODEDATA_H_
 
-#include "TreeBinding/Details/BasicNodeData.h"
-#include "TreeBinding/Details/Parsers/PtreeWriter.h"
-#include "TreeBinding/Details/Parsers/TableParser.h"
-#include "TreeBinding/Details/Exceptions.h"
+#include "TreeBinding/Details/Core/BasicNodeData.h"
+#include "TreeBinding/Details/PtreeWriter.h"
+#include "TreeBinding/Details/TableParser.h"
+#include "TreeBinding/Details/Core/Exceptions.h"
 
 namespace TreeBinding
 {

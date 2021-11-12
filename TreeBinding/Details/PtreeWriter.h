@@ -6,8 +6,8 @@
 #ifndef _TREE_BINDING_PTREE_WRITER_H_
 #define _TREE_BINDING_PTREE_WRITER_H_
 
-#include "TreeBinding/Details/TreeBindingDecl.h"
-#include "TreeBinding/Details/Translator.h"
+#include "TreeBinding/Details/Core/TreeBindingDecl.h"
+#include "TreeBinding/Details/Core/Translator.h"
 
 namespace TreeBinding
 {

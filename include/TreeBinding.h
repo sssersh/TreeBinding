@@ -565,7 +565,6 @@ struct TableParser
           RowsRange const &rows);
 
 };
-
 // parse leaf
 template<typename DataType>
 typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type
@@ -1767,22 +1766,22 @@ struct NodesNum;
 
 /*! 
  * \brief   Declaration of field which binds with tree node
- * \details When passed 2 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_3 macro.
- *          When passed 3 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_4 macro.
+ * \details When passed 2 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_2 macro.
+ *          When passed 3 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_3 macro.
  * \note    Name used as first parameter, because this macro can used in wrapper macro with constant name ("", for example),
  *          and it's necessary to pass another 2 parameters from wrapper to this macro. If use name as second parameter (between
  *          type and num, passing another 2 parameters became impossible.
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Node name.
  *              2. Node's data type
- *              3. Node are optional/mandatory
+ *              3. Node are optional/mandatory (optional parameter)
  */
 #define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(__VA_ARGS__)
 
 /*!
  * \brief  Define structure of tree
  * \tparam type Name of this type (in code)
- * \tparam name Name of tree (in file). "type" by default.
+ * \tparam name Name of tree (in file). "type" by default (optional parameter).
  */
 #define TREE_TREE(...) TREE_BINDING_DETAILS_TREE(__VA_ARGS__)
 

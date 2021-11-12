@@ -8,7 +8,7 @@
 
 #include <string>
 #include <type_traits>
-#include "TreeBinding/Details/Exceptions.h"
+#include "TreeBinding/Details/Core/Exceptions.h"
 
 namespace TreeBinding
 {

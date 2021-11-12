@@ -14,8 +14,8 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
-#include "TreeBinding/Details/Translator.h"
-#include "TreeBinding/Details/TreeBindingDecl.h"
+#include "TreeBinding/Details/Core/Translator.h"
+#include "TreeBinding/Details/Core/TreeBindingDecl.h"
 
 namespace TreeBinding
 {
@@ -55,7 +55,6 @@ struct TableParser
           RowsRange const &rows);
 
 };
-
 // parse leaf
 template<typename DataType>
 typename std::enable_if<!is_subtrees_set<DataType>::value && !std::is_base_of<BasicTree, DataType>::value>::type

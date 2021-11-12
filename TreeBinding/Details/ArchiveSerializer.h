@@ -7,7 +7,7 @@
 #define _TREE_BINDING_ARCHIVE_SERIALIZER_H_
 
 #include <boost/serialization/vector.hpp>
-#include "TreeBinding/Details/Parsers/ArchiveSerializerDecl.h"
+#include "TreeBinding/Details/ArchiveSerializerDecl.h"
 
 // Should be declared in global namespace
 #define TREE_BINDING_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \

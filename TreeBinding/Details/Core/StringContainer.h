@@ -6,7 +6,7 @@
 #ifndef _STRINGCONTAINER_H_
 #define _STRINGCONTAINER_H_
 
-#include "TreeBinding/Details/MacroUtils.h"
+#include "TreeBinding/Details/Core/MacroUtils.h"
 
 /*!
  * \brief      Unique suffix for string container name
