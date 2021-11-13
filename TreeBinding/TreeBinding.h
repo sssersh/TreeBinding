@@ -67,7 +67,9 @@ struct NodesNum;
  *              2. Node's data type
  *              3. Node are optional/mandatory (optional parameter)
  */
-#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(__VA_ARGS__)
+#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(TreeBinding::Details::ContainerRequired::NO, __VA_ARGS__)
+
+#define TREE_NODE_ARRAY(...) TREE_BINDING_DETAILS_NODE(TreeBinding::Details::ContainerRequired::YES, __VA_ARGS__)
 
 /*!
  * \brief  Define structure of tree

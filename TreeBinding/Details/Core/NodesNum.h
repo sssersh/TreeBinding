@@ -19,11 +19,9 @@ struct NodesNum {
     static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0    */
 
     NodesNum(ValueType const value) :
-        value(value)
-    {}
+            value(value) {}
 
-    operator ValueType() const
-    {
+    operator ValueType() const {
         return value;
     }
 
@@ -32,8 +30,7 @@ struct NodesNum {
      * \retval true Number of nodes is certain
      * \retval false Number of nodes is float
      */
-    bool isCertain() const
-    {
+    bool isCertain() const {
         return value >= 0;
     }
 
@@ -41,10 +38,8 @@ struct NodesNum {
      * \brief  Get number of nodes in string representation
      * \return Number of nodes in string representation
      */
-    std::string toString() const
-    {
-        switch (value)
-        {
+    std::string toString() const {
+        switch (value) {
             case NOT_SPECIFIED:
                 return "not specified";
             case MORE_THAN_0:
@@ -58,7 +53,7 @@ private:
     NodesNum() = delete;
 
     ValueType value;
-};
+}; // struct NodesNum
 
 } // namespace TreeBinding
 

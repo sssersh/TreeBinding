@@ -11,6 +11,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/serialization/access.hpp>
@@ -149,11 +150,9 @@ struct NodesNum {
     static const ValueType MORE_THAN_0   = -2; /*!< Number of nodes should be more than 0    */
 
     NodesNum(ValueType const value) :
-        value(value)
-    {}
+            value(value) {}
 
-    operator ValueType() const
-    {
+    operator ValueType() const {
         return value;
     }
 
@@ -162,8 +161,7 @@ struct NodesNum {
      * \retval true Number of nodes is certain
      * \retval false Number of nodes is float
      */
-    bool isCertain() const
-    {
+    bool isCertain() const {
         return value >= 0;
     }
 
@@ -171,10 +169,8 @@ struct NodesNum {
      * \brief  Get number of nodes in string representation
      * \return Number of nodes in string representation
      */
-    std::string toString() const
-    {
-        switch (value)
-        {
+    std::string toString() const {
+        switch (value) {
             case NOT_SPECIFIED:
                 return "not specified";
             case MORE_THAN_0:
@@ -188,7 +184,7 @@ private:
     NodesNum() = delete;
 
     ValueType value;
-};
+}; // struct NodesNum
 
 } // namespace TreeBinding
 
@@ -695,6 +691,8 @@ TableParser::parse(NodeData<DataType> &node,
 
 
 
+
+
 namespace TreeBinding {
 
 /*!
@@ -1180,23 +1178,24 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
  * \brief   Choose overloaded macro
  * \details First args - arguments, passes to target macro. After it passed overloaded macroses in descent order.
  */
-#define TREE_BINDING_DETAILS_GET_MACRO(_1, _2, _3, TARGET_MACRO, ...) TARGET_MACRO
+#define TREE_BINDING_DETAILS_GET_MACRO(_1, _2, _3, _4, TARGET_MACRO, ...) TARGET_MACRO
 
 /*!
  * \brief    Overload macro
  * \details  Pass empty string to TREE_BINDING_DETAILS_GET_MACRO() to avoid error
  *           "ISO C++11 requires at least one argument for the "..." in a variadic macro"
- * \warning  Overload macroses only with 1, 2 or 3 arguments
+ * \warning  Overload macroses only with 1, 2, 3 or 4 arguments
  * \param[in] overload1 Overload with 1 argument
  * \param[in] overload2 Overload with 2 argument
  * \param[in] overload3 Overload with 3 argument
+ * \param[in] overload4 Overload with 3 argument
  * \param[in] ... arguments of overloaded macro
  */
-#define TREE_BINDING_DETAILS_OVERLOAD_MACRO(overload1, overload2, overload3, ...) \
-    TREE_BINDING_DETAILS_EXPAND(                                                  \
-        TREE_BINDING_DETAILS_GET_MACRO(__VA_ARGS__,                               \
-                                       overload3, overload2, overload1, ""        \
-                                      )(__VA_ARGS__)                              \
+#define TREE_BINDING_DETAILS_OVERLOAD_MACRO(overload1, overload2, overload3, overload4, ...) \
+    TREE_BINDING_DETAILS_EXPAND(                                                             \
+        TREE_BINDING_DETAILS_GET_MACRO(__VA_ARGS__,                                          \
+                                       overload4, overload3, overload2, overload1, ""        \
+                                      )(__VA_ARGS__)                                         \
                                )
 
 
@@ -1251,27 +1250,43 @@ namespace TreeBinding
 namespace Details
 {
 
+enum class ContainerRequired
+{
+    YES,
+    NO
+};
+
+template<ContainerRequired containerRequired, NodesNum::ValueType nodesNum>
+struct containerIsRequired
+{
+    static const bool value = containerRequired == ContainerRequired::YES && nodesNum != 1;
+};
+
+template<ContainerRequired containerRequired, NodesNum::ValueType nodesNum, typename DataType>
+struct NodeDataType
+{
+    typedef typename
+    std::conditional<
+            containerIsRequired<containerRequired, nodesNum>::value,
+            SubtreesSet< DataType >,
+            DataType
+    >::type type;
+};
+
 /*!
  *  \brief  Tree node
  *  \tparam NameContainer String wrapper class, which contain field name
  *  \tparam DataType      NodeData data type
  *  \tparam RequiredNum   Required number of fields
  */
-template< typename NameContainer,
-        typename DataType     ,
-        NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
+template< ContainerRequired containerRequired ,
+          typename NameContainer,
+          typename DataType     ,
+          NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
 >
-struct Node final : public NodeData< typename std::conditional< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
-        SubtreesSet< DataType >,
-        DataType
->::type
->
+struct Node final : public NodeData< typename NodeDataType<containerRequired, RequiredNum, DataType>::type >
 {
-    using DeducedDataType = typename
-    std::conditional< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
-            SubtreesSet< DataType >,
-            DataType
-    >::type;
+    using DeducedDataType = typename NodeDataType<containerRequired, RequiredNum, DataType>::type;
 
     Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
 //  template<typename T = std::remove_cv<DeducedDataType>::type>
@@ -1310,15 +1325,20 @@ struct AssertName
         return "";
     }
 };
-static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
+static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
 /*!
  *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num)   \
+#define TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, num)          \
     TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, TREE_BINDING_DEFAULT_UNIQUE_SUFFIX); \
-    TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(TREE_BINDING_DEFAULT_UNIQUE_SUFFIX), dataType, num >
+    TreeBinding::Details::Node <                                                          \
+        containerRequired,                                                                \
+        TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(TREE_BINDING_DEFAULT_UNIQUE_SUFFIX),   \
+        dataType,                                                                         \
+        num                                                                               \
+        >
 
 /*!
  *  \brief     Declaration of reflection field (mandatory)
@@ -1327,15 +1347,16 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  *  \param[in] paramName Name of field
  *  \param[in] dataType Underlied type of field
  */
-#define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) \
-    TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
+#define TREE_BINDING_DETAILS_NODE_3(containerRequired, paramName, dataType) \
+    TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
 
 
-#define TREE_BINDING_DETAILS_NODE(...)     \
-    TREE_BINDING_DETAILS_OVERLOAD_MACRO(   \
-        "Not contain overload with 1 arg", \
-        TREE_BINDING_DETAILS_NODE_2,       \
-        TREE_BINDING_DETAILS_NODE_3,       \
+#define TREE_BINDING_DETAILS_NODE(...)      \
+    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
+        "Not contain overload with 1 arg",  \
+        "Not contain overload with 2 args", \
+        TREE_BINDING_DETAILS_NODE_3,        \
+        TREE_BINDING_DETAILS_NODE_4,        \
         __VA_ARGS__ )
 
 } /* namespace Details */
@@ -1718,6 +1739,7 @@ Tree<Derived, NameContainer>::Tree() :
         TREE_BINDING_DETAILS_TREE_1,        \
         TREE_BINDING_DETAILS_TREE_2,        \
         "Not contain overload with 3 args", \
+        "Not contain overload with 4 args", \
         __VA_ARGS__ )
 
 } /* namespace TreeBinding */
@@ -1776,7 +1798,9 @@ struct NodesNum;
  *              2. Node's data type
  *              3. Node are optional/mandatory (optional parameter)
  */
-#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(__VA_ARGS__)
+#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(TreeBinding::Details::ContainerRequired::NO, __VA_ARGS__)
+
+#define TREE_NODE_ARRAY(...) TREE_BINDING_DETAILS_NODE(TreeBinding::Details::ContainerRequired::YES, __VA_ARGS__)
 
 /*!
  * \brief  Define structure of tree
@@ -1937,7 +1961,7 @@ typedef TreeBinding::NodesNum ItemNum;
  * \param   ... 1. Child's data type 
  *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
  */
-#define XML_CHILD_ELEMENTS(...) TREE_NODE("", __VA_ARGS__)
+#define XML_CHILD_ELEMENTS(...) TREE_NODE_ARRAY("", __VA_ARGS__)
 
 /*!
  * \brief   XML element declaration
@@ -1951,6 +1975,7 @@ typedef TreeBinding::NodesNum ItemNum;
 
 
   
+
 
 
 
@@ -1983,11 +2008,10 @@ typedef TreeBinding::NodesNum ItemNum;
  * \param   ... 2. Array's elements data type
  *              3. Required number of array elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
  */
-#define JSON_ARRAY(...) TREE_NODE(__VA_ARGS__)
+#define JSON_ARRAY(...) TREE_NODE_ARRAY(__VA_ARGS__)
 
 /*!
  * \brief   JSON element declaration
- * \warning Each macro call should be placed in different lines
  * \param   dataType Elements's data type
  */
 #define JSON_ELEMENT(dataType) TREE_TREE(dataType)

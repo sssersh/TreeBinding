@@ -33,7 +33,7 @@ typedef TreeBinding::NodesNum ItemNum;
  * \param   ... 1. Child's data type 
  *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
  */
-#define XML_CHILD_ELEMENTS(...) TREE_NODE("", __VA_ARGS__)
+#define XML_CHILD_ELEMENTS(...) TREE_NODE_ARRAY("", __VA_ARGS__)
 
 /*!
  * \brief   XML element declaration

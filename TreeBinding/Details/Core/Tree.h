@@ -71,6 +71,7 @@ Tree<Derived, NameContainer>::Tree() :
         TREE_BINDING_DETAILS_TREE_1,        \
         TREE_BINDING_DETAILS_TREE_2,        \
         "Not contain overload with 3 args", \
+        "Not contain overload with 4 args", \
         __VA_ARGS__ )
 
 } /* namespace TreeBinding */

@@ -21,27 +21,43 @@ namespace TreeBinding
 namespace Details
 {
 
+enum class ContainerRequired
+{
+    YES,
+    NO
+};
+
+template<ContainerRequired containerRequired, NodesNum::ValueType nodesNum>
+struct containerIsRequired
+{
+    static const bool value = containerRequired == ContainerRequired::YES && nodesNum != 1;
+};
+
+template<ContainerRequired containerRequired, NodesNum::ValueType nodesNum, typename DataType>
+struct NodeDataType
+{
+    typedef typename
+    std::conditional<
+            containerIsRequired<containerRequired, nodesNum>::value,
+            SubtreesSet< DataType >,
+            DataType
+    >::type type;
+};
+
 /*!
  *  \brief  Tree node
  *  \tparam NameContainer String wrapper class, which contain field name
  *  \tparam DataType      NodeData data type
  *  \tparam RequiredNum   Required number of fields
  */
-template< typename NameContainer,
-        typename DataType     ,
-        NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
+template< ContainerRequired containerRequired ,
+          typename NameContainer,
+          typename DataType     ,
+          NodesNum::ValueType RequiredNum = NodesNum::MORE_THAN_0
 >
-struct Node final : public NodeData< typename std::conditional< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
-        SubtreesSet< DataType >,
-        DataType
->::type
->
+struct Node final : public NodeData< typename NodeDataType<containerRequired, RequiredNum, DataType>::type >
 {
-    using DeducedDataType = typename
-    std::conditional< std::is_base_of<BasicTree, DataType>::value && RequiredNum != 1,
-            SubtreesSet< DataType >,
-            DataType
-    >::type;
+    using DeducedDataType = typename NodeDataType<containerRequired, RequiredNum, DataType>::type;
 
     Node() : NodeData<DeducedDataType>(NameContainer::getName(), RequiredNum) {};
 //  template<typename T = std::remove_cv<DeducedDataType>::type>
@@ -80,15 +96,20 @@ struct AssertName
         return "";
     }
 };
-static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
+static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
 /*!
  *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define TREE_BINDING_DETAILS_NODE_3(paramName, dataType, num)   \
+#define TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, num)          \
     TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, TREE_BINDING_DEFAULT_UNIQUE_SUFFIX); \
-    TreeBinding::Details::Node < TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(TREE_BINDING_DEFAULT_UNIQUE_SUFFIX), dataType, num >
+    TreeBinding::Details::Node <                                                          \
+        containerRequired,                                                                \
+        TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(TREE_BINDING_DEFAULT_UNIQUE_SUFFIX),   \
+        dataType,                                                                         \
+        num                                                                               \
+        >
 
 /*!
  *  \brief     Declaration of reflection field (mandatory)
@@ -97,15 +118,16 @@ static_assert(sizeof(Node<AssertName, int, 0>) == NodeDataSize, "Fatal error: in
  *  \param[in] paramName Name of field
  *  \param[in] dataType Underlied type of field
  */
-#define TREE_BINDING_DETAILS_NODE_2(paramName, dataType) \
-    TREE_BINDING_DETAILS_NODE_3(paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
+#define TREE_BINDING_DETAILS_NODE_3(containerRequired, paramName, dataType) \
+    TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
 
 
-#define TREE_BINDING_DETAILS_NODE(...)     \
-    TREE_BINDING_DETAILS_OVERLOAD_MACRO(   \
-        "Not contain overload with 1 arg", \
-        TREE_BINDING_DETAILS_NODE_2,       \
-        TREE_BINDING_DETAILS_NODE_3,       \
+#define TREE_BINDING_DETAILS_NODE(...)      \
+    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
+        "Not contain overload with 1 arg",  \
+        "Not contain overload with 2 args", \
+        TREE_BINDING_DETAILS_NODE_3,        \
+        TREE_BINDING_DETAILS_NODE_4,        \
         __VA_ARGS__ )
 
 } /* namespace Details */
