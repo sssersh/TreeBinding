@@ -62,43 +62,43 @@ std::string Translator::toString(const EnumType& value)
 /*!
  * \brief Most nested element
  */
-XML_ELEMENT(MostNestedElement, "MostNestedElement")
+XML_ELEMENT(MostNestedXmlElement, "MostNestedElement")
 {
   XML_ATTR("StringAttrName" , std::string                           ) strAttr ; /*!< String attribute  */
   XML_ATTR("IntegerAttrName", int                                   ) intAttr ; /*!< Integer attribute */
-  XML_ATTR("EnumAttr"       , EnumType,  XML::ItemNum::NOT_SPECIFIED) enumAttr; /*!< Enum attribute (optional) */
+  XML_ATTR("EnumAttrName"   , EnumType,  XML::ItemNum::NOT_SPECIFIED) enumAttr; /*!< Enum attribute (optional) */
 };
 
 /*!
  * \brief Intermediate element
  */
-XML_ELEMENT(NestedElement, "NestedElement")
+XML_ELEMENT(NestedXmlElement, "NestedElement")
 {
     XML_ATTR("IntegerAttrName", int)     intAttr; /*!< Integer attribute */
-    XML_CHILD_ELEMENTS(MostNestedElement, 2) childs; /*!< Child element (must contain 2 childs elements) */
+    XML_CHILD_ELEMENTS(MostNestedXmlElement, 2) childs; /*!< Child element (must contain 2 childs elements) */
 };
 
 /*!
  * \brief Root element
  */
-XML_ELEMENT(RootElement, "RootElement")
+XML_ELEMENT(RootXmlElement, "RootElement")
 {
     XML_ATTR("StringAttrName", std::string) strAttr; /*!< String attribute */
-    XML_CHILD_ELEMENTS(NestedElement, XML::ItemNum::MORE_THAN_0) childs; /*!< Child element (must contain more than 0 elements) */
+    XML_CHILD_ELEMENTS(NestedXmlElement, XML::ItemNum::MORE_THAN_0) childs; /*!< Child element (must contain more than 0 elements) */
 };
 
 static const std::string CORRECT_XML_DATA =
 R"(
 <RootElement StringAttrName="StringValue">
     <NestedElement IntegerAttrName="22">
-        <MostNestedElement StringAttrName="StringValue1" IntegerAttrName="1"  EnumAttr="ENUM2"/>
+        <MostNestedElement StringAttrName="StringValue1" IntegerAttrName="1"  EnumAttrName="ENUM2"/>
         <MostNestedElement StringAttrName="StringValue5" IntegerAttrName="11"/>
     </NestedElement>
 </RootElement>
 )";
 
 TEST(common, test_xml) {
-    RootElement rootXmlElement;
+    RootXmlElement rootXmlElement;
 
     boost::property_tree::ptree propertyTree;
     std::istringstream str(CORRECT_XML_DATA);
@@ -124,4 +124,3 @@ TEST(common, test_xml) {
     ASSERT_EQ(*mostNested1.intAttr , 11);
     ASSERT_EQ( mostNested1.enumAttr.validity, false);
 }
-

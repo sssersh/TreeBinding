@@ -23,5 +23,5 @@ foreach(_test_file ${TEST_SRC_FILES})
 endforeach()
 
 # Target for run all tests
-add_executable(runAllTests ${TEST_SRC_FILES})
+add_executable(runAllTests ${TEST_SRC_FILES} src/test_json.cpp)
 target_link_libraries(runAllTests ${CMAKE_THREAD_LIBS_INIT} ${LIBS} ${CONAN_LIBS})
