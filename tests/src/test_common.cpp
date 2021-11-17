@@ -11,7 +11,6 @@
 
 
 TEST(xml, test_default_element_name) {
-
     // Define element with default name
     XML_ELEMENT(XmlElement) {} element;
 

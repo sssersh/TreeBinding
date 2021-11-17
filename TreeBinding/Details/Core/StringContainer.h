@@ -9,20 +9,6 @@
 #include "TreeBinding/Details/Core/MacroUtils.h"
 
 /*!
- * \brief      Unique suffix for string container name
- * \details    __COUNTER__ is unique macro, but it's non-standard
- * \warning If __COUNTER__ macro not exists, suffix will not unique in one line
- * \note       Now use only __LINE__, because there is not possible to pass declared
- *             string contaner as template parameter (issue #113)
- */
-
-//#ifdef __COUNTER__
-//#define TREE_BINDING_DEFAULT_UNIQUE_SUFFIX __COUNTER__
-//#else
-#define TREE_BINDING_DEFAULT_UNIQUE_SUFFIX __LINE__
-//#endif
-
-/*!
  * \brief     Build string container name
  * \details   Concatenate token "__StringContainer__" and suffix
  * \param[in] uniqSuffix Unique suffix

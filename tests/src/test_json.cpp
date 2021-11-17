@@ -62,9 +62,9 @@ std::string Translator::toString(const EnumType1& value)
  */
 JSON_ELEMENT(MostNestedJsonElement)
 {
-    JSON_CHILD("StringFieldName" , std::string                             ) strField ; /*!< String field  */
-    JSON_CHILD("IntegerFieldName", int                                     ) intField ; /*!< Integer field */
-    JSON_CHILD("EnumFieldName"   , EnumType1,  JSON::ItemNum::NOT_SPECIFIED) enumField; /*!< Enum field (optional) */
+    JSON_CHILD("StringFieldName" , std::string                              ) strField ; /*!< String field  */
+    JSON_CHILD("IntegerFieldName", int                                      ) intField ; /*!< Integer field */
+    JSON_CHILD("EnumFieldName"   , EnumType1,  JSON::ItemsNum::NOT_SPECIFIED) enumField; /*!< Enum field (optional) */
 };
 
 /*!
@@ -81,8 +81,8 @@ JSON_ELEMENT(NestedJsonElement)
  */
 JSON_ELEMENT(RootJsonElement)
 {
-    JSON_CHILD("StringFieldName"    , std::string                              ) strField; /*!< String field */
-    JSON_ARRAY("NestedElementsArray", NestedJsonElement, JSON::ItemNum::MORE_THAN_0) childs  ; /*!< Child element (must contain more than 0 elements) */
+    JSON_CHILD("StringFieldName"    , std::string                                  ) strField; /*!< String field */
+    JSON_ARRAY("NestedElementsArray", NestedJsonElement, JSON::ItemsNum::MORE_THAN_0) childs  ; /*!< Child element (must contain more than 0 elements) */
 };
 
 static const std::string CORRECT_JSON_DATA =

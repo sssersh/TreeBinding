@@ -1202,20 +1202,6 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
 
 
 /*!
- * \brief      Unique suffix for string container name
- * \details    __COUNTER__ is unique macro, but it's non-standard
- * \warning If __COUNTER__ macro not exists, suffix will not unique in one line
- * \note       Now use only __LINE__, because there is not possible to pass declared
- *             string contaner as template parameter (issue #113)
- */
-
-//#ifdef __COUNTER__
-//#define TREE_BINDING_DEFAULT_UNIQUE_SUFFIX __COUNTER__
-//#else
-#define TREE_BINDING_DEFAULT_UNIQUE_SUFFIX __LINE__
-//#endif
-
-/*!
  * \brief     Build string container name
  * \details   Concatenate token "__StringContainer__" and suffix
  * \param[in] uniqSuffix Unique suffix
@@ -1331,13 +1317,13 @@ static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDa
  *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, num)          \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, TREE_BINDING_DEFAULT_UNIQUE_SUFFIX); \
-    TreeBinding::Details::Node <                                                          \
-        containerRequired,                                                                \
-        TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(TREE_BINDING_DEFAULT_UNIQUE_SUFFIX),   \
-        dataType,                                                                         \
-        num                                                                               \
+#define TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, num) \
+    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, __LINE__);                  \
+    TreeBinding::Details::Node <                                                 \
+        containerRequired,                                                       \
+        TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(__LINE__),                    \
+        dataType,                                                                \
+        num                                                                      \
         >
 
 /*!
@@ -1990,7 +1976,7 @@ namespace JSON
 /*!
  *  \copydoc TreeBinding::NodesNum
  */
-typedef TreeBinding::NodesNum ItemNum;
+typedef TreeBinding::NodesNum ItemsNum;
 
 /*!
  * \brief   JSON child declaration

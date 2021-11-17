@@ -15,7 +15,7 @@ namespace JSON
 /*!
  *  \copydoc TreeBinding::NodesNum
  */
-typedef TreeBinding::NodesNum ItemNum;
+typedef TreeBinding::NodesNum ItemsNum;
 
 /*!
  * \brief   JSON child declaration

@@ -102,13 +102,13 @@ static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDa
  *  \copydoc TREE_BINDING_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, num)          \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, TREE_BINDING_DEFAULT_UNIQUE_SUFFIX); \
-    TreeBinding::Details::Node <                                                          \
-        containerRequired,                                                                \
-        TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(TREE_BINDING_DEFAULT_UNIQUE_SUFFIX),   \
-        dataType,                                                                         \
-        num                                                                               \
+#define TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, num) \
+    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, __LINE__);                  \
+    TreeBinding::Details::Node <                                                 \
+        containerRequired,                                                       \
+        TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(__LINE__),                    \
+        dataType,                                                                \
+        num                                                                      \
         >
 
 /*!
