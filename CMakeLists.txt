@@ -5,7 +5,7 @@
 #
 cmake_minimum_required(VERSION 3.10.1)
 
-set(${PROJECT_NAME} treebinding)
+set(${PROJECT_NAME} date_binding)
 
 project(${PROJECT_NAME} CXX)
 
@@ -13,7 +13,6 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# Use s++17, because gcc can't find std::enable_if_t for c++11
 set (CMAKE_CXX_STANDARD 11)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -28,16 +27,23 @@ if (ENABLE_COVERAGE)
 endif()
 
 # Add conan depencies
-execute_process(COMMAND conan install ${CMAKE_BINARY_DIR}/.. -s build_type=${CMAKE_BUILD_TYPE} --build=missing
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        RESULTS_VARIABLE GENERATOR_RETURN
-        OUTPUT_VARIABLE GENERATOR_OUTPUT
-        )
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+
+find_program(CONAN_FOUND conan)
+if(CONAN_FOUND)
+    execute_process(COMMAND conan install ${CMAKE_BINARY_DIR}/.. -s build_type=${CMAKE_BUILD_TYPE} --build=missing
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            RESULTS_VARIABLE GENERATOR_RETURN
+            OUTPUT_VARIABLE GENERATOR_OUTPUT
+            )
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup()
+else(CONAN_FOUND)
+    # TODO1: pass path to libraries
+    message(FATAL_ERROR "Error: conan not found!")
+endif()
 
 # Check, that origin sources builds
-add_subdirectory (TreeBinding)
+add_subdirectory (include)
 
 # Compile one header generator
 add_subdirectory (one_header_generator)
@@ -48,7 +54,7 @@ add_custom_target(run_one_header_generator ALL
         DEPENDS generator
         )
 
-set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/single_include)
 
 include_directories(${INCLUDE_DIR})
 

@@ -1,5 +1,5 @@
 /*!
- *  \file TreeBinding.h
+ *  \file data_binding.h
  *  \brief TODO
  */
 
@@ -68,7 +68,7 @@ using Row = std::vector<T>;
 template<typename T>
 using Table = std::vector<Row<T>>;
 
-// second index include in range
+// second index single_include in range
 using RowsRange = std::pair<size_t, size_t>;
 
 namespace Details
@@ -88,9 +88,9 @@ struct is_subtrees_set : std::false_type {};
 template<typename T>
 struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 
 
@@ -110,20 +110,20 @@ public:
 
 };
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
-
-
+} /* namespace data_binding */
 
 
 
 
 
-//#include <memory>
-//#include <string>
-//#include <cinttypes>
-//#include <type_traits>
+
+
+//#single_include <memory>
+//#single_include <string>
+//#single_include <cinttypes>
+//#single_include <type_traits>
 
 
 
@@ -186,7 +186,7 @@ private:
     ValueType value;
 }; // struct NodesNum
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 
 
@@ -291,9 +291,9 @@ BasicNodeData::operator T&()
     return static_cast<T&>(*static_cast<NodeData<T>*>(this));
 }
 
-} // namespace Details
+} // namespace details
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 
 
@@ -422,7 +422,7 @@ struct Translator
 
 };
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 
 
@@ -502,9 +502,9 @@ PtreeWriter::write(NodeData<DataType> const &node,
   std::runtime_error("PtreeWriter::write Not implement!");
 }
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 
 
@@ -681,9 +681,9 @@ TableParser::parse(NodeData<DataType> &node,
   std::cout << "Here";
 }
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 
 
@@ -715,7 +715,7 @@ struct WrongChildsNumException : public std::runtime_error
     {}
 };
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 
 
@@ -1143,9 +1143,9 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
     TableParser::parse(*this, table, nameToIndex, rows);
 }
 
-} // namespace Details
+} // namespace details
 
-}  // namespace TreeBinding
+}  // namespace data_binding
 
 
 
@@ -1359,9 +1359,9 @@ static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDa
         TREE_BINDING_DETAILS_NODE_4,        \
         __VA_ARGS__ )
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 
 
@@ -1417,7 +1417,7 @@ struct NodeIterator : public std::iterator<std::input_iterator_tag, Details::Bas
 
 }; // struct NodeIterator
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 
 
@@ -1666,7 +1666,7 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
     }
 }
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 
 
@@ -1697,7 +1697,7 @@ private:
     struct CheckSize;
 
     // Replace it by
-//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
+//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), details::NodeDataSize>>
     static void checkSize() {}
 
 //  friend class boost::serialization::access;
@@ -1742,7 +1742,7 @@ Tree<Derived, NameContainer>::Tree() :
         "Not contain overload with 4 args", \
         __VA_ARGS__ )
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 
 
@@ -1809,7 +1809,7 @@ struct NodesNum;
  */
 #define TREE_TREE(...) TREE_BINDING_DETAILS_TREE(__VA_ARGS__)
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 
 
@@ -1918,9 +1918,9 @@ void NodeData<DataType>::serializeData(boost::archive::text_iarchive & ar, const
   boost::serialization::serialize(ar, *this, version);
 }
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 
 
@@ -1941,7 +1941,7 @@ namespace XML
 {
 
 /*!
- *  \copydoc TreeBinding::NodesNum
+ *  \copydoc data_binding::NodesNum
  */
 typedef TreeBinding::NodesNum ItemNum;
 
@@ -1950,8 +1950,8 @@ typedef TreeBinding::NodesNum ItemNum;
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Attribute name. 
  *              2. Attribute's data type 
- *              3. Attribute are optional/mandatory (mandatory(TreeBinding::NodesNum::MORE_THAN_ONE) by default(if this parameter not passed)). 
- *                 If attribute are optional, pass TreeBinding::NodesNum::NOT_SPECIFIED
+ *              3. Attribute are optional/mandatory (mandatory(data_binding::NodesNum::MORE_THAN_ONE) by default(if this parameter not passed)).
+ *                 If attribute are optional, pass data_binding::NodesNum::NOT_SPECIFIED
  */
 #define XML_ATTR(name, ...) TREE_NODE( "<xmlattr>" TREE_BINDING_DEFAULT_DELIMETER name , __VA_ARGS__)
 
@@ -1959,7 +1959,7 @@ typedef TreeBinding::NodesNum ItemNum;
  * \brief   XML child declaration
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Child's data type 
- *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
+ *              2. Required number of childs elements (data_binding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)).
  */
 #define XML_CHILD_ELEMENTS(...) TREE_NODE_ARRAY("", __VA_ARGS__)
 
@@ -1988,7 +1988,7 @@ namespace JSON
 {
 
 /*!
- *  \copydoc TreeBinding::NodesNum
+ *  \copydoc data_binding::NodesNum
  */
 typedef TreeBinding::NodesNum ItemNum;
 
@@ -2006,7 +2006,7 @@ typedef TreeBinding::NodesNum ItemNum;
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Array name. 
  * \param   ... 2. Array's elements data type
- *              3. Required number of array elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
+ *              3. Required number of array elements (data_binding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)).
  */
 #define JSON_ARRAY(...) TREE_NODE_ARRAY(__VA_ARGS__)
 

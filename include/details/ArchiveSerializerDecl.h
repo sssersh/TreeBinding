@@ -27,8 +27,8 @@ public:
 
 };
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 #endif /* _TREE_BINDING_ARCHIVE_SERIALIZER_DECL_H_ */

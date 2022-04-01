@@ -1,6 +1,6 @@
 /*!
  * \file  generator.cpp
- * \brief Generate one header from all files of TreeBinding library
+ * \brief Generate one header from all files of data_binding library
  */
 
 #include <regex>
@@ -53,10 +53,10 @@ private:
     void deleteIncludeGuards();
     File insertOutFileInTemplate();
 
-    fs::path                 rootDir         ; /*!< Path to TreeBinding library root directory         */
-    std::string              srcDirName      ; /*!< Name of directory with TreeBinding library sources */
-    std::vector<std::string> srcFilesNames   ; /*!< Names of TreeBinding library sources (first file used as
-                                                    main file, others - just include main file and
+    fs::path                 rootDir         ; /*!< Path to data_binding library root directory         */
+    std::string              srcDirName      ; /*!< Name of directory with data_binding library sources */
+    std::vector<std::string> srcFilesNames   ; /*!< Names of data_binding library sources (first file used as
+                                                    main file, others - just single_include main file and
                                                     and redefine macro from main file) */
     fs::path                 outDirPath      ; /*!< Output directory name */
     fs::path                 outFilePath     ; /*!< Path to out file */
@@ -147,11 +147,11 @@ void File::deleteFileDescription()
 }
 
 /*!
- * \brief Replace lines with "#include" in begin of file
+ * \brief Replace lines with "#single_include" in begin of file
  */
 void File::reprlaceInludes()
 {
-    const auto r = std::regex(R"((#include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
+    const auto r = std::regex(R"((#single_include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
     size_t size = lines.size();
 
     std::set<std::string> includes;
@@ -211,9 +211,9 @@ void File::insert(const std::size_t position, const File &file)
 /*!
  * \brief                      Generator constructor
  * \details                    Read filenames from srcDirName directory
- * \param[in] rootDir          Path to TreeBinding library root directory
- * \param[in] srcDirName       Name of directory with TreeBinding library sources
- * \param[in] srcMainFileName  Names of TreeBinding library main header
+ * \param[in] rootDir          Path to data_binding library root directory
+ * \param[in] srcDirName       Name of directory with data_binding library sources
+ * \param[in] srcMainFileName  Names of data_binding library main header
  * \param[in] outDirName       Output directory name
  * \param[in] templateOutFile  Template of out file
  * \param[in] contentLineIndex Index of line, where will be insert generated file
@@ -306,13 +306,13 @@ void Generator::readSrcFiles()
 }
 
 /*!
- * \brief Delete include of main source file
- * \details Find line "#include "srcDirName/mainFileName"" and delete it
+ * \brief Delete single_include of main source file
+ * \details Find line "#single_include "srcDirName/mainFileName"" and delete it
  */
 void Generator::deleteIncludeMainFile()
 {
     static const auto r = std::regex (
-            R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
+            R"(#single_include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
     for(auto &line : outFile.lines)
     {
         if(std::regex_match(line, r))
@@ -324,7 +324,7 @@ void Generator::deleteIncludeMainFile()
 
 /*!
  * \brief     Preprocess file
- * \details   Recursively replace line contained "#include "srcDirName{SLASH}*" with content of file.
+ * \details   Recursively replace line contained "#single_include "srcDirName{SLASH}*" with content of file.
  *            Multiply included of one file ignored.
  * \param[in] file Internal representation of file
  * \param[in] alreadyIncludedFiles Already included files (used rvalue reference because it's necessary to
@@ -333,7 +333,7 @@ void Generator::deleteIncludeMainFile()
 void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyIncludedFiles)
 {
     std::size_t size = file.lines.size();
-    static const auto r = std::regex ( R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
+    static const auto r = std::regex ( R"(#single_include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
 
     for(std::size_t i = 0; i < size; ++i)
     {
@@ -361,7 +361,7 @@ void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyInclud
 }
 
 /*!
- * \brief   Delete include guards from output file
+ * \brief   Delete single_include guards from output file
  * \details a. 1. Find line with "#ifndef *"
  *             2. If next line is "#define *" with same identificator,
  *                2.1 Delete these lines.
@@ -457,7 +457,7 @@ static const std::size_t CONTENT_LINE_INDEX = 8;
  */
 static const std::string OUT_FILE_TEMPLATE =
 R"(/*!
- *  \file TreeBinding.h
+ *  \file data_binding.h
  *  \brief TODO
  */
 
@@ -480,14 +480,14 @@ int main(int argc, char* argv[])
     {
         Generator generator = {
             argv[1]      ,
-            "TreeBinding"  ,
-            "TreeBinding.h",
-            "include",
+            "data_binding"  ,
+            "data_binding.h",
+            "single_include",
             OUT_FILE_TEMPLATE,
             CONTENT_LINE_INDEX
         };
         generator.generate();
-        std::cout << "Succesfully generate one header include file in directory " << argv[1] << std::endl;
+        std::cout << "Succesfully generate one header single_include file in directory " << argv[1] << std::endl;
         return 0;
     }
     catch(const std::exception& e)

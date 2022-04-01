@@ -54,6 +54,6 @@ struct NodeIterator : public std::iterator<std::input_iterator_tag, Details::Bas
 
 }; // struct NodeIterator
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 #endif /* _NODEITERATOR_H_ */

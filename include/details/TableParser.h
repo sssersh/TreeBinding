@@ -175,8 +175,8 @@ TableParser::parse(NodeData<DataType> &node,
   std::cout << "Here";
 }
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 #endif /* _TREE_BINDING_TABLE_PARSER_H_ */

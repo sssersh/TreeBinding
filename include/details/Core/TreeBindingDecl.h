@@ -30,7 +30,7 @@ using Row = std::vector<T>;
 template<typename T>
 using Table = std::vector<Row<T>>;
 
-// second index include in range
+// second index single_include in range
 using RowsRange = std::pair<size_t, size_t>;
 
 namespace Details
@@ -50,8 +50,8 @@ struct is_subtrees_set : std::false_type {};
 template<typename T>
 struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 #endif /* _TREE_BINDING_DECLARATIONS_H_ */

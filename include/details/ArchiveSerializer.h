@@ -107,8 +107,8 @@ void NodeData<DataType>::serializeData(boost::archive::text_iarchive & ar, const
   boost::serialization::serialize(ar, *this, version);
 }
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 #endif /* _TREE_BINDING_ARCHIVE_SERIALIZER_H_ */

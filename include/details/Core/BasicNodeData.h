@@ -108,8 +108,8 @@ BasicNodeData::operator T&()
     return static_cast<T&>(*static_cast<NodeData<T>*>(this));
 }
 
-} // namespace Details
+} // namespace details
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 #endif /* _BASICNODEDATA_H_ */

@@ -84,8 +84,8 @@ PtreeWriter::write(NodeData<DataType> const &node,
   std::runtime_error("PtreeWriter::write Not implement!");
 }
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 #endif /* _TREE_BINDING_PTREE_WRITER_H_ */
