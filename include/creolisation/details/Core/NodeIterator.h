@@ -6,7 +6,7 @@
 #ifndef _NODEITERATOR_H_
 #define _NODEITERATOR_H_
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*!

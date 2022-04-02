@@ -6,9 +6,9 @@
 #ifndef _BASICNODEDATA_H_
 #define _BASICNODEDATA_H_
 
-#include "TreeBinding/Details/Core/NodesNum.h"
+#include "creolisation/Details/Core/NodesNum.h"
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -21,7 +21,7 @@ namespace Details
  *          separate "xmlattr" and attribute name. For other cases used only name, without delimeter.
  *          Use "/" because it's prohibited symbol for attribute/element name in XML.
  */
-#define TREE_BINDING_DEFAULT_DELIMETER "/"
+#define CREOLISATION_DEFAULT_DELIMETER "/"
 
 // Base class used for iteration in Tree
 class BasicNodeData : public Archivable
@@ -74,7 +74,7 @@ public:
     virtual void  reset    ()                                  = 0;
     virtual bool  compare  (BasicNodeData const &rhs)    const = 0;
     virtual void  copy     (BasicNodeData const &rhs)          = 0;
-    virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER) = 0;
+    virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER) = 0;
     virtual void parseTable(Table<std::wstring> &table,
                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                             RowsRange const &rows) = 0;

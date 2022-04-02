@@ -3,8 +3,8 @@
  *  \brief Table parser class definition for NodeData
  */
 
-#ifndef _TREE_BINDING_TABLE_PARSER_H_
-#define _TREE_BINDING_TABLE_PARSER_H_
+#ifndef _CREOLISATION_TABLE_PARSER_H_
+#define _CREOLISATION_TABLE_PARSER_H_
 
 #include <iostream> // debug
 
@@ -14,10 +14,10 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
-#include "TreeBinding/Details/Core/Translator.h"
-#include "TreeBinding/Details/Core/TreeBindingDecl.h"
+#include "creolisation/Details/Core/Translator.h"
+#include "creolisation/Details/Core/creolisationDecl.h"
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -179,4 +179,4 @@ TableParser::parse(NodeData<DataType> &node,
 
 } /* namespace data_binding */
 
-#endif /* _TREE_BINDING_TABLE_PARSER_H_ */
+#endif /* _CREOLISATION_TABLE_PARSER_H_ */

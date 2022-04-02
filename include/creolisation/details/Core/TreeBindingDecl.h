@@ -3,13 +3,13 @@
  *  \brief Tree bindings forward declarations
  */
 
-#ifndef _TREE_BINDING_DECLARATIONS_H_
-#define _TREE_BINDING_DECLARATIONS_H_
+#ifndef _CREOLISATION_DECLARATIONS_H_
+#define _CREOLISATION_DECLARATIONS_H_
 
 #include <type_traits>
 #include <vector> // subtree containter
 
-namespace TreeBinding
+namespace creolisation
 {
 
 class BasicTree;
@@ -54,4 +54,4 @@ struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
 
 } /* namespace data_binding */
 
-#endif /* _TREE_BINDING_DECLARATIONS_H_ */
+#endif /* _CREOLISATION_DECLARATIONS_H_ */

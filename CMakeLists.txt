@@ -1,7 +1,7 @@
 #
 # CMakeLists.txt
 #
-# Build file for treebinding project
+# Build file for creolisation project
 #
 cmake_minimum_required(VERSION 3.10.1)
 
@@ -59,7 +59,7 @@ include_directories(${INCLUDE_DIR})
 
 set(INCLUDES
     ${INCLUDES}
-    ${INCLUDE_DIR}/TreeBinding.h
+    ${INCLUDE_DIR}/creolisation.h
 )
 
 # Include all directories to keep navigation in CLion in origin sources in folder TreeBindiing

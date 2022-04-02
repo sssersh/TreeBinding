@@ -461,11 +461,11 @@ R"(/*!
  *  \brief TODO
  */
 
-#ifndef _TREE_BINDING_H_
-#define _TREE_BINDING_H_
+#ifndef _CREOLISATION_H_
+#define _CREOLISATION_H_
 
 
-#endif /* _TREE_BINDING_H_ */
+#endif /* _CREOLISATION_H_ */
 
 )";
 

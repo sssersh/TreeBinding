@@ -3,14 +3,14 @@
  *  \brief Converter of NodeData to boost archive
  */
 
-#ifndef _TREE_BINDING_ARCHIVE_SERIALIZER_H_
-#define _TREE_BINDING_ARCHIVE_SERIALIZER_H_
+#ifndef _CREOLISATION_ARCHIVE_SERIALIZER_H_
+#define _CREOLISATION_ARCHIVE_SERIALIZER_H_
 
 #include <boost/serialization/vector.hpp>
-#include "TreeBinding/Details/ArchiveSerializerDecl.h"
+#include "creolisation/Details/ArchiveSerializerDecl.h"
 
 // Should be declared in global namespace
-#define TREE_BINDING_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \
+#define CREOLISATION_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \
   namespace boost {                                                      \
   namespace serialization {                                              \
   template<class Archive>                                                \
@@ -24,7 +24,7 @@
 namespace boost {
 namespace serialization {
 
-using namespace TreeBinding;
+using namespace creolisation;
 using namespace Details;
 
 /*
@@ -89,7 +89,7 @@ serialize(Archive & ar, NodeData<DataType>& node, const unsigned int version)
 } // namespace serialization
 } // namespace boost
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -111,4 +111,4 @@ void NodeData<DataType>::serializeData(boost::archive::text_iarchive & ar, const
 
 } /* namespace data_binding */
 
-#endif /* _TREE_BINDING_ARCHIVE_SERIALIZER_H_ */
+#endif /* _CREOLISATION_ARCHIVE_SERIALIZER_H_ */

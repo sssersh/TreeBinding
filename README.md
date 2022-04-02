@@ -1,10 +1,10 @@
 # Tree Binding: library for binding Boost property tree and data structures
 
 Master:
-[![Build Status](https://app.travis-ci.com/sssersh/TreeBinding.svg?branch=master)]travis1]
+[![Build Status](https://app.travis-ci.com/sssersh/creolisation.svg?branch=master)]travis1]
 
 Develop:
-[![Build Status](https://app.travis-ci.com/sssersh/TreeBinding.svg?branch=develop)][travis2]
+[![Build Status](https://app.travis-ci.com/sssersh/creolisation.svg?branch=develop)][travis2]
 
 [![Coverage Status](https://coveralls.io/repos/github/deftio/travis-ci-cpp-example/badge.svg?branch=master)](https://coveralls.io/github/deftio/travis-ci-cpp-example?branch=master)
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-blue.svg)](https://opensource.org/licenses/BSD-2-Clause)
@@ -20,8 +20,8 @@ __Main goal of this libaray__  — .... [Boost][boost]
 
 - `include` — derectory with one header include file
 - `samples` — examples of using library
-- `TreeBinding` — Tree Binding source files
-    - `TreeBinding.h` — ...
+- `creolisation` — Tree Binding source files
+    - `creolisation.h` — ...
     - `CMakeLists.txt` — ...
 - `tests` — tests
 

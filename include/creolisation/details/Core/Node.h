@@ -10,12 +10,12 @@
 //#single_include <string>
 //#single_include <cinttypes>
 //#single_include <type_traits>
-#include "TreeBinding/Details/Core/TreeBindingDecl.h"
-#include "TreeBinding/Details/Core/NodeData.h"
-#include "TreeBinding/Details/Core/StringContainer.h"
-#include "TreeBinding/Details/Core/MacroUtils.h"
+#include "creolisation/Details/Core/creolisationDecl.h"
+#include "creolisation/Details/Core/NodeData.h"
+#include "creolisation/Details/Core/StringContainer.h"
+#include "creolisation/Details/Core/MacroUtils.h"
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -99,14 +99,14 @@ struct AssertName
 static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
 /*!
- *  \copydoc TREE_BINDING_DETAILS_NODE_2()
+ *  \copydoc CREOLISATION_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, num) \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, __LINE__);                  \
-    TreeBinding::Details::Node <                                                 \
+#define CREOLISATION_DETAILS_NODE_4(containerRequired, paramName, dataType, num) \
+    CREOLISATION_DETAILS_STRING_CONTAINER(paramName, __LINE__);                  \
+    creolisation::Details::Node <                                                 \
         containerRequired,                                                       \
-        TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(__LINE__),                    \
+        CREOLISATION_DETAILS_STRING_CONTAINER_NAME(__LINE__),                    \
         dataType,                                                                \
         num                                                                      \
         >
@@ -118,16 +118,16 @@ static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDa
  *  \param[in] paramName Name of field
  *  \param[in] dataType Underlied type of field
  */
-#define TREE_BINDING_DETAILS_NODE_3(containerRequired, paramName, dataType) \
-    TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
+#define CREOLISATION_DETAILS_NODE_3(containerRequired, paramName, dataType) \
+    CREOLISATION_DETAILS_NODE_4(containerRequired, paramName, dataType, creolisation::NodesNum::MORE_THAN_0)
 
 
-#define TREE_BINDING_DETAILS_NODE(...)      \
-    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
+#define CREOLISATION_DETAILS_NODE(...)      \
+    CREOLISATION_DETAILS_OVERLOAD_MACRO(    \
         "Not contain overload with 1 arg",  \
         "Not contain overload with 2 args", \
-        TREE_BINDING_DETAILS_NODE_3,        \
-        TREE_BINDING_DETAILS_NODE_4,        \
+        CREOLISATION_DETAILS_NODE_3,        \
+        CREOLISATION_DETAILS_NODE_4,        \
         __VA_ARGS__ )
 
 } /* namespace details */

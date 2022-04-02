@@ -3,14 +3,14 @@
  *  \brief Definition of class Tree
  */
 
-#ifndef _TREE_H_
-#define _TREE_H_
+#ifndef _TYPE_H_
+#define _TYPE_H_
 
 #include <string>
 #include <type_traits>
-#include "TreeBinding/Details/Core/Exceptions.h"
+#include "creolisation/Details/Core/Exceptions.h"
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*!
@@ -56,24 +56,24 @@ Tree<Derived, NameContainer>::Tree() :
 }
 
 /*!
- *  \copydoc TREE_BINDING_DETAILS_TREE_1()
+ *  \copydoc CREOLISATION_DETAILS_TYPE_1()
  *  \param[in] name Name of tree
  */
-#define TREE_BINDING_DETAILS_TREE_2(type, name)         \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(name, type);  \
-    struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(type) >
+#define CREOLISATION_DETAILS_TYPE_2(type, name)         \
+    CREOLISATION_DETAILS_STRING_CONTAINER(name, type);  \
+    struct type final : public creolisation::Tree < type, CREOLISATION_DETAILS_STRING_CONTAINER_NAME(type) >
 
 
-#define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
+#define CREOLISATION_DETAILS_TYPE_1(type) CREOLISATION_DETAILS_TYPE_2(type, #type)
 
-#define TREE_BINDING_DETAILS_TREE(...)      \
-    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
-        TREE_BINDING_DETAILS_TREE_1,        \
-        TREE_BINDING_DETAILS_TREE_2,        \
+#define CREOLISATION_DETAILS_TYPE(...)      \
+    CREOLISATION_DETAILS_OVERLOAD_MACRO(    \
+        CREOLISATION_DETAILS_TYPE_1,        \
+        CREOLISATION_DETAILS_TYPE_2,        \
         "Not contain overload with 3 args", \
         "Not contain overload with 4 args", \
         __VA_ARGS__ )
 
 } /* namespace data_binding */
 
-#endif /* _TREE_H_ */
+#endif /* _TYPE_H_ */

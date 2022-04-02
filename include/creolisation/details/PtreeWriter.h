@@ -3,13 +3,13 @@
  *  \brief Converter of NodeData to boost ptree
  */
 
-#ifndef _TREE_BINDING_PTREE_WRITER_H_
-#define _TREE_BINDING_PTREE_WRITER_H_
+#ifndef _CREOLISATION_PTREE_WRITER_H_
+#define _CREOLISATION_PTREE_WRITER_H_
 
-#include "TreeBinding/Details/Core/TreeBindingDecl.h"
-#include "TreeBinding/Details/Core/Translator.h"
+#include "creolisation/Details/Core/creolisationDecl.h"
+#include "creolisation/Details/Core/Translator.h"
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -90,4 +90,4 @@ PtreeWriter::write(NodeData<DataType> const &node,
 
 } /* namespace data_binding */
 
-#endif /* _TREE_BINDING_PTREE_WRITER_H_ */
+#endif /* _CREOLISATION_PTREE_WRITER_H_ */

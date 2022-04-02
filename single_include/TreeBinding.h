@@ -3,8 +3,8 @@
  *  \brief TODO
  */
 
-#ifndef _TREE_BINDING_H_
-#define _TREE_BINDING_H_
+#ifndef _CREOLISATION_H_
+#define _CREOLISATION_H_
 
 #include <algorithm>
 #include <boost/archive/binary_iarchive.hpp>
@@ -47,7 +47,7 @@
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 class BasicTree;
@@ -95,7 +95,7 @@ struct is_subtrees_set<SubtreesSet<T>> : std::true_type{};
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -137,7 +137,7 @@ public:
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*!
@@ -191,7 +191,7 @@ private:
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -204,7 +204,7 @@ namespace Details
  *          separate "xmlattr" and attribute name. For other cases used only name, without delimeter.
  *          Use "/" because it's prohibited symbol for attribute/element name in XML.
  */
-#define TREE_BINDING_DEFAULT_DELIMETER "/"
+#define CREOLISATION_DEFAULT_DELIMETER "/"
 
 // Base class used for iteration in Tree
 class BasicNodeData : public Archivable
@@ -257,7 +257,7 @@ public:
     virtual void  reset    ()                                  = 0;
     virtual bool  compare  (BasicNodeData const &rhs)    const = 0;
     virtual void  copy     (BasicNodeData const &rhs)          = 0;
-    virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER) = 0;
+    virtual void  parsePtree(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER) = 0;
     virtual void parseTable(Table<std::wstring> &table,
                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                             RowsRange const &rows) = 0;
@@ -310,7 +310,7 @@ BasicNodeData::operator T&()
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 template<typename T>
@@ -427,7 +427,7 @@ struct Translator
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -523,7 +523,7 @@ PtreeWriter::write(NodeData<DataType> const &node,
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -693,7 +693,7 @@ TableParser::parse(NodeData<DataType> &node,
 
 
 
-namespace TreeBinding {
+namespace creolisation {
 
 /*!
  * \brief Exception for signal wrong number of childs elements in tree
@@ -720,7 +720,7 @@ struct WrongChildsNumException : public std::runtime_error
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -747,7 +747,7 @@ public:
     virtual void  copy    (BasicNodeData const &rhs)          override final;
 
     virtual void  parsePtree(boost::property_tree::ptree &tree,
-                             const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER) override final;
+                             const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER) override final;
     virtual void parseTable(Table<std::wstring> &table,
                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                             RowsRange const &rows) override final;
@@ -771,22 +771,22 @@ protected:
     // define separate functions for implementation, because SFINAE work only for overloading
     template<typename T = DataType>
     typename std::enable_if<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>::type
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     typename std::enable_if<is_subtrees_set<T>::value>::type
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     typename std::enable_if<std::is_base_of<BasicTree, T>::value>::type
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *TREE_BINDING_DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
-    typename std::enable_if<!TreeBinding::Details::is_subtrees_set<T>::value>::type
+    typename std::enable_if<!creolisation::Details::is_subtrees_set<T>::value>::type
     resetImpl();
 
     template<typename T = DataType>
-    typename std::enable_if<TreeBinding::Details::is_subtrees_set<T>::value>::type
+    typename std::enable_if<creolisation::Details::is_subtrees_set<T>::value>::type
     resetImpl();
 
     virtual bool compare (BasicNodeData const &rhs) const override;
@@ -925,7 +925,7 @@ void NodeData<DataType>::reset()
 
 template<typename DataType>
 template<typename T>
-typename std::enable_if<!TreeBinding::Details::is_subtrees_set<T>::value>::type
+typename std::enable_if<!creolisation::Details::is_subtrees_set<T>::value>::type
 NodeData<DataType>::resetImpl()
 {
     validity = false;
@@ -933,7 +933,7 @@ NodeData<DataType>::resetImpl()
 
 template<typename DataType>
 template<typename T>
-typename std::enable_if<TreeBinding::Details::is_subtrees_set<T>::value>::type
+typename std::enable_if<creolisation::Details::is_subtrees_set<T>::value>::type
 NodeData<DataType>::resetImpl()
 {
     value->clear();
@@ -1049,12 +1049,12 @@ NodeData<DataType>::parsePtreeImpl(boost::property_tree::ptree &tree, const char
 
     if (!std::strcmp("", this->name)) // XML: array of same elements not stored in separate subtree
     {
-        static const int XML_ATTR_SUBTREE_NUM = 1;
+        static const int XML_ATTR_SUBPTREE_NUM = 1;
 
         auto elementName = SubtreeElementType::NameContainer_::getName();
 
         // XML contain 1 pseudo subtree - xmlattr, not reserve for it
-        subtreesSet->reserve(tree.size() - XML_ATTR_SUBTREE_NUM);
+        subtreesSet->reserve(tree.size() - XML_ATTR_SUBPTREE_NUM);
 
         // find if and error, if not found
         for (auto& j : tree)
@@ -1160,29 +1160,29 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
 /*!
  * \brief Concatenate two tokens
  */
-#define TREE_BINDING_DETAILS_TOKEN_PASTE(x, y) x##y
+#define CREOLISATION_DETAILS_TOKEN_PASTE(x, y) x##y
 
 /*!
  * \brief Concatenate two tokens
  */
-#define TREE_BINDING_DETAILS_CONCAT(x, y) TREE_BINDING_DETAILS_TOKEN_PASTE(x, y)
+#define CREOLISATION_DETAILS_CONCAT(x, y) CREOLISATION_DETAILS_TOKEN_PASTE(x, y)
 
 /*!
  * \brief     Macro for expand multiply parameters, because stupid MSVC passed __VA_ARGS__ as single parameter
  * \param[in] __VA_ARGS__ macro
  * \return    __VA_ARGS__ expanded to multiply parameters
  */
-#define TREE_BINDING_DETAILS_EXPAND( x ) x
+#define CREOLISATION_DETAILS_EXPAND( x ) x
 
 /*!
  * \brief   Choose overloaded macro
  * \details First args - arguments, passes to target macro. After it passed overloaded macroses in descent order.
  */
-#define TREE_BINDING_DETAILS_GET_MACRO(_1, _2, _3, _4, TARGET_MACRO, ...) TARGET_MACRO
+#define CREOLISATION_DETAILS_GET_MACRO(_1, _2, _3, _4, TARGET_MACRO, ...) TARGET_MACRO
 
 /*!
  * \brief    Overload macro
- * \details  Pass empty string to TREE_BINDING_DETAILS_GET_MACRO() to avoid error
+ * \details  Pass empty string to CREOLISATION_DETAILS_GET_MACRO() to avoid error
  *           "ISO C++11 requires at least one argument for the "..." in a variadic macro"
  * \warning  Overload macroses only with 1, 2, 3 or 4 arguments
  * \param[in] overload1 Overload with 1 argument
@@ -1191,9 +1191,9 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
  * \param[in] overload4 Overload with 3 argument
  * \param[in] ... arguments of overloaded macro
  */
-#define TREE_BINDING_DETAILS_OVERLOAD_MACRO(overload1, overload2, overload3, overload4, ...) \
-    TREE_BINDING_DETAILS_EXPAND(                                                             \
-        TREE_BINDING_DETAILS_GET_MACRO(__VA_ARGS__,                                          \
+#define CREOLISATION_DETAILS_OVERLOAD_MACRO(overload1, overload2, overload3, overload4, ...) \
+    CREOLISATION_DETAILS_EXPAND(                                                             \
+        CREOLISATION_DETAILS_GET_MACRO(__VA_ARGS__,                                          \
                                        overload4, overload3, overload2, overload1, ""        \
                                       )(__VA_ARGS__)                                         \
                                )
@@ -1206,8 +1206,8 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
  * \details   Concatenate token "__StringContainer__" and suffix
  * \param[in] uniqSuffix Unique suffix
  */
-#define TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(uniqSuffix) \
-    TREE_BINDING_DETAILS_CONCAT(__StringContainer__, uniqSuffix)
+#define CREOLISATION_DETAILS_STRING_CONTAINER_NAME(uniqSuffix) \
+    CREOLISATION_DETAILS_CONCAT(__StringContainer__, uniqSuffix)
 
 /*!
  * \brief     Unique string container
@@ -1217,8 +1217,8 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
  * \param[in] str String, which will hold in container
  * \param[in] uniqSuffix Unique suffix
  */
-#define TREE_BINDING_DETAILS_STRING_CONTAINER(str, uniqSuffix)  \
-  struct TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(uniqSuffix) \
+#define CREOLISATION_DETAILS_STRING_CONTAINER(str, uniqSuffix)  \
+  struct CREOLISATION_DETAILS_STRING_CONTAINER_NAME(uniqSuffix) \
   {                                                             \
     static const char* const getName()                          \
     {                                                           \
@@ -1230,7 +1230,7 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -1314,14 +1314,14 @@ struct AssertName
 static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
 /*!
- *  \copydoc TREE_BINDING_DETAILS_NODE_2()
+ *  \copydoc CREOLISATION_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, num) \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(paramName, __LINE__);                  \
-    TreeBinding::Details::Node <                                                 \
+#define CREOLISATION_DETAILS_NODE_4(containerRequired, paramName, dataType, num) \
+    CREOLISATION_DETAILS_STRING_CONTAINER(paramName, __LINE__);                  \
+    creolisation::Details::Node <                                                 \
         containerRequired,                                                       \
-        TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(__LINE__),                    \
+        CREOLISATION_DETAILS_STRING_CONTAINER_NAME(__LINE__),                    \
         dataType,                                                                \
         num                                                                      \
         >
@@ -1333,16 +1333,16 @@ static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDa
  *  \param[in] paramName Name of field
  *  \param[in] dataType Underlied type of field
  */
-#define TREE_BINDING_DETAILS_NODE_3(containerRequired, paramName, dataType) \
-    TREE_BINDING_DETAILS_NODE_4(containerRequired, paramName, dataType, TreeBinding::NodesNum::MORE_THAN_0)
+#define CREOLISATION_DETAILS_NODE_3(containerRequired, paramName, dataType) \
+    CREOLISATION_DETAILS_NODE_4(containerRequired, paramName, dataType, creolisation::NodesNum::MORE_THAN_0)
 
 
-#define TREE_BINDING_DETAILS_NODE(...)      \
-    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
+#define CREOLISATION_DETAILS_NODE(...)      \
+    CREOLISATION_DETAILS_OVERLOAD_MACRO(    \
         "Not contain overload with 1 arg",  \
         "Not contain overload with 2 args", \
-        TREE_BINDING_DETAILS_NODE_3,        \
-        TREE_BINDING_DETAILS_NODE_4,        \
+        CREOLISATION_DETAILS_NODE_3,        \
+        CREOLISATION_DETAILS_NODE_4,        \
         __VA_ARGS__ )
 
 } /* namespace details */
@@ -1355,7 +1355,7 @@ static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDa
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*!
@@ -1411,7 +1411,7 @@ struct NodeIterator : public std::iterator<std::input_iterator_tag, Details::Bas
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*!
@@ -1664,7 +1664,7 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*!
@@ -1710,20 +1710,20 @@ Tree<Derived, NameContainer>::Tree() :
 }
 
 /*!
- *  \copydoc TREE_BINDING_DETAILS_TREE_1()
+ *  \copydoc CREOLISATION_DETAILS_TYPE_1()
  *  \param[in] name Name of tree
  */
-#define TREE_BINDING_DETAILS_TREE_2(type, name)         \
-    TREE_BINDING_DETAILS_STRING_CONTAINER(name, type);  \
-    struct type final : public TreeBinding::Tree < type, TREE_BINDING_DETAILS_STRING_CONTAINER_NAME(type) >
+#define CREOLISATION_DETAILS_TYPE_2(type, name)         \
+    CREOLISATION_DETAILS_STRING_CONTAINER(name, type);  \
+    struct type final : public creolisation::Tree < type, CREOLISATION_DETAILS_STRING_CONTAINER_NAME(type) >
 
 
-#define TREE_BINDING_DETAILS_TREE_1(type) TREE_BINDING_DETAILS_TREE_2(type, #type)
+#define CREOLISATION_DETAILS_TYPE_1(type) CREOLISATION_DETAILS_TYPE_2(type, #type)
 
-#define TREE_BINDING_DETAILS_TREE(...)      \
-    TREE_BINDING_DETAILS_OVERLOAD_MACRO(    \
-        TREE_BINDING_DETAILS_TREE_1,        \
-        TREE_BINDING_DETAILS_TREE_2,        \
+#define CREOLISATION_DETAILS_TYPE(...)      \
+    CREOLISATION_DETAILS_OVERLOAD_MACRO(    \
+        CREOLISATION_DETAILS_TYPE_1,        \
+        CREOLISATION_DETAILS_TYPE_2,        \
         "Not contain overload with 3 args", \
         "Not contain overload with 4 args", \
         __VA_ARGS__ )
@@ -1733,14 +1733,14 @@ Tree<Derived, NameContainer>::Tree() :
 
 
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*! 
  *  \brief     Declaration of stub for string translator
  *  \param[in] type Type of translated value
  */
-#define TREE_BINDING_TRANSLATOR_TO_STRING_STUB(type)   \
+#define CREOLISATION_TRANSLATOR_TO_STRING_STUB(type)   \
   template<>                                           \
   std::string Translator::toString(const type * const) \
   {                                                    \
@@ -1753,7 +1753,7 @@ namespace TreeBinding
  *  \param[in] type Type of translated value
  *  \param[in] table boost bimap, which map string value <-> target type
  */
-#define TREE_BINDING_TABLE_TRANSLATORS_DECLARATION(type, table) \
+#define CREOLISATION_TABLE_TRANSLATORS_DECLARATION(type, table) \
 template<>                                                      \
 void Translator::fromString(std::string const &str,             \
                             type* const value)                  \
@@ -1774,8 +1774,8 @@ struct NodesNum;
 
 /*! 
  * \brief   Declaration of field which binds with tree node
- * \details When passed 2 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_2 macro.
- *          When passed 3 arguments, expanded to call of TREE_BINDING_DETAILS_NODE_3 macro.
+ * \details When passed 2 arguments, expanded to call of CREOLISATION_DETAILS_NODE_2 macro.
+ *          When passed 3 arguments, expanded to call of CREOLISATION_DETAILS_NODE_3 macro.
  * \note    Name used as first parameter, because this macro can used in wrapper macro with constant name ("", for example),
  *          and it's necessary to pass another 2 parameters from wrapper to this macro. If use name as second parameter (between
  *          type and num, passing another 2 parameters became impossible.
@@ -1784,16 +1784,16 @@ struct NodesNum;
  *              2. Node's data type
  *              3. Node are optional/mandatory (optional parameter)
  */
-#define TREE_NODE(...) TREE_BINDING_DETAILS_NODE(TreeBinding::Details::ContainerRequired::NO, __VA_ARGS__)
+#define CREOLISATION_FIELD(...) CREOLISATION_DETAILS_NODE(creolisation::Details::ContainerRequired::NO, __VA_ARGS__)
 
-#define TREE_NODE_ARRAY(...) TREE_BINDING_DETAILS_NODE(TreeBinding::Details::ContainerRequired::YES, __VA_ARGS__)
+#define CREOLISATION_FIELD_ARRAY(...) CREOLISATION_DETAILS_NODE(creolisation::Details::ContainerRequired::YES, __VA_ARGS__)
 
 /*!
  * \brief  Define structure of tree
  * \tparam type Name of this type (in code)
  * \tparam name Name of tree (in file). "type" by default (optional parameter).
  */
-#define TREE_TREE(...) TREE_BINDING_DETAILS_TREE(__VA_ARGS__)
+#define CREOLISATION_TYPE(...) CREOLISATION_DETAILS_TYPE(__VA_ARGS__)
 
 } /* namespace data_binding */
 
@@ -1807,7 +1807,7 @@ struct NodesNum;
 
 
 // Should be declared in global namespace
-#define TREE_BINDING_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \
+#define CREOLISATION_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \
   namespace boost {                                                      \
   namespace serialization {                                              \
   template<class Archive>                                                \
@@ -1821,7 +1821,7 @@ struct NodesNum;
 namespace boost {
 namespace serialization {
 
-using namespace TreeBinding;
+using namespace creolisation;
 using namespace Details;
 
 /*
@@ -1886,7 +1886,7 @@ serialize(Archive & ar, NodeData<DataType>& node, const unsigned int version)
 } // namespace serialization
 } // namespace boost
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -1929,7 +1929,7 @@ namespace XML
 /*!
  *  \copydoc data_binding::NodesNum
  */
-typedef TreeBinding::NodesNum ItemNum;
+typedef creolisation::NodesNum ItemNum;
 
 /*!
  * \brief   XML attribute declaration
@@ -1939,7 +1939,7 @@ typedef TreeBinding::NodesNum ItemNum;
  *              3. Attribute are optional/mandatory (mandatory(data_binding::NodesNum::MORE_THAN_ONE) by default(if this parameter not passed)).
  *                 If attribute are optional, pass data_binding::NodesNum::NOT_SPECIFIED
  */
-#define XML_ATTR(name, ...) TREE_NODE( "<xmlattr>" TREE_BINDING_DEFAULT_DELIMETER name , __VA_ARGS__)
+#define XML_ATTR(name, ...) CREOLISATION_FIELD( "<xmlattr>" CREOLISATION_DEFAULT_DELIMETER name , __VA_ARGS__)
 
 /*!
  * \brief   XML child declaration
@@ -1947,7 +1947,7 @@ typedef TreeBinding::NodesNum ItemNum;
  * \param   ... 1. Child's data type 
  *              2. Required number of childs elements (data_binding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)).
  */
-#define XML_CHILD_ELEMENTS(...) TREE_NODE_ARRAY("", __VA_ARGS__)
+#define XML_CHILD_ELEMENTS(...) CREOLISATION_FIELD_ARRAY("", __VA_ARGS__)
 
 /*!
  * \brief   XML element declaration
@@ -1955,7 +1955,7 @@ typedef TreeBinding::NodesNum ItemNum;
  * \param   ... 1. Data type name
  *              2. Element name (in file). "type" by default.
  */
-#define XML_ELEMENT(...) TREE_TREE(__VA_ARGS__)
+#define XML_ELEMENT(...) CREOLISATION_TYPE(__VA_ARGS__)
 
 } /* namespace XML */
 
@@ -1976,7 +1976,7 @@ namespace JSON
 /*!
  *  \copydoc data_binding::NodesNum
  */
-typedef TreeBinding::NodesNum ItemsNum;
+typedef creolisation::NodesNum ItemsNum;
 
 /*!
  * \brief   JSON child declaration
@@ -1985,7 +1985,7 @@ typedef TreeBinding::NodesNum ItemsNum;
  * \param[in] ... 2. Child's data type
  * \param[in] ... 3. Field are optional/mandatory (mandatory by default).
  */
-#define JSON_CHILD(...) TREE_NODE(__VA_ARGS__)
+#define JSON_CHILD(...) CREOLISATION_FIELD(__VA_ARGS__)
 
 /*!
  * \brief   JSON array declaration
@@ -1994,18 +1994,18 @@ typedef TreeBinding::NodesNum ItemsNum;
  * \param   ... 2. Array's elements data type
  *              3. Required number of array elements (data_binding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)).
  */
-#define JSON_ARRAY(...) TREE_NODE_ARRAY(__VA_ARGS__)
+#define JSON_ARRAY(...) CREOLISATION_FIELD_ARRAY(__VA_ARGS__)
 
 /*!
  * \brief   JSON element declaration
  * \param   dataType Elements's data type
  */
-#define JSON_ELEMENT(dataType) TREE_TREE(dataType)
+#define JSON_ELEMENT(dataType) CREOLISATION_TYPE(dataType)
 
 } /* namespace JSON */
 
 
 
 
-#endif /* _TREE_BINDING_H_ */
+#endif /* _CREOLISATION_H_ */
 

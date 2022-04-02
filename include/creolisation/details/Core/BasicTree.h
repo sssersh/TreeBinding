@@ -3,10 +3,10 @@
  *  \brief BasicTree class used for iteration in Tree
  */
 
-#ifndef _BASICTREE_H_
-#define _BASICTREE_H_
+#ifndef _BASICTYPE_H_
+#define _BASICTYPE_H_
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*!
@@ -249,4 +249,4 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
 
 } // namespace data_binding
 
-#endif /* _BASICTREE_H_ */
+#endif /* _BASICTYPE_H_ */

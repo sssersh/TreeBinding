@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.10.1)
 
-project(TreeBindingOrigin)
+project(creolisationOrigin)
 
 include_directories(../..)
 
@@ -14,7 +14,7 @@ set(INCLUDES
         JSON.h
         serializable_types.h
         XML.h
-        details/Core/TreeBindingDecl.h
+        details/Core/creolisationDecl.h
         details/ArchiveSerializerDecl.h
         details/ArchiveSerializer.h
         details/PtreeWriter.h
@@ -31,6 +31,6 @@ set(INCLUDES
         details/Core/MacroUtils.h
         details/Core/Tree.h)
 
-set(LIB TreeBindingOrigin)
+set(LIB creolisationOrigin)
 
 add_library(${LIB} ${INCLUDES} ${SOURCES})

@@ -7,7 +7,7 @@
 #include "gtest/gtest.h"
 
 // Tested file
-#include "TreeBinding.h"
+#include "creolisation.h"
 
 #include <map>
 #include <boost/property_tree/xml_parser.hpp>
@@ -22,7 +22,7 @@ enum class EnumType
     ENUM3
 };
 
-namespace TreeBinding
+namespace creolisation
 {
 
 /*!

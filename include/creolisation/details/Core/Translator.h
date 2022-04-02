@@ -3,19 +3,20 @@
  *  \brief Translate string value to target type and visa versa
  */
 
-#ifndef _TREE_BINDING_TRANSLATOR_H_
-#define _TREE_BINDING_TRANSLATOR_H_
+#ifndef _CREOLISATION_TRANSLATOR_H_
+#define _CREOLISATION_TRANSLATOR_H_
 
 #include <type_traits>
 #include <string>
-#include "TreeBindingDecl.h"
+#include "creolisationDecl.h"
 
-namespace TreeBinding
+namespace creolisation
 {
 
 template<typename T>
 struct isString
 {
+    // TODO1: const char* ?
     static const bool value = std::is_same<T, std::string>::value || std::is_same<T, std::wstring>::value;
 };
 
@@ -124,4 +125,4 @@ struct Translator
 
 } // namespace data_binding
 
-#endif /* _TREE_BINDING_TRANSLATOR_H_ */
+#endif /* _CREOLISATION_TRANSLATOR_H_ */

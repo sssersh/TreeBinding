@@ -3,16 +3,16 @@
  *  \brief Declarations for converter of NodeData to boost archive
  */
 
-#ifndef _TREE_BINDING_ARCHIVE_SERIALIZER_DECL_H_
-#define _TREE_BINDING_ARCHIVE_SERIALIZER_DECL_H_
+#ifndef _CREOLISATION_ARCHIVE_SERIALIZER_DECL_H_
+#define _CREOLISATION_ARCHIVE_SERIALIZER_DECL_H_
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include "TreeBinding/Details/Core/TreeBindingDecl.h"
+#include "creolisation/Details/Core/creolisationDecl.h"
 
-namespace TreeBinding
+namespace creolisation
 {
 
 namespace Details
@@ -31,4 +31,4 @@ public:
 
 } /* namespace data_binding */
 
-#endif /* _TREE_BINDING_ARCHIVE_SERIALIZER_DECL_H_ */
+#endif /* _CREOLISATION_ARCHIVE_SERIALIZER_DECL_H_ */

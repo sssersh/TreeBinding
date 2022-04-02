@@ -6,9 +6,9 @@
 #ifndef _EXCEPTIONS_H
 #define _EXCEPTIONS_H
 
-#include "TreeBinding/Details/Core/NodesNum.h"
+#include "creolisation/Details/Core/NodesNum.h"
 
-namespace TreeBinding {
+namespace creolisation {
 
 /*!
  * \brief Exception for signal wrong number of childs elements in tree
