@@ -41,8 +41,9 @@ else(CONAN_FOUND)
     message(FATAL_ERROR "Error: conan not found!")
 endif()
 
-# Check, that origin sources builds
-add_subdirectory (include/creolisation)
+# Check, that origin sources are compilable
+set(DUMMY_SRC include/creolization/details/Core/dummy.cpp)
+add_library(dummy_lib ${DUMMY})
 
 # Compile one header generator
 add_subdirectory (one_header_generator)
