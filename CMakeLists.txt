@@ -1,11 +1,11 @@
 #
 # CMakeLists.txt
 #
-# Build file for creolisation project
+# Build file for creolization project
 #
 cmake_minimum_required(VERSION 3.10.1)
 
-set(${PROJECT_NAME} creolisation)
+set(${PROJECT_NAME} creolization)
 
 project(${PROJECT_NAME} CXX)
 
@@ -59,7 +59,7 @@ include_directories(${INCLUDE_DIR})
 
 set(INCLUDES
     ${INCLUDES}
-    ${INCLUDE_DIR}/creolisation.h
+    ${INCLUDE_DIR}/creolization.h
 )
 
 # Include all directories to keep navigation in CLion in origin sources in folder TreeBindiing

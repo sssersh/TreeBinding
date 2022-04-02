@@ -6,9 +6,9 @@
 #ifndef _EXCEPTIONS_H
 #define _EXCEPTIONS_H
 
-#include "creolisation/Details/Core/NodesNum.h"
+#include "creolization/Details/Core/NodesNum.h"
 
-namespace creolisation {
+namespace creolization {
 
 /*!
  * \brief Exception for signal wrong number of childs elements in tree

@@ -3,14 +3,14 @@
  *  \brief Converter of NodeData to boost archive
  */
 
-#ifndef _CREOLISATION_ARCHIVE_SERIALIZER_H_
-#define _CREOLISATION_ARCHIVE_SERIALIZER_H_
+#ifndef _CREOLIZATION_ARCHIVE_SERIALIZER_H_
+#define _CREOLIZATION_ARCHIVE_SERIALIZER_H_
 
 #include <boost/serialization/vector.hpp>
-#include "creolisation/Details/ArchiveSerializerDecl.h"
+#include "creolization/Details/ArchiveSerializerDecl.h"
 
 // Should be declared in global namespace
-#define CREOLISATION_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \
+#define CREOLIZATION_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \
   namespace boost {                                                      \
   namespace serialization {                                              \
   template<class Archive>                                                \
@@ -24,7 +24,7 @@
 namespace boost {
 namespace serialization {
 
-using namespace creolisation;
+using namespace creolization;
 using namespace Details;
 
 /*
@@ -89,7 +89,7 @@ serialize(Archive & ar, NodeData<DataType>& node, const unsigned int version)
 } // namespace serialization
 } // namespace boost
 
-namespace creolisation
+namespace creolization
 {
 
 namespace Details
@@ -111,4 +111,4 @@ void NodeData<DataType>::serializeData(boost::archive::text_iarchive & ar, const
 
 } /* namespace data_binding */
 
-#endif /* _CREOLISATION_ARCHIVE_SERIALIZER_H_ */
+#endif /* _CREOLIZATION_ARCHIVE_SERIALIZER_H_ */

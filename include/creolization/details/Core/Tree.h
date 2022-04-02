@@ -8,9 +8,9 @@
 
 #include <string>
 #include <type_traits>
-#include "creolisation/Details/Core/Exceptions.h"
+#include "creolization/Details/Core/Exceptions.h"
 
-namespace creolisation
+namespace creolization
 {
 
 /*!
@@ -56,20 +56,20 @@ Tree<Derived, NameContainer>::Tree() :
 }
 
 /*!
- *  \copydoc CREOLISATION_DETAILS_TYPE_1()
+ *  \copydoc CREOLIZATION_DETAILS_TYPE_1()
  *  \param[in] name Name of tree
  */
-#define CREOLISATION_DETAILS_TYPE_2(type, name)         \
-    CREOLISATION_DETAILS_STRING_CONTAINER(name, type);  \
-    struct type final : public creolisation::Tree < type, CREOLISATION_DETAILS_STRING_CONTAINER_NAME(type) >
+#define CREOLIZATION_DETAILS_TYPE_2(type, name)         \
+    CREOLIZATION_DETAILS_STRING_CONTAINER(name, type);  \
+    struct type final : public creolization::Tree < type, CREOLIZATION_DETAILS_STRING_CONTAINER_NAME(type) >
 
 
-#define CREOLISATION_DETAILS_TYPE_1(type) CREOLISATION_DETAILS_TYPE_2(type, #type)
+#define CREOLIZATION_DETAILS_TYPE_1(type) CREOLIZATION_DETAILS_TYPE_2(type, #type)
 
-#define CREOLISATION_DETAILS_TYPE(...)      \
-    CREOLISATION_DETAILS_OVERLOAD_MACRO(    \
-        CREOLISATION_DETAILS_TYPE_1,        \
-        CREOLISATION_DETAILS_TYPE_2,        \
+#define CREOLIZATION_DETAILS_TYPE(...)      \
+    CREOLIZATION_DETAILS_OVERLOAD_MACRO(    \
+        CREOLIZATION_DETAILS_TYPE_1,        \
+        CREOLIZATION_DETAILS_TYPE_2,        \
         "Not contain overload with 3 args", \
         "Not contain overload with 4 args", \
         __VA_ARGS__ )

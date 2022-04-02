@@ -6,7 +6,7 @@
 #ifndef _BASICTYPE_H_
 #define _BASICTYPE_H_
 
-namespace creolisation
+namespace creolization
 {
 
 /*!

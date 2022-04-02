@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 // Tested file
-#include "creolisation.h"
+#include "creolization/serializable_types.h"
 
 
 

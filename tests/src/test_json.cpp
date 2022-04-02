@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 // Tested file
-#include "creolisation/JSON.h"
+#include "creolization/JSON.h"
 
 #include <map>
 
@@ -20,7 +20,7 @@ enum class EnumType1
     ENUM3
 };
 
-namespace creolisation
+namespace creolization
 {
 
 /*!

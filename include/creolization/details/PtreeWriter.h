@@ -3,13 +3,13 @@
  *  \brief Converter of NodeData to boost ptree
  */
 
-#ifndef _CREOLISATION_PTREE_WRITER_H_
-#define _CREOLISATION_PTREE_WRITER_H_
+#ifndef _CREOLIZATION_PTREE_WRITER_H_
+#define _CREOLIZATION_PTREE_WRITER_H_
 
-#include "creolisation/Details/Core/creolisationDecl.h"
-#include "creolisation/Details/Core/Translator.h"
+#include "creolization/Details/Core/creolizationDecl.h"
+#include "creolization/Details/Core/Translator.h"
 
-namespace creolisation
+namespace creolization
 {
 
 namespace Details
@@ -90,4 +90,4 @@ PtreeWriter::write(NodeData<DataType> const &node,
 
 } /* namespace data_binding */
 
-#endif /* _CREOLISATION_PTREE_WRITER_H_ */
+#endif /* _CREOLIZATION_PTREE_WRITER_H_ */

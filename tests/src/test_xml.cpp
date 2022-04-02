@@ -7,7 +7,7 @@
 #include "gtest/gtest.h"
 
 // Tested file
-#include "creolisation.h"
+#include "creolization.h"
 
 #include <map>
 #include <boost/property_tree/xml_parser.hpp>
@@ -22,7 +22,7 @@ enum class EnumType
     ENUM3
 };
 
-namespace creolisation
+namespace creolization
 {
 
 /*!

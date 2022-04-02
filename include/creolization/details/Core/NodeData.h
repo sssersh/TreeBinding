@@ -6,12 +6,12 @@
 #ifndef _NODEDATA_H_
 #define _NODEDATA_H_
 
-#include "creolisation/Details/Core/BasicNodeData.h"
-#include "creolisation/Details/PtreeWriter.h"
-#include "creolisation/Details/TableParser.h"
-#include "creolisation/Details/Core/Exceptions.h"
+#include "creolization/Details/Core/BasicNodeData.h"
+#include "creolization/Details/PtreeWriter.h"
+#include "creolization/Details/TableParser.h"
+#include "creolization/Details/Core/Exceptions.h"
 
-namespace creolisation
+namespace creolization
 {
 
 namespace Details
@@ -38,7 +38,7 @@ public:
     virtual void  copy    (BasicNodeData const &rhs)          override final;
 
     virtual void  parsePtree(boost::property_tree::ptree &tree,
-                             const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER) override final;
+                             const char pathDelimeter = *CREOLIZATION_DEFAULT_DELIMETER) override final;
     virtual void parseTable(Table<std::wstring> &table,
                             std::function<boost::optional<size_t>(const std::string&)> const &nameToIndex,
                             RowsRange const &rows) override final;
@@ -62,22 +62,22 @@ protected:
     // define separate functions for implementation, because SFINAE work only for overloading
     template<typename T = DataType>
     typename std::enable_if<!is_subtrees_set<T>::value && !std::is_base_of<BasicTree, DataType>::value>::type
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLIZATION_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     typename std::enable_if<is_subtrees_set<T>::value>::type
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLIZATION_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
     typename std::enable_if<std::is_base_of<BasicTree, T>::value>::type
-    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLISATION_DEFAULT_DELIMETER);
+    parsePtreeImpl(boost::property_tree::ptree &tree, const char pathDelimeter = *CREOLIZATION_DEFAULT_DELIMETER);
 
     template<typename T = DataType>
-    typename std::enable_if<!creolisation::Details::is_subtrees_set<T>::value>::type
+    typename std::enable_if<!creolization::Details::is_subtrees_set<T>::value>::type
     resetImpl();
 
     template<typename T = DataType>
-    typename std::enable_if<creolisation::Details::is_subtrees_set<T>::value>::type
+    typename std::enable_if<creolization::Details::is_subtrees_set<T>::value>::type
     resetImpl();
 
     virtual bool compare (BasicNodeData const &rhs) const override;
@@ -216,7 +216,7 @@ void NodeData<DataType>::reset()
 
 template<typename DataType>
 template<typename T>
-typename std::enable_if<!creolisation::Details::is_subtrees_set<T>::value>::type
+typename std::enable_if<!creolization::Details::is_subtrees_set<T>::value>::type
 NodeData<DataType>::resetImpl()
 {
     validity = false;
@@ -224,7 +224,7 @@ NodeData<DataType>::resetImpl()
 
 template<typename DataType>
 template<typename T>
-typename std::enable_if<creolisation::Details::is_subtrees_set<T>::value>::type
+typename std::enable_if<creolization::Details::is_subtrees_set<T>::value>::type
 NodeData<DataType>::resetImpl()
 {
     value->clear();

@@ -461,11 +461,11 @@ R"(/*!
  *  \brief TODO
  */
 
-#ifndef _CREOLISATION_H_
-#define _CREOLISATION_H_
+#ifndef _CREOLIZATION_H_
+#define _CREOLIZATION_H_
 
 
-#endif /* _CREOLISATION_H_ */
+#endif /* _CREOLIZATION_H_ */
 
 )";
 

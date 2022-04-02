@@ -3,8 +3,8 @@
  *  \brief Table parser class definition for NodeData
  */
 
-#ifndef _CREOLISATION_TABLE_PARSER_H_
-#define _CREOLISATION_TABLE_PARSER_H_
+#ifndef _CREOLIZATION_TABLE_PARSER_H_
+#define _CREOLIZATION_TABLE_PARSER_H_
 
 #include <iostream> // debug
 
@@ -14,10 +14,10 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
-#include "creolisation/Details/Core/Translator.h"
-#include "creolisation/Details/Core/creolisationDecl.h"
+#include "creolization/Details/Core/Translator.h"
+#include "creolization/Details/Core/creolizationDecl.h"
 
-namespace creolisation
+namespace creolization
 {
 
 namespace Details
@@ -179,4 +179,4 @@ TableParser::parse(NodeData<DataType> &node,
 
 } /* namespace data_binding */
 
-#endif /* _CREOLISATION_TABLE_PARSER_H_ */
+#endif /* _CREOLIZATION_TABLE_PARSER_H_ */

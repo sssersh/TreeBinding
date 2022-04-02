@@ -3,14 +3,14 @@
  *  \brief Translate string value to target type and visa versa
  */
 
-#ifndef _CREOLISATION_TRANSLATOR_H_
-#define _CREOLISATION_TRANSLATOR_H_
+#ifndef _CREOLIZATION_TRANSLATOR_H_
+#define _CREOLIZATION_TRANSLATOR_H_
 
 #include <type_traits>
 #include <string>
-#include "creolisationDecl.h"
+#include "creolizationDecl.h"
 
-namespace creolisation
+namespace creolization
 {
 
 template<typename T>
@@ -125,4 +125,4 @@ struct Translator
 
 } // namespace data_binding
 
-#endif /* _CREOLISATION_TRANSLATOR_H_ */
+#endif /* _CREOLIZATION_TRANSLATOR_H_ */

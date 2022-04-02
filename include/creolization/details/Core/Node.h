@@ -10,12 +10,12 @@
 //#single_include <string>
 //#single_include <cinttypes>
 //#single_include <type_traits>
-#include "creolisation/Details/Core/creolisationDecl.h"
-#include "creolisation/Details/Core/NodeData.h"
-#include "creolisation/Details/Core/StringContainer.h"
-#include "creolisation/Details/Core/MacroUtils.h"
+#include "creolization/Details/Core/creolizationDecl.h"
+#include "creolization/Details/Core/NodeData.h"
+#include "creolization/Details/Core/StringContainer.h"
+#include "creolization/Details/Core/MacroUtils.h"
 
-namespace creolisation
+namespace creolization
 {
 
 namespace Details
@@ -99,14 +99,14 @@ struct AssertName
 static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDataSize, "Fatal error: incorrect alignment in Node.");
 
 /*!
- *  \copydoc CREOLISATION_DETAILS_NODE_2()
+ *  \copydoc CREOLIZATION_DETAILS_NODE_2()
  *  \param[in] num Required number of fields
  */
-#define CREOLISATION_DETAILS_NODE_4(containerRequired, paramName, dataType, num) \
-    CREOLISATION_DETAILS_STRING_CONTAINER(paramName, __LINE__);                  \
-    creolisation::Details::Node <                                                 \
+#define CREOLIZATION_DETAILS_NODE_4(containerRequired, paramName, dataType, num) \
+    CREOLIZATION_DETAILS_STRING_CONTAINER(paramName, __LINE__);                  \
+    creolization::Details::Node <                                                 \
         containerRequired,                                                       \
-        CREOLISATION_DETAILS_STRING_CONTAINER_NAME(__LINE__),                    \
+        CREOLIZATION_DETAILS_STRING_CONTAINER_NAME(__LINE__),                    \
         dataType,                                                                \
         num                                                                      \
         >
@@ -118,16 +118,16 @@ static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDa
  *  \param[in] paramName Name of field
  *  \param[in] dataType Underlied type of field
  */
-#define CREOLISATION_DETAILS_NODE_3(containerRequired, paramName, dataType) \
-    CREOLISATION_DETAILS_NODE_4(containerRequired, paramName, dataType, creolisation::NodesNum::MORE_THAN_0)
+#define CREOLIZATION_DETAILS_NODE_3(containerRequired, paramName, dataType) \
+    CREOLIZATION_DETAILS_NODE_4(containerRequired, paramName, dataType, creolization::NodesNum::MORE_THAN_0)
 
 
-#define CREOLISATION_DETAILS_NODE(...)      \
-    CREOLISATION_DETAILS_OVERLOAD_MACRO(    \
+#define CREOLIZATION_DETAILS_NODE(...)      \
+    CREOLIZATION_DETAILS_OVERLOAD_MACRO(    \
         "Not contain overload with 1 arg",  \
         "Not contain overload with 2 args", \
-        CREOLISATION_DETAILS_NODE_3,        \
-        CREOLISATION_DETAILS_NODE_4,        \
+        CREOLIZATION_DETAILS_NODE_3,        \
+        CREOLIZATION_DETAILS_NODE_4,        \
         __VA_ARGS__ )
 
 } /* namespace details */
