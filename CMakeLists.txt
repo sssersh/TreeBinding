@@ -22,7 +22,6 @@ endif()
 if (ENABLE_COVERAGE)
     message("Enable coverage")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 --coverage")
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
 
@@ -42,7 +41,7 @@ else(CONAN_FOUND)
 endif()
 
 # Check, that origin sources are compilable
-set(DUMMY_SRC include/creolization/details/Core/dummy.cpp)
+set(DUMMY include/creolization/details/Core/dummy.cpp)
 add_library(dummy_lib ${DUMMY})
 
 # Compile one header generator
@@ -55,16 +54,11 @@ add_custom_target(run_one_header_generator ALL
         )
 
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/single_include)
-
 include_directories(${INCLUDE_DIR})
-
 set(INCLUDES
     ${INCLUDES}
     ${INCLUDE_DIR}/creolization.h
 )
-
-# Include all directories to keep navigation in CLion in origin sources in folder TreeBindiing
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TEST_DIR tests)
 
@@ -80,3 +74,6 @@ message( STATUS "======================================")
 message( STATUS "")
 message( STATUS "   Configuration: ${CMAKE_BUILD_TYPE}")
 message( STATUS "")
+
+# Include all directories to keep navigation in CLion in origin sources in folder TreeBindiing
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})

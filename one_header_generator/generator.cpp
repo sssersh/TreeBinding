@@ -1,6 +1,6 @@
 /*!
  * \file  generator.cpp
- * \brief Generate one header from all files of data_binding library
+ * \brief Generate one header from all files of creolization library
  */
 
 #include <regex>
@@ -53,9 +53,9 @@ private:
     void deleteIncludeGuards();
     File insertOutFileInTemplate();
 
-    fs::path                 rootDir         ; /*!< Path to data_binding library root directory         */
-    std::string              srcDirName      ; /*!< Name of directory with data_binding library sources */
-    std::vector<std::string> srcFilesNames   ; /*!< Names of data_binding library sources (first file used as
+    fs::path                 rootDir         ; /*!< Path to creolization library root directory         */
+    std::string              srcDirName      ; /*!< Name of directory with creolization library sources */
+    std::vector<std::string> srcFilesNames   ; /*!< Names of creolization library sources (first file used as
                                                     main file, others - just single_include main file and
                                                     and redefine macro from main file) */
     fs::path                 outDirPath      ; /*!< Output directory name */
@@ -211,9 +211,9 @@ void File::insert(const std::size_t position, const File &file)
 /*!
  * \brief                      Generator constructor
  * \details                    Read filenames from srcDirName directory
- * \param[in] rootDir          Path to data_binding library root directory
- * \param[in] srcDirName       Name of directory with data_binding library sources
- * \param[in] srcMainFileName  Names of data_binding library main header
+ * \param[in] rootDir          Path to creolization library root directory
+ * \param[in] srcDirName       Name of directory with creolization library sources
+ * \param[in] srcMainFileName  Names of creolization library main header
  * \param[in] outDirName       Output directory name
  * \param[in] templateOutFile  Template of out file
  * \param[in] contentLineIndex Index of line, where will be insert generated file
@@ -457,7 +457,7 @@ static const std::size_t CONTENT_LINE_INDEX = 8;
  */
 static const std::string OUT_FILE_TEMPLATE =
 R"(/*!
- *  \file data_binding.h
+ *  \file creolization.h
  *  \brief TODO
  */
 
@@ -480,9 +480,9 @@ int main(int argc, char* argv[])
     {
         Generator generator = {
             argv[1]      ,
-            "data_binding"  ,
-            "data_binding.h",
-            "single_include",
+            "creolization"  ,
+            "creolization.h",
+            "single_include/creolization",
             OUT_FILE_TEMPLATE,
             CONTENT_LINE_INDEX
         };

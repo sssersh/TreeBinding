@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 // Tested file
-#include "creolization/JSON.h"
+#include "creolization/creolization.h"
 
 #include <map>
 

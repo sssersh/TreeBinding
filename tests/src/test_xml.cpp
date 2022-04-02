@@ -7,7 +7,7 @@
 #include "gtest/gtest.h"
 
 // Tested file
-#include "creolization.h"
+#include "creolization/creolization.h"
 
 #include <map>
 #include <boost/property_tree/xml_parser.hpp>
@@ -26,7 +26,7 @@ namespace creolization
 {
 
 /*!
- * \brief \copydoc data_binding::Translator::fromString(std::string const &str,EnumType *value)
+ * \brief \copydoc creolization::Translator::fromString(std::string const &str,EnumType *value)
  */
 template<>
 EnumType Translator::fromString<EnumType>(std::string const &str)
@@ -42,7 +42,7 @@ EnumType Translator::fromString<EnumType>(std::string const &str)
 }
 
 /*!
- * \brief \copydoc std::string data_binding::Translator::toString(const EnumType* const value)
+ * \brief \copydoc std::string creolization::Translator::toString(const EnumType* const value)
  */
 template<>
 std::string Translator::toString(const EnumType& value)
