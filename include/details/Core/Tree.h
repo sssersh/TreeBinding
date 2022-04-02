@@ -29,7 +29,7 @@ private:
     struct CheckSize;
 
     // Replace it by
-//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), Details::NodeDataSize>>
+//  template<typename T1 = CheckSize<sizeof(T) - sizeof(Tree<NameContainer, T>), details::NodeDataSize>>
     static void checkSize() {}
 
 //  friend class boost::serialization::access;
@@ -74,6 +74,6 @@ Tree<Derived, NameContainer>::Tree() :
         "Not contain overload with 4 args", \
         __VA_ARGS__ )
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 #endif /* _TREE_H_ */

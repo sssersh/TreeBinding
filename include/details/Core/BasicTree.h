@@ -247,6 +247,6 @@ void BasicTree::serialize(Archive & ar, const unsigned int version)
     }
 }
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 #endif /* _BASICTREE_H_ */

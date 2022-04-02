@@ -1,5 +1,5 @@
 /*! 
- *  \file TreeBinding.h
+ *  \file data_binding.h
  *  \brief Interface file for boost tree and classes/structures binding
  */
 
@@ -78,7 +78,7 @@ struct NodesNum;
  */
 #define TREE_TREE(...) TREE_BINDING_DETAILS_TREE(__VA_ARGS__)
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 #include "TreeBinding/Details/TableParser.h"
 #include "TreeBinding/Details/PtreeWriter.h"

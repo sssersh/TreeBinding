@@ -13,7 +13,7 @@ namespace XML
 {
 
 /*!
- *  \copydoc TreeBinding::NodesNum
+ *  \copydoc data_binding::NodesNum
  */
 typedef TreeBinding::NodesNum ItemNum;
 
@@ -22,8 +22,8 @@ typedef TreeBinding::NodesNum ItemNum;
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Attribute name. 
  *              2. Attribute's data type 
- *              3. Attribute are optional/mandatory (mandatory(TreeBinding::NodesNum::MORE_THAN_ONE) by default(if this parameter not passed)). 
- *                 If attribute are optional, pass TreeBinding::NodesNum::NOT_SPECIFIED
+ *              3. Attribute are optional/mandatory (mandatory(data_binding::NodesNum::MORE_THAN_ONE) by default(if this parameter not passed)).
+ *                 If attribute are optional, pass data_binding::NodesNum::NOT_SPECIFIED
  */
 #define XML_ATTR(name, ...) TREE_NODE( "<xmlattr>" TREE_BINDING_DEFAULT_DELIMETER name , __VA_ARGS__)
 
@@ -31,7 +31,7 @@ typedef TreeBinding::NodesNum ItemNum;
  * \brief   XML child declaration
  * \warning Each macro call should be placed in different lines
  * \param   ... 1. Child's data type 
- *              2. Required number of childs elements (TreeBinding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)). 
+ *              2. Required number of childs elements (data_binding::NodesNum::MORE_THAN_ONE by default(if this parameter not passed)).
  */
 #define XML_CHILD_ELEMENTS(...) TREE_NODE_ARRAY("", __VA_ARGS__)
 

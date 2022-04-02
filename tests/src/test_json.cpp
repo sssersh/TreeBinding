@@ -24,7 +24,7 @@ namespace TreeBinding
 {
 
 /*!
- * \brief \copydoc TreeBinding::Translator::fromString(std::string const &str,EnumType *value)
+ * \brief \copydoc data_binding::Translator::fromString(std::string const &str,EnumType *value)
  */
 template<>
 EnumType1 Translator::fromString<EnumType1>(std::string const &str)
@@ -40,7 +40,7 @@ EnumType1 Translator::fromString<EnumType1>(std::string const &str)
 }
 
 /*!
- * \brief \copydoc std::string TreeBinding::Translator::toString(const EnumType* const value)
+ * \brief \copydoc std::string data_binding::Translator::toString(const EnumType* const value)
  */
 template<>
 std::string Translator::toString(const EnumType1& value)
@@ -55,7 +55,7 @@ std::string Translator::toString(const EnumType1& value)
     return enumToString.at(value);
 }
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 /*!
  * \brief Most nested element

@@ -6,10 +6,10 @@
 #ifndef _NODE_H_
 #define _NODE_H_
 
-//#include <memory>
-//#include <string>
-//#include <cinttypes>
-//#include <type_traits>
+//#single_include <memory>
+//#single_include <string>
+//#single_include <cinttypes>
+//#single_include <type_traits>
 #include "TreeBinding/Details/Core/TreeBindingDecl.h"
 #include "TreeBinding/Details/Core/NodeData.h"
 #include "TreeBinding/Details/Core/StringContainer.h"
@@ -130,8 +130,8 @@ static_assert(sizeof(Node<ContainerRequired::YES, AssertName, int, 0>) == NodeDa
         TREE_BINDING_DETAILS_NODE_4,        \
         __VA_ARGS__ )
 
-} /* namespace Details */
+} /* namespace details */
 
-} /* namespace TreeBinding */
+} /* namespace data_binding */
 
 #endif /* _NODE_H_ */

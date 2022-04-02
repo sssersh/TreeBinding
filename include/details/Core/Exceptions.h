@@ -30,6 +30,6 @@ struct WrongChildsNumException : public std::runtime_error
     {}
 };
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 #endif /* _EXCEPTIONS_H */

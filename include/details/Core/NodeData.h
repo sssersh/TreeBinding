@@ -434,8 +434,8 @@ void NodeData<T>::parseTable(std::vector<std::vector<std::wstring>> &table,
     TableParser::parse(*this, table, nameToIndex, rows);
 }
 
-} // namespace Details
+} // namespace details
 
-}  // namespace TreeBinding
+}  // namespace data_binding
 
 #endif /* _NODEDATA_H_ */

@@ -55,6 +55,6 @@ private:
     ValueType value;
 }; // struct NodesNum
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 #endif /* _NODESNUM_H_ */

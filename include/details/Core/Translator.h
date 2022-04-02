@@ -122,6 +122,6 @@ struct Translator
 
 };
 
-} // namespace TreeBinding
+} // namespace data_binding
 
 #endif /* _TREE_BINDING_TRANSLATOR_H_ */
