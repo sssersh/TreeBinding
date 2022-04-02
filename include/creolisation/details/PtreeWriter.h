@@ -49,8 +49,8 @@ PtreeWriter::write(NodeData<DataType> const &node,
 {
   if (node.validity)
   {
-    const std::string str = Translator::toString(*node.value);
-    tree.add(boost::property_tree::path(node.name), str);
+    std::string str = Translator::toString(*node.value);
+    tree.add(boost::property_tree::path(node.name), std::move(str));
   }
 }
 
@@ -64,6 +64,8 @@ PtreeWriter::write(NodeData<DataType> const &node,
     auto subtreesSet = (DataType*)node.getValue(); // DataType = SubtreesSet<>
 
     boost::property_tree::ptree subtree;
+
+    subtree.reserve(subtreesSet->size());
 
     for (auto &i : *subtreesSet)
     {

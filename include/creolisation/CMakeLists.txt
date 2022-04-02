@@ -6,13 +6,13 @@ cmake_minimum_required(VERSION 3.10.1)
 
 project(TreeBindingOrigin)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+include_directories(../..)
 
 set(SOURCES details/Core/dummy.cpp)
 
 set(INCLUDES
         JSON.h
-        data_binding.h
+        serializable_types.h
         XML.h
         details/Core/TreeBindingDecl.h
         details/ArchiveSerializerDecl.h

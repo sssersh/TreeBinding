@@ -5,7 +5,7 @@
 #
 cmake_minimum_required(VERSION 3.10.1)
 
-set(${PROJECT_NAME} date_binding)
+set(${PROJECT_NAME} creolisation)
 
 project(${PROJECT_NAME} CXX)
 
@@ -27,7 +27,6 @@ if (ENABLE_COVERAGE)
 endif()
 
 # Add conan depencies
-
 find_program(CONAN_FOUND conan)
 if(CONAN_FOUND)
     execute_process(COMMAND conan install ${CMAKE_BINARY_DIR}/.. -s build_type=${CMAKE_BUILD_TYPE} --build=missing
@@ -43,7 +42,7 @@ else(CONAN_FOUND)
 endif()
 
 # Check, that origin sources builds
-add_subdirectory (include)
+add_subdirectory (include/creolisation)
 
 # Compile one header generator
 add_subdirectory (one_header_generator)

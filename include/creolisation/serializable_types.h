@@ -1,6 +1,6 @@
 /*! 
- *  \file data_binding.h
- *  \brief Interface file for boost tree and classes/structures binding
+ *  \file  serializable_types.h
+ *  \brief Ser Interface file for boost tree and classes/structures data binding
  */
 
 #ifndef _TREE_BINDING_H_

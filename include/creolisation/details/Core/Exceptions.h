@@ -25,7 +25,8 @@ struct WrongChildsNumException : public std::runtime_error
                             NodesNum const requiredNum,
                             NodesNum::ValueType const actuallyNum) :
             std::runtime_error(
-                    "Invalid number of childs in node " + nodeName + ". Required: " + requiredNum.toString() +
+                    "Invalid number of childs in node " + nodeName +
+                    ". Required: " + requiredNum.toString() +
                     ", present: " + std::to_string(actuallyNum))
     {}
 };
