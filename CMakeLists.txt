@@ -45,7 +45,7 @@ set(DUMMY include/creolization/details/Core/dummy.cpp)
 add_library(dummy_lib ${DUMMY})
 
 # Compile one header generator
-add_subdirectory (one_header_generator)
+add_subdirectory (misc/single_header_generator)
 
 # Generate one header file from all sources
 add_custom_target(run_one_header_generator ALL
