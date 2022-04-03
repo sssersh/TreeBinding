@@ -6,6 +6,7 @@
 #include <regex>
 #include <string>
 #include <set>
+#include <ostream>
 #include <fstream>
 #include <iostream>
 #include <experimental/filesystem>
@@ -13,6 +14,52 @@
 #include <tuple>
 
 namespace fs = std::experimental::filesystem;
+
+class logger_t
+{
+public:
+
+    logger_t() = default;
+
+    static void set_out_file(const std::string& log_file_name)
+    {
+        get_instance().out_file = decltype(out_file)(log_file_name);
+        get_instance().out_stream = &get_instance().out_file;
+    }
+
+    template<typename T1, typename... Ts>
+    static void write(T1&& arg1, Ts&& ...args)
+    {
+        get_instance() << arg1;
+        write(args...);
+    }
+
+    template<typename T>
+    static void write(T&& arg)
+    {
+        get_instance() << arg;
+    }
+
+private:
+
+    static logger_t& get_instance()
+    {
+        static logger_t instance;
+        return instance;
+    }
+
+    template<typename T>
+    std::ostream& operator<<(T&& str)
+    {
+        *out_stream << str;
+        return *out_stream;
+    }
+
+    std::ofstream out_file;
+    std::ostream* out_stream {&std::cout};
+};
+
+#define LOG(...) logger_t::write("[", __FUNCTION__, "] ", __VA_ARGS__, "\n")
 
 /*!
  * \brief Structure for represent source file as array of lines
@@ -147,11 +194,11 @@ void File::deleteFileDescription()
 }
 
 /*!
- * \brief Replace lines with "#single_include" in begin of file
+ * \brief Replace lines with "#include" in begin of file
  */
 void File::reprlaceInludes()
 {
-    const auto r = std::regex(R"((#single_include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
+    const auto r = std::regex(R"((#include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
     size_t size = lines.size();
 
     std::set<std::string> includes;
@@ -306,13 +353,13 @@ void Generator::readSrcFiles()
 }
 
 /*!
- * \brief Delete single_include of main source file
- * \details Find line "#single_include "srcDirName/mainFileName"" and delete it
+ * \brief Delete include of main source file
+ * \details Find line "#include "srcDirName/mainFileName"" and delete it
  */
 void Generator::deleteIncludeMainFile()
 {
     static const auto r = std::regex (
-            R"(#single_include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
+            R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
     for(auto &line : outFile.lines)
     {
         if(std::regex_match(line, r))
@@ -324,7 +371,7 @@ void Generator::deleteIncludeMainFile()
 
 /*!
  * \brief     Preprocess file
- * \details   Recursively replace line contained "#single_include "srcDirName{SLASH}*" with content of file.
+ * \details   Recursively replace line contained "#include "srcDirName{SLASH}*" with content of file.
  *            Multiply included of one file ignored.
  * \param[in] file Internal representation of file
  * \param[in] alreadyIncludedFiles Already included files (used rvalue reference because it's necessary to
@@ -333,7 +380,7 @@ void Generator::deleteIncludeMainFile()
 void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyIncludedFiles)
 {
     std::size_t size = file.lines.size();
-    static const auto r = std::regex ( R"(#single_include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
+    static const auto r = std::regex ( R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
 
     for(std::size_t i = 0; i < size; ++i)
     {
@@ -361,7 +408,7 @@ void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyInclud
 }
 
 /*!
- * \brief   Delete single_include guards from output file
+ * \brief   Delete include guards from output file
  * \details a. 1. Find line with "#ifndef *"
  *             2. If next line is "#define *" with same identificator,
  *                2.1 Delete these lines.
@@ -474,25 +521,31 @@ R"(/*!
  */
 int main(int argc, char* argv[])
 {
-    if(argc != 2) return -1;
+//    logger_t::set_out_file("single_header_genearator.log");
+
+    if(argc != 2)
+    {
+        LOG("Invalid number of single header generator arguments. Expected: 2, actually: ", argc);
+        return -1;
+    }
 
     try
     {
         Generator generator = {
             argv[1]      ,
-            "creolization"  ,
-            "creolization.h",
+            "include/creolization"  ,
+            "serializable_types.h",
             "single_include/creolization",
             OUT_FILE_TEMPLATE,
             CONTENT_LINE_INDEX
         };
         generator.generate();
-        std::cout << "Succesfully generate one header single_include file in directory " << argv[1] << std::endl;
+        std::cout << "Succesfully generate single header include file in directory " << argv[1] << std::endl;
         return 0;
     }
     catch(const std::exception& e)
     {
-        std::cout << "One header generator error: \n" << e.what();
+        std::cout << "Single header generator error: \n" << e.what();
         return -1;
     }
 }

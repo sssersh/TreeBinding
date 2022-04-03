@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.10.1)
 
 project(generator)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 set(SOURCES generator.cpp)
 set(EXE generator)
 
