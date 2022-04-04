@@ -12,6 +12,7 @@
 #include <experimental/filesystem>
 #include <stack>
 #include <tuple>
+#include <iomanip>
 
 namespace fs = std::experimental::filesystem;
 
@@ -59,7 +60,17 @@ private:
     std::ostream* out_stream {&std::cout};
 };
 
-#define LOG(...) logger_t::write("[", __FUNCTION__, "] ", __VA_ARGS__, "\n")
+#define LOG_FUNCITON_NAME_WIDTH 20
+
+#define LOG(...) logger_t::write(                                           \
+    "[",                                                                    \
+    std::setw(LOG_FUNCITON_NAME_WIDTH / 2 + strlen(__FUNCTION__) / 2),      \
+    __FUNCTION__ ,                                                          \
+    std::string((LOG_FUNCITON_NAME_WIDTH - strlen(__FUNCTION__)) / 2, ' '), \
+    "] ",                                                                   \
+    __VA_ARGS__,                                                            \
+    "\n"                                                                    \
+    )
 
 /*!
  * \brief Structure for represent source file as array of lines
@@ -307,6 +318,22 @@ Generator::Generator(const fs::path    &rootDir        ,
         }
     }
 
+    LOG("Created single header generator with parameters: ");
+    LOG("rootDir=", rootDir);
+    LOG("srcDirName=", srcDirName);
+    LOG("srcPath=", srcPath);
+    LOG("outDirPath=", outDirPath);
+    LOG("outFilePath=", outFilePath);
+    LOG("contentLineIndex=", contentLineIndex);
+    LOG("templateOutFile=");
+    LOG("=========================================");
+    LOG(templateOutFile);
+    LOG("=========================================");
+    LOG("srcFilesNames=");
+    for (size_t i = 0; i < srcFilesNames.size(); ++i)
+    {
+        LOG(i, ": ", srcFilesNames[i]);
+    }
 }
 
 /*!
@@ -314,6 +341,8 @@ Generator::Generator(const fs::path    &rootDir        ,
  */
 void Generator::generate()
 {
+    LOG("Start generate single header include file ", outFilePath);
+
     prepareOutDirAndFile();
     readSrcFiles();
     deleteIncludeMainFile();
@@ -323,6 +352,8 @@ void Generator::generate()
     outFile.reprlaceInludes();
     auto resultFile = insertOutFileInTemplate();
     resultFile.write(outFilePath);
+
+    LOG("Succesfully generate single header include file ", outFilePath);
 }
 
 /*!
@@ -332,8 +363,18 @@ void Generator::generate()
 void Generator::prepareOutDirAndFile() const
 {
     fs::remove_all(outDirPath);
+    LOG("Remove directory ", outDirPath);
+
     fs::create_directory(outDirPath);
+    LOG("Create directory ", outDirPath);
+
     std::ofstream fileStream(outFilePath, std::ofstream::trunc);
+    LOG("Create file ", outFilePath);
+    LOG("Current content of directory outDirPath:");
+    for (const auto & outDirEntry : fs::directory_iterator(outDirPath))
+    {
+        LOG(outDirEntry);
+    }
 }
 
 /*!
@@ -540,7 +581,6 @@ int main(int argc, char* argv[])
             CONTENT_LINE_INDEX
         };
         generator.generate();
-        std::cout << "Succesfully generate single header include file in directory " << argv[1] << std::endl;
         return 0;
     }
     catch(const std::exception& e)
