@@ -31,7 +31,7 @@ public:
     static void write(T1&& arg1, Ts&& ...args)
     {
         get_instance() << arg1;
-        write(args...);
+        write(std::forward<Ts>(args)...);
     }
 
     template<typename T>
