@@ -236,6 +236,7 @@ void File::reprlaceInludes()
 const File& File::operator+=(const File &rhs)
 {
     lines.insert(lines.end(), rhs.lines.begin(), rhs.lines.end());
+    LOG("Add ", rhs.lines.size(), " lines to file, now it contain ", lines.size() , " lines");
     return *this;
 }
 
@@ -249,10 +250,16 @@ const File& File::operator+=(const std::string &rhs)
     std::stringstream stream(rhs);
     std::string line;
 
+    size_t delta = 0;
+
     while(std::getline(stream, line))
     {
+        ++delta;
         lines.push_back(line);
     }
+
+    LOG("Add ", delta, " lines to file, now it contain ", lines.size() , " lines");
+
     return *this;
 }
 
@@ -332,7 +339,7 @@ Generator::Generator(const fs::path    &rootDir        ,
     LOG("srcFilesNames=");
     for (size_t i = 0; i < srcFilesNames.size(); ++i)
     {
-        LOG(i, ": ", srcFilesNames[i]);
+        LOG(i, ": ", srcFilesNames[i], (i ? "" : " (main file)"));
     }
 }
 
@@ -383,14 +390,18 @@ void Generator::prepareOutDirAndFile() const
 void Generator::readSrcFiles()
 {
     auto srcDirPath = rootDir / srcDirName;
+    LOG("Start read source files in path ", outDirPath);
     for(const auto& fileName : srcFilesNames)
     {
         auto srcPath = srcDirPath / fileName;
+
+        LOG("Read source file ", srcPath);
 
         outFile += "\n";
         outFile += File(srcPath);
         outFile += "\n";
     }
+    LOG("Finish read source files in path ", outDirPath, ", result file contain ", outFile.lines.size(), " lines");
 }
 
 /*!
@@ -399,12 +410,16 @@ void Generator::readSrcFiles()
  */
 void Generator::deleteIncludeMainFile()
 {
-    static const auto r = std::regex (
-            R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)" );
+    static const std::string pattern =
+            R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)";
+    static const auto r = std::regex(pattern);
+    LOG("Delete include of main file, search by pattern: ", pattern);
+
     for(auto &line : outFile.lines)
     {
         if(std::regex_match(line, r))
         {
+            LOG("Delete line with content \"", line, "\"");
             line.clear();
         }
     }
