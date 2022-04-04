@@ -41,6 +41,7 @@ else(CONAN_FOUND)
 endif()
 
 # Check, that origin sources are compilable
+include_directories(include)
 set(DUMMY include/creolization/details/Core/dummy.cpp)
 add_library(dummy_lib ${DUMMY})
 
@@ -48,7 +49,7 @@ add_library(dummy_lib ${DUMMY})
 add_subdirectory (misc/single_header_generator)
 
 # Generate one header file from all sources
-add_custom_target(run_one_header_generator ALL
+add_custom_target(run_single_header_generator ALL
         COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generator ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS generator
         )
@@ -75,5 +76,5 @@ message( STATUS "")
 message( STATUS "   Configuration: ${CMAKE_BUILD_TYPE}")
 message( STATUS "")
 
-# Include all directories to keep navigation in CLion in origin sources in folder TreeBindiing
+# Include all directories to keep navigation in CLion in origin sources in folder include
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
