@@ -29,14 +29,14 @@ public:
     }
 
     template<typename T1, typename... Ts>
-    static void write(T1&& arg1, Ts&& ...args)
+    static void write(const T1& arg1, const Ts& ...args)
     {
         get_instance() << arg1;
-        write(std::forward<Ts>(args)...);
+        write(args...);
     }
 
     template<typename T>
-    static void write(T&& arg)
+    static void write(const T& arg)
     {
         get_instance() << arg;
     }
