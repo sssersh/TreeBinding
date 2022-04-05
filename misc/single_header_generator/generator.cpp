@@ -410,18 +410,25 @@ void Generator::readSrcFiles()
  */
 void Generator::deleteIncludeMainFile()
 {
-    static const std::string pattern =
+    const std::string pattern =
             R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)";
-    static const auto r = std::regex(pattern);
+    const auto r = std::regex();
     LOG("Delete include of main file, search by pattern: ", pattern);
 
+    bool main_file_founded = false;
     for(auto &line : outFile.lines)
     {
         if(std::regex_match(line, r))
         {
+            main_file_founded = true;
             LOG("Delete line with content \"", line, "\"");
             line.clear();
         }
+    }
+
+    if (!main_file_founded)
+    {
+        LOG("Include of main file not founded");
     }
 }
 
