@@ -77,6 +77,7 @@ private:
  */
 struct File
 {
+    std::string filename;
     std::vector<std::string> lines; /*!< Lines */
 
     File() = default;
@@ -139,7 +140,8 @@ struct Utils
  * \brief File constructor
  * \param[in] path Path to file
  */
-File::File(const fs::path &path)
+File::File(const fs::path &path) :
+    filename(path.filename())
 {
     std::ifstream fileStream(path);
     std::string line;
@@ -147,6 +149,8 @@ File::File(const fs::path &path)
     while (std::getline(fileStream, line)) {
         lines.push_back(std::move(line));
     }
+
+    LOG("Read ", lines.size() ," lines from file ", filename);
 }
 
 /*!
@@ -377,7 +381,7 @@ void Generator::prepareOutDirAndFile() const
 
     std::ofstream fileStream(outFilePath, std::ofstream::trunc);
     LOG("Create file ", outFilePath);
-    LOG("Current content of directory outDirPath:");
+    LOG("Current content of directory ", outDirPath, ":");
     for (const auto & outDirEntry : fs::directory_iterator(outDirPath))
     {
         LOG(outDirEntry);
@@ -442,14 +446,23 @@ void Generator::deleteIncludeMainFile()
  */
 void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyIncludedFiles)
 {
-    std::size_t size = file.lines.size();
-    static const auto r = std::regex ( R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)" );
+    auto size = file.lines.size();
+    const std::string pattern = R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)";
+    const auto r = std::regex ( pattern );
 
+    LOG("Start preprocess file, now file contains ", size , " lines", (size ? ", already included files: " : "") );
+    for(const auto& i : alreadyIncludedFiles)
+    {
+        LOG("- ", i);
+    }
+
+    LOG("Start search include of files by pattern: ", pattern);
     for(std::size_t i = 0; i < size; ++i)
     {
         std::smatch includeMatch;
         if(std::regex_match(file.lines[i], includeMatch, r))
         {
+            LOG("Found include of file: ", file.lines[i]);
             bool notYetIncluded;
             std::tie(std::ignore, notYetIncluded) = alreadyIncludedFiles.insert(includeMatch[1].str());
             if(notYetIncluded)
@@ -457,17 +470,23 @@ void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyInclud
                 auto includeFilePath = rootDir / includeMatch[1].str();
                 auto includeFile = File(includeFilePath);
                 preprocessFile(includeFile, std::move(alreadyIncludedFiles));
+                LOG("Delete line ", file.lines[i], " from file ", includeFilePath.filename());
                 file.lines[i].erase();
                 file.insert(i, includeFile);
+                LOG("Add ", includeFile.lines.size(), " lines instead #include line, current size of file: ", includeFile.lines.size());
                 size += includeFile.lines.size() - 1; // -1 - erased line
             }
             else
             {
+                LOG("File ", includeMatch[1].str(), " already included, delete line: ", file.lines[i] );
                 file.lines[i].erase();
+                LOG("Current size of file: ", file.lines.size(), " lines");
                 size--;
             }
         }
     }
+    LOG("Finish search of included files");
+    LOG("End of preprocessing file");
 }
 
 /*!
