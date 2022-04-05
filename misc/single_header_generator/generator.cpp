@@ -60,7 +60,7 @@ private:
     std::ostream* out_stream {&std::cout};
 };
 
-#define LOG_FUNCITON_NAME_WIDTH 20
+#define LOG_FUNCITON_NAME_WIDTH 25
 
 #define LOG(...) logger_t::write(                                           \
     "[",                                                                    \
