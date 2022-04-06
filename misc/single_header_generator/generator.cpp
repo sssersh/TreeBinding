@@ -97,6 +97,7 @@ struct File
 struct Generator
 {
     Generator(const fs::path    &rootDir      ,
+              const std::string &projectName  ,
               const std::string &srcDirName   ,
               const std::string &srcFilesNames,
               const std::string &outDirName,
@@ -113,6 +114,7 @@ private:
     File insertOutFileInTemplate();
 
     fs::path                 rootDir         ; /*!< Path to creolization library root directory         */
+    std::string              projectName     ; /*!< Name of project                                     */
     std::string              srcDirName      ; /*!< Name of directory with creolization library sources */
     std::vector<std::string> srcFilesNames   ; /*!< Names of creolization library sources (first file used as
                                                     main file, others - just single_include main file and
@@ -281,6 +283,7 @@ void File::insert(const std::size_t position, const File &file)
  * \brief                      Generator constructor
  * \details                    Read filenames from srcDirName directory
  * \param[in] rootDir          Path to creolization library root directory
+ * \param[in] projectName      Name of project
  * \param[in] srcDirName       Name of directory with creolization library sources
  * \param[in] srcMainFileName  Names of creolization library main header
  * \param[in] outDirName       Output directory name
@@ -289,21 +292,23 @@ void File::insert(const std::size_t position, const File &file)
  */
 
 Generator::Generator(const fs::path    &rootDir        ,
+                     const std::string &projectName    ,
                      const std::string &srcDirName     ,
                      const std::string &srcMainFileName,
-                     const std::string &outDirName,
+                     const std::string &outDirName     ,
                      const std::string &templateOutFile,
                      const std::size_t  contentLineIndex) :
     rootDir(rootDir),
+    projectName(projectName),
     srcDirName(srcDirName),
-    outDirPath(rootDir / outDirName),
-    outFilePath(rootDir / outDirName / srcMainFileName),
+    outDirPath(rootDir / outDirName / projectName),
+    outFilePath(rootDir / outDirName / projectName / srcMainFileName),
     contentLineIndex(contentLineIndex)
 {
     this->templateOutFile += templateOutFile;
     srcFilesNames.push_back(srcMainFileName);
 
-    auto srcPath = rootDir / srcDirName;
+    auto srcPath = rootDir / srcDirName / projectName;
     // add .cpp files from all nested folders
     // Now library is one-header, ignore all cpp
     /*
@@ -331,6 +336,7 @@ Generator::Generator(const fs::path    &rootDir        ,
 
     LOG("Created single header generator with parameters: ");
     LOG("rootDir=", rootDir);
+    LOG("projectName=", projectName);
     LOG("srcDirName=", srcDirName);
     LOG("srcPath=", srcPath);
     LOG("outDirPath=", outDirPath);
@@ -393,7 +399,7 @@ void Generator::prepareOutDirAndFile() const
  */
 void Generator::readSrcFiles()
 {
-    auto srcDirPath = rootDir / srcDirName;
+    auto srcDirPath = rootDir / srcDirName / projectName;
     LOG("Start read source files in path ", outDirPath);
     for(const auto& fileName : srcFilesNames)
     {
@@ -615,9 +621,10 @@ int main(int argc, char* argv[])
     {
         Generator generator = {
             argv[1]      ,
-            "include/creolization"  ,
+            "creolization",
+            "include",
             "serializable_types.h",
-            "single_include/creolization",
+            "single_include",
             OUT_FILE_TEMPLATE,
             CONTENT_LINE_INDEX
         };
