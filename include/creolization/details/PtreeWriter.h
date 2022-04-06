@@ -6,8 +6,8 @@
 #ifndef _CREOLIZATION_PTREE_WRITER_H_
 #define _CREOLIZATION_PTREE_WRITER_H_
 
-#include "creolization/Details/Core/creolizationDecl.h"
-#include "creolization/Details/Core/Translator.h"
+#include "creolization/details/Core/TreeBindingDecl.h"
+#include "creolization/details/Core/Translator.h"
 
 namespace creolization
 {

@@ -14,8 +14,8 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
-#include "creolization/Details/Core/Translator.h"
-#include "creolization/Details/Core/creolizationDecl.h"
+#include "creolization/details/Core/Translator.h"
+#include "creolization/details/Core/TreeBindingDecl.h"
 
 namespace creolization
 {

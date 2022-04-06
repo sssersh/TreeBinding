@@ -6,7 +6,7 @@
 #ifndef _STRINGCONTAINER_H_
 #define _STRINGCONTAINER_H_
 
-#include "creolization/Details/Core/MacroUtils.h"
+#include "creolization/details/Core/MacroUtils.h"
 
 /*!
  * \brief     Build string container name

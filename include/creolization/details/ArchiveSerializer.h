@@ -7,7 +7,7 @@
 #define _CREOLIZATION_ARCHIVE_SERIALIZER_H_
 
 #include <boost/serialization/vector.hpp>
-#include "creolization/Details/ArchiveSerializerDecl.h"
+#include "creolization/details/ArchiveSerializerDecl.h"
 
 // Should be declared in global namespace
 #define CREOLIZATION_STRONG_TYPEDEF_SERIALIZE_DECLARATION(type)          \

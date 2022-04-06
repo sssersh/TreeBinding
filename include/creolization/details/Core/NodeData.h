@@ -6,10 +6,10 @@
 #ifndef _NODEDATA_H_
 #define _NODEDATA_H_
 
-#include "creolization/Details/Core/BasicNodeData.h"
-#include "creolization/Details/PtreeWriter.h"
-#include "creolization/Details/TableParser.h"
-#include "creolization/Details/Core/Exceptions.h"
+#include "creolization/details/Core/BasicNodeData.h"
+#include "creolization/details/PtreeWriter.h"
+#include "creolization/details/TableParser.h"
+#include "creolization/details/Core/Exceptions.h"
 
 namespace creolization
 {

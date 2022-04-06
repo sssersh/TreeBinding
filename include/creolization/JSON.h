@@ -7,7 +7,7 @@
 #define _JSON_H_
 
 #include <boost/property_tree/json_parser.hpp>
-#include "creolization/creolization.h"
+#include "creolization/serializable_types.h"
 
 namespace JSON
 {

@@ -6,7 +6,7 @@
 #ifndef _EXCEPTIONS_H
 #define _EXCEPTIONS_H
 
-#include "creolization/Details/Core/NodesNum.h"
+#include "creolization/details/Core/NodesNum.h"
 
 namespace creolization {
 

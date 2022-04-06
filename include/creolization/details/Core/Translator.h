@@ -8,7 +8,7 @@
 
 #include <type_traits>
 #include <string>
-#include "creolizationDecl.h"
+#include "TreeBindingDecl.h"
 
 namespace creolization
 {

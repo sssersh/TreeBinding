@@ -8,7 +8,7 @@
 
 #include <string>
 #include <type_traits>
-#include "creolization/Details/Core/Exceptions.h"
+#include "creolization/details/Core/Exceptions.h"
 
 namespace creolization
 {

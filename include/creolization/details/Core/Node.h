@@ -10,10 +10,10 @@
 //#single_include <string>
 //#single_include <cinttypes>
 //#single_include <type_traits>
-#include "creolization/Details/Core/creolizationDecl.h"
-#include "creolization/Details/Core/NodeData.h"
-#include "creolization/Details/Core/StringContainer.h"
-#include "creolization/Details/Core/MacroUtils.h"
+#include "creolization/details/Core/TreeBindingDecl.h"
+#include "creolization/details/Core/NodeData.h"
+#include "creolization/details/Core/StringContainer.h"
+#include "creolization/details/Core/MacroUtils.h"
 
 namespace creolization
 {

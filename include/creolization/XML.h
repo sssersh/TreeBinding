@@ -7,7 +7,7 @@
 #define _XML_H_
 
 #include <boost/property_tree/xml_parser.hpp>
-#include "creolization/creolization.h"
+#include "creolization/serializable_types.h"
 
 namespace XML
 {

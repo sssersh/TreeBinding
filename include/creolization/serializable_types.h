@@ -10,11 +10,11 @@
 #include <map>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/access.hpp>
-#include "creolization/Details/ArchiveSerializerDecl.h"
-#include "creolization/Details/Core/Node.h"
-#include "creolization/Details/Core/NodeIterator.h"
-#include "creolization/Details/Core/BasicTree.h"
-#include "creolization/Details/Core/Tree.h"
+#include "creolization/details/ArchiveSerializerDecl.h"
+#include "creolization/details/Core/Node.h"
+#include "creolization/details/Core/NodeIterator.h"
+#include "creolization/details/Core/BasicTree.h"
+#include "creolization/details/Core/Tree.h"
 
 namespace creolization
 {
@@ -80,9 +80,9 @@ struct NodesNum;
 
 } /* namespace data_binding */
 
-#include "creolization/Details/TableParser.h"
-#include "creolization/Details/PtreeWriter.h"
-#include "creolization/Details/ArchiveSerializer.h"
+#include "creolization/details/TableParser.h"
+#include "creolization/details/PtreeWriter.h"
+#include "creolization/details/ArchiveSerializer.h"
 
 
 
