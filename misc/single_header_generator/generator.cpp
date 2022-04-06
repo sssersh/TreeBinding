@@ -303,6 +303,7 @@ Generator::Generator(const fs::path    &rootDir        ,
     srcDirName(srcDirName),
     outDirPath(rootDir / outDirName / projectName),
     outFilePath(rootDir / outDirName / projectName / srcMainFileName),
+    outFile(outFilePath),
     contentLineIndex(contentLineIndex)
 {
     this->templateOutFile += templateOutFile;
@@ -421,8 +422,8 @@ void Generator::readSrcFiles()
 void Generator::deleteIncludeMainFile()
 {
     const std::string pattern =
-            R"(#include[ \t]+["])" + srcDirName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)";
-    const auto r = std::regex();
+            R"(#include[ \t]+["])" + projectName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)";
+    const auto r = std::regex(pattern);
     LOG("Delete include of main file, search by pattern: ", pattern);
 
     bool main_file_founded = false;
@@ -453,10 +454,11 @@ void Generator::deleteIncludeMainFile()
 void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyIncludedFiles)
 {
     auto size = file.lines.size();
-    const std::string pattern = R"(#include[ \t]+["]()" + srcDirName + R"([^"]+)["][ \t]*)";
+    const std::string pattern = R"(#include[ \t]+["]()" + projectName + R"([^"]+)["][ \t]*)";
     const auto r = std::regex ( pattern );
 
-    LOG("Start preprocess file, now file contains ", size , " lines", (size ? ", already included files: " : "") );
+    LOG("Start recursively preprocess file, now file contains ", size , " lines",
+        (alreadyIncludedFiles.size() ? ", already included files: " : "") );
     for(const auto& i : alreadyIncludedFiles)
     {
         LOG("- ", i);
@@ -473,22 +475,22 @@ void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyInclud
             std::tie(std::ignore, notYetIncluded) = alreadyIncludedFiles.insert(includeMatch[1].str());
             if(notYetIncluded)
             {
-                auto includeFilePath = rootDir / includeMatch[1].str();
+                auto includeFilePath = rootDir / srcDirName / includeMatch[1].str();
                 auto includeFile = File(includeFilePath);
                 preprocessFile(includeFile, std::move(alreadyIncludedFiles));
                 LOG("Delete line ", file.lines[i], " from file ", includeFilePath.filename());
                 file.lines[i].erase();
                 file.insert(i, includeFile);
-                LOG("Add ", includeFile.lines.size(), " lines instead #include line, current size of file: ", includeFile.lines.size());
+                LOG("Added ", includeFile.lines.size(), " lines instead #include line");
                 size += includeFile.lines.size() - 1; // -1 - erased line
             }
             else
             {
                 LOG("File ", includeMatch[1].str(), " already included, delete line: ", file.lines[i] );
                 file.lines[i].erase();
-                LOG("Current size of file: ", file.lines.size(), " lines");
                 size--;
             }
+            LOG("Current size of file ", file.filename, ": ", file.lines.size(), " lines");
         }
     }
     LOG("Finish search of included files");
