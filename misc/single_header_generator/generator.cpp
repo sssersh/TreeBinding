@@ -9,6 +9,7 @@
 #include <ostream>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <experimental/filesystem>
 #include <stack>
 #include <tuple>
@@ -89,6 +90,7 @@ struct File
     const File& operator+=(const File &rhs);
     const File& operator+=(const std::string &rhs);
     void insert(const std::size_t position, const File &file);
+    void clear();
 };
 
 /*!
@@ -96,13 +98,12 @@ struct File
  */
 struct Generator
 {
-    Generator(const fs::path    &rootDir      ,
-              const std::string &projectName  ,
-              const std::string &srcDirName   ,
-              const std::string &srcFilesNames,
-              const std::string &outDirName,
-              const std::string &templateOutFile,
-              const std::size_t  contentLineIndex);
+    Generator(const fs::path    &rootDir            ,
+              const std::string &projectName        ,
+              const std::string &srcDirName         ,
+              const std::string &srcFilesNames      ,
+              const std::string &outDirName         ,
+              const std::string &templateOutFilePath);
     void generate();
 
 private:
@@ -123,7 +124,6 @@ private:
     fs::path                 outFilePath     ; /*!< Path to out file */
     File                     outFile         ; /*!< Out file content */
     File                     templateOutFile ; /*!< Template of out file */
-    std::size_t              contentLineIndex; /*!< Index of line, where will be insert generated file */
 
     static const std::size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in srcFilesNames array */
 };
@@ -136,6 +136,7 @@ struct Utils
     static bool isBeginOfDoxygenComment(const std::string &str);
     static bool isDoxygenFileDescription(const std::string &str);
     static bool isEndOfComment(const std::string &str);
+    static void replaceAllOccurancies(File &file, const std::string &pattern, const std::string &replacer);
 };
 
 /*!
@@ -143,7 +144,7 @@ struct Utils
  * \param[in] path Path to file
  */
 File::File(const fs::path &path) :
-    filename(path.filename())
+    filename(path.string())
 {
     std::ifstream fileStream(path);
     std::string line;
@@ -242,7 +243,7 @@ void File::reprlaceInludes()
 const File& File::operator+=(const File &rhs)
 {
     lines.insert(lines.end(), rhs.lines.begin(), rhs.lines.end());
-    LOG("Add ", rhs.lines.size(), " lines to file, now it contain ", lines.size() , " lines");
+    LOG("Add ", rhs.lines.size(), " lines to file ", filename ,", now it contain ", lines.size() , " lines");
     return *this;
 }
 
@@ -264,7 +265,7 @@ const File& File::operator+=(const std::string &rhs)
         lines.push_back(line);
     }
 
-    LOG("Add ", delta, " lines to file, now it contain ", lines.size() , " lines");
+    LOG("Add ", delta, " lines to file ", filename ,", now it contain ", lines.size() , " lines");
 
     return *this;
 }
@@ -277,6 +278,16 @@ const File& File::operator+=(const std::string &rhs)
 void File::insert(const std::size_t position, const File &file)
 {
     lines.insert(lines.begin() + position, file.lines.begin(),file.lines.end());
+    LOG("Added ", file.lines.size(), " lines from file ", file.filename ," instead #include line");
+}
+
+/*!
+ * \brief Clear file
+ */
+void File::clear()
+{
+    lines.clear();
+    LOG("Clear file ", filename, ", now it contain ", lines.size(), " lines");
 }
 
 /*!
@@ -291,22 +302,20 @@ void File::insert(const std::size_t position, const File &file)
  * \param[in] contentLineIndex Index of line, where will be insert generated file
  */
 
-Generator::Generator(const fs::path    &rootDir        ,
-                     const std::string &projectName    ,
-                     const std::string &srcDirName     ,
-                     const std::string &srcMainFileName,
-                     const std::string &outDirName     ,
-                     const std::string &templateOutFile,
-                     const std::size_t  contentLineIndex) :
+Generator::Generator(const fs::path    &rootDir            ,
+                     const std::string &projectName        ,
+                     const std::string &srcDirName         ,
+                     const std::string &srcMainFileName    ,
+                     const std::string &outDirName         ,
+                     const std::string &templateOutFilePath) :
     rootDir(rootDir),
     projectName(projectName),
     srcDirName(srcDirName),
     outDirPath(rootDir / outDirName / projectName),
     outFilePath(rootDir / outDirName / projectName / srcMainFileName),
     outFile(outFilePath),
-    contentLineIndex(contentLineIndex)
+    templateOutFile(templateOutFilePath)
 {
-    this->templateOutFile += templateOutFile;
     srcFilesNames.push_back(srcMainFileName);
 
     auto srcPath = rootDir / srcDirName / projectName;
@@ -342,10 +351,12 @@ Generator::Generator(const fs::path    &rootDir        ,
     LOG("srcPath=", srcPath);
     LOG("outDirPath=", outDirPath);
     LOG("outFilePath=", outFilePath);
-    LOG("contentLineIndex=", contentLineIndex);
     LOG("templateOutFile=");
     LOG("=========================================");
-    LOG(templateOutFile);
+    for(const auto& line : templateOutFile.lines)
+    {
+        LOG(line);
+    }
     LOG("=========================================");
     LOG("srcFilesNames=");
     for (size_t i = 0; i < srcFilesNames.size(); ++i)
@@ -481,7 +492,6 @@ void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyInclud
                 LOG("Delete line ", file.lines[i], " from file ", includeFilePath.filename());
                 file.lines[i].erase();
                 file.insert(i, includeFile);
-                LOG("Added ", includeFile.lines.size(), " lines instead #include line");
                 size += includeFile.lines.size() - 1; // -1 - erased line
             }
             else
@@ -543,6 +553,9 @@ void Generator::deleteIncludeGuards()
 File Generator::insertOutFileInTemplate()
 {
     auto resultFile = File();
+
+
+
     resultFile += templateOutFile;
     resultFile.insert(contentLineIndex, outFile);
     return resultFile;
@@ -584,27 +597,25 @@ bool Utils::isEndOfComment(const std::string &str)
     return std::regex_match(str, r);
 }
 
-/*!
- * \brief Index of line, where will be insert generated file
- */
-static const std::size_t CONTENT_LINE_INDEX = 8;
+void Utils::replaceAllOccurancies(File &file, const std::string &pattern, const std::string &replacer)
+{
+    const auto r = std::regex ( pattern  );
+    std::smatch match;
 
-/*!
- * \brief Template of out file
- */
-static const std::string OUT_FILE_TEMPLATE =
-R"(/*!
- *  \file creolization.h
- *  \brief TODO
- */
-
-#ifndef _CREOLIZATION_H_
-#define _CREOLIZATION_H_
-
-
-#endif /* _CREOLIZATION_H_ */
-
-)";
+    for(auto &line : file.lines)
+    {
+        if(std::regex_match(line, match, r)) {
+            std::ostringstream ostream;
+            std::regex_replace(
+                std::ostreambuf_iterator<char>(ostream),
+                line.begin(),
+                line.end(),
+                r,
+                replacer);
+            line = ostream.str();
+        }
+    }
+}
 
 /*!
  * \brief Main function
@@ -627,8 +638,7 @@ int main(int argc, char* argv[])
             "include",
             "serializable_types.h",
             "single_include",
-            OUT_FILE_TEMPLATE,
-            CONTENT_LINE_INDEX
+            "output.template"
         };
         generator.generate();
         return 0;
