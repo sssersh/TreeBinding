@@ -1,0 +1,2 @@
+project(gtest_generator)
+

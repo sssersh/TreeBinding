@@ -4,7 +4,6 @@
 # Build file for the tests
 #
 
-cmake_minimum_required(VERSION 3.10.1)
 set(TEST_PROJECT_NAME tests)
 project(${TEST_PROJECT_NAME} CXX)
 

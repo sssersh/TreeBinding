@@ -2,13 +2,12 @@
 # Build one header generator and run it
 #
 
-cmake_minimum_required(VERSION 3.10.1)
+project(single_header_generator)
 
-project(generator)
-
-set(CMAKE_BUILD_TYPE Debug)
-
-set(SOURCES generator.cpp)
+set(SOURCES
+    file.cpp
+    generator.cpp
+)
 set(EXE generator)
 
 add_executable(${EXE} ${SOURCES})

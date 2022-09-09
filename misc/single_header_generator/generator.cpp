@@ -10,12 +10,11 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <experimental/filesystem>
 #include <stack>
 #include <tuple>
 #include <iomanip>
 
-namespace fs = std::experimental::filesystem;
+#include "file.h"
 
 class logger_t
 {
@@ -74,26 +73,6 @@ private:
     )
 
 /*!
- * \brief Structure for represent source file as array of lines
- */
-struct File
-{
-    std::string filename;
-    std::vector<std::string> lines; /*!< Lines */
-
-    File() = default;
-    File(const fs::path &path);
-    std::string toString() const;
-    void write(const fs::path &path) const;
-    void deleteFileDescription();
-    void reprlaceInludes();
-    const File& operator+=(const File &rhs);
-    const File& operator+=(const std::string &rhs);
-    void insert(const std::size_t position, const File &file);
-    void clear();
-};
-
-/*!
  * \brief Generator implementation
  */
 struct Generator
@@ -110,9 +89,9 @@ private:
     void prepareOutDirAndFile() const;
     void readSrcFiles();
     void deleteIncludeMainFile();
-    void preprocessFile(File &file, std::set<std::string> &&alreadyIncludedFiles = {});
+    void preprocessFile(file_t &file, std::set<std::string> &&alreadyIncludedFiles = {});
     void deleteIncludeGuards();
-    File insertOutFileInTemplate();
+    file_t insertOutFileInTemplate();
 
     fs::path                 rootDir         ; /*!< Path to creolization library root directory         */
     std::string              projectName     ; /*!< Name of project                                     */
@@ -122,8 +101,8 @@ private:
                                                     and redefine macro from main file) */
     fs::path                 outDirPath      ; /*!< Output directory name */
     fs::path                 outFilePath     ; /*!< Path to out file */
-    File                     outFile         ; /*!< Out file content */
-    File                     templateOutFile ; /*!< Template of out file */
+    file_t                     outFile         ; /*!< Out file content */
+    file_t                     templateOutFile ; /*!< Template of out file */
 
     static const std::size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in srcFilesNames array */
 };
@@ -138,157 +117,6 @@ struct Utils
     static bool isEndOfComment(const std::string &str);
     static void replaceAllOccurancies(File &file, const std::string &pattern, const std::string &replacer);
 };
-
-/*!
- * \brief File constructor
- * \param[in] path Path to file
- */
-File::File(const fs::path &path) :
-    filename(path.string())
-{
-    std::ifstream fileStream(path);
-    std::string line;
-
-    while (std::getline(fileStream, line)) {
-        lines.push_back(std::move(line));
-    }
-
-    LOG("Read ", lines.size() ," lines from file ", filename);
-}
-
-/*!
- * \brief Convert file to one string
- */
-std::string File::toString() const
-{
-    std::string result;
-    for(const auto &line : lines)
-    {
-        result += line + "\n";
-    }
-    return result;
-}
-
-/*!
- * \brief Write file to path
- * \param[in] path Path to file
- */
-void File::write(const fs::path &path) const
-{
-    std::ofstream fileStream(path, std::ofstream::trunc);
-    fileStream << toString();
-}
-
-/*!
- * \brief   Delete file description in Doxygen format
- * \details 1. Find line with "{SLASH}*!"
- *          2. Find line with "\file"
- *          3. Find line with "*\/"
- *          4. Delete
- */
-void File::deleteFileDescription()
-{
-    std::size_t begin = 0, size;
-    bool isFileDescription = false;
-
-    size = lines.size();
-    for(std::size_t i = 0; i < size; ++i)
-    {
-        if(Utils::isBeginOfDoxygenComment(lines[i]))
-        {
-            begin = i;
-        }
-        isFileDescription = isFileDescription || Utils::isDoxygenFileDescription(lines[i]);
-        if(Utils::isEndOfComment(lines[i]))
-        {
-            if(isFileDescription)
-            {
-                lines.erase(lines.cbegin() + begin, lines.cbegin() + i + 1);
-                size -= i - begin + 1;
-                isFileDescription = false;
-            }
-        }
-    }
-}
-
-/*!
- * \brief Replace lines with "#include" in begin of file
- */
-void File::reprlaceInludes()
-{
-    const auto r = std::regex(R"((#include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
-    size_t size = lines.size();
-
-    std::set<std::string> includes;
-    std::smatch match;
-
-    for(size_t i = 0; i < size; ++i)
-    {
-        if(std::regex_match(lines[i], match, r))
-        {
-            includes.insert(match[1]);
-            lines[i].erase();
-            --i;
-        }
-    }
-
-    lines.insert(lines.begin(), includes.begin(), includes.end());
-}
-
-/*!
- * \brief Concatenate files
- * \param[in] rhs Right hand side file
- * \return    Result file
- */
-const File& File::operator+=(const File &rhs)
-{
-    lines.insert(lines.end(), rhs.lines.begin(), rhs.lines.end());
-    LOG("Add ", rhs.lines.size(), " lines to file ", filename ,", now it contain ", lines.size() , " lines");
-    return *this;
-}
-
-/*!
- * \brief Add string to end of file
- * \param[in] rhs Added string
- * \return    Result file
- */
-const File& File::operator+=(const std::string &rhs)
-{
-    std::stringstream stream(rhs);
-    std::string line;
-
-    size_t delta = 0;
-
-    while(std::getline(stream, line))
-    {
-        ++delta;
-        lines.push_back(line);
-    }
-
-    LOG("Add ", delta, " lines to file ", filename ,", now it contain ", lines.size() , " lines");
-
-    return *this;
-}
-
-/*!
- * \brief Insert file to position
- * \param[in] position Position for insert
- * \param[in] file     Inserted file
- */
-void File::insert(const std::size_t position, const File &file)
-{
-    lines.insert(lines.begin() + position, file.lines.begin(),file.lines.end());
-    LOG("Added ", file.lines.size(), " lines from file ", file.filename ," instead #include line");
-}
-
-/*!
- * \brief Clear file
- */
-void File::clear()
-{
-    lines.clear();
-    LOG("Clear file ", filename, ", now it contain ", lines.size(), " lines");
-}
 
 /*!
  * \brief                      Generator constructor
