@@ -5,7 +5,8 @@
 
 namespace fs = std::experimental::filesystem;
 
-namespace one_header_gen {
+namespace one_header_gen
+{
 
 /*!
  * \brief Structure for represent source file as array of lines

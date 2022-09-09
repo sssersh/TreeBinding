@@ -5,6 +5,7 @@
 project(single_header_generator)
 
 set(SOURCES
+    logger.cpp
     file.cpp
     generator.cpp
 )

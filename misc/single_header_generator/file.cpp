@@ -1,4 +1,5 @@
 
+#include "logger.h"
 #include "file.h"
 
 namespace one_header_gen {
