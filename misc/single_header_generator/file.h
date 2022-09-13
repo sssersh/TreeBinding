@@ -27,9 +27,9 @@ struct file_t {
 
     void reprlaceInludes();
 
-    const file_t &operator+=(const file_t &rhs);
+    const file_t& operator+=(const file_t &rhs);
 
-    const file_t &operator+=(const std::string &rhs);
+    const file_t& operator+=(const std::string &rhs);
 
     void insert(const std::size_t position, const file_t &file);
 

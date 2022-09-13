@@ -1,9 +1,11 @@
-//
-// Created by sersh on 09.09.2022.
-//
 
 #ifndef _LOGGER_H_
 #define _LOGGER_H_
+
+#include <string>
+#include <ostream>
+#include <fstream>
+#include <iostream>
 
 namespace one_header_gen {
 

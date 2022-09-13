@@ -20,8 +20,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wpedantic -Werror")
 endif()
 
-include(${CMAKE_SOURCE_DIR}/cmake/check_and_install_dependencies.cmake)
-
 # Now not used
 #if (ENABLE_COVERAGE)
 #    message("Enable coverage")
@@ -29,17 +27,43 @@ include(${CMAKE_SOURCE_DIR}/cmake/check_and_install_dependencies.cmake)
 #    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 #endif()
 
+# install dependencies for tests
 if (WITH_TESTS)
-    check_and_install_dependencies()
+    # BE CAREFUL WITH MIX CONAN LIB AND INSTALLED IN SYSTEM !!!
+#    find_package(GTest)
+#    find_package(Boost) # TODO: only COMPONENTS XXX wich is necessary
+
+    if (NOT GoogleTest_FOUND OR NOT Boost_FOUND)
+        message(STATUS "Some packages not found, install it by conan")
+        find_program(conan_FOUND conan)
+        if(conan_FOUND)
+            execute_process(
+                    COMMAND conan install ${CMAKE_SOURCE_DIR} -s build_type=${CMAKE_BUILD_TYPE} --build=missing
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                    RESULTS_VARIABLE GENERATOR_RETURN
+                    OUTPUT_VARIABLE GENERATOR_OUTPUT
+            )
+            include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+            conan_basic_setup()
+            message(STATUS "HERE ${CONAN_INCLUDE_DIRS}")
+            set(TEST_LIBS "${CONAN_LIBS}")
+            set(TEST_INCLUDE_DIR ${CONAN_INCLUDE_DIRS})
+        else(conan_FOUND)
+            # TODO1: pass path to libraries
+            message(FATAL_ERROR "Error: conan command not found!")
+        endif()
+    endif()
+
+    enable_testing()
 endif()
+
+# Compile one header generator
+add_subdirectory (misc/single_header_generator)
 
 # Check, that origin sources are compilable
 #include_directories(include)
 #set(DUMMY include/creolization/details/Core/dummy.cpp)
 #add_library(dummy_lib ${DUMMY})
-
-# Compile one header generator
-#add_subdirectory (misc/single_header_generator)
 
 # Generate one header file from all sources
 #add_custom_target(run_single_header_generator ALL
@@ -53,10 +77,10 @@ endif()
 #    ${INCLUDES}
 #    ${INCLUDE_DIR}/creolization.h
 #)
-#
+
 #set(TEST_DIR tests)
 #
-#if(BUILD_TESTS)
+#if(WITH_TESTS)
 #    enable_testing()
 #    add_subdirectory (${TEST_DIR})
 #endif()
@@ -70,4 +94,4 @@ endif()
 #message( STATUS "")
 
 # Include all directories to keep navigation in CLion in origin sources in folder include
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
