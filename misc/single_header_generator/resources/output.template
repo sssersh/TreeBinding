@@ -1,0 +1,11 @@
+/*!
+ *  \file  @FILENAME@
+ *  \brief TODO1
+ */
+
+#ifndef @GUARD_NAME@
+#define @GUARD_NAME@
+
+@CONTENT@
+
+#endif /* @GUARD_NAME@ */

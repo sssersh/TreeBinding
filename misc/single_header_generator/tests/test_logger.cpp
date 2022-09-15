@@ -25,5 +25,3 @@ TEST_F(LoggerTest, CreateFile)
 
     ASSERT_TRUE(std::experimental::filesystem::exists(LoggerTest::filename()));
 }
-
-
