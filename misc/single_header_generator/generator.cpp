@@ -151,9 +151,9 @@ void Generator::generate()
     readSrcFiles();
     deleteIncludeMainFile();
     preprocessFile(outFile);
-    outFile.deleteFileDescription();
+    outFile.delete_file_description();
     deleteIncludeGuards();
-    outFile.reprlaceInludes();
+    outFile.move_includes();
     auto resultFile = insertOutFileInTemplate();
     resultFile.write(outFilePath);
 

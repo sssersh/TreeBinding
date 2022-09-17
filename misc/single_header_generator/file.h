@@ -19,13 +19,13 @@ struct file_t {
 
     file_t(const fs::path &path);
 
-    std::string toString() const;
+    std::string to_string() const;
 
     void write(const fs::path &path) const;
 
-    void deleteFileDescription();
+    void delete_file_description();
 
-    void reprlaceInludes();
+    void move_includes();
 
     const file_t& operator+=(const file_t &rhs);
 

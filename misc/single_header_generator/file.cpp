@@ -25,7 +25,7 @@ file_t::file_t(const fs::path &path) :
 /*!
  * \brief Convert file to one string
  */
-std::string file_t::toString() const
+std::string file_t::to_string() const
 {
     std::string result;
     for (const auto &line: lines)
@@ -42,7 +42,7 @@ std::string file_t::toString() const
 void file_t::write(const fs::path &path) const
 {
     std::ofstream fileStream(path, std::ofstream::trunc);
-    fileStream << toString();
+    fileStream << to_tring();
 }
 
 /*!
@@ -52,7 +52,7 @@ void file_t::write(const fs::path &path) const
  *          3. Find line with "*\/"
  *          4. Delete
  */
-void file_t::deleteFileDescription()
+void file_t::delete_file_description()
 {
     std::size_t begin = 0, size;
     bool isFileDescription = false;
@@ -77,9 +77,9 @@ void file_t::deleteFileDescription()
 }
 
 /*!
- * \brief Replace lines with "#include" in begin of file
+ * \brief Move lines with "#include" to begin of file
  */
-void file_t::reprlaceInludes() {
+void file_t::move_includes() {
     const auto r = std::regex(R"((#include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
     size_t size = lines.size();
 
