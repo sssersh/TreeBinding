@@ -16,7 +16,7 @@
 
 #include "logger.h"
 #include "file.h"
-
+#include "utils.h
 
 
 /*!
@@ -52,17 +52,6 @@ private:
     file_t                     templateOutFile ; /*!< Template of out file */
 
     static const std::size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in srcFilesNames array */
-};
-
-/*!
- * \brief Auxillary utilites
- */
-struct Utils
-{
-    static bool isBeginOfDoxygenComment(const std::string &str);
-    static bool isDoxygenFileDescription(const std::string &str);
-    static bool isEndOfComment(const std::string &str);
-    static void replaceAllOccurancies(File &file, const std::string &pattern, const std::string &replacer);
 };
 
 /*!
@@ -334,62 +323,6 @@ File Generator::insertOutFileInTemplate()
     resultFile += templateOutFile;
     resultFile.insert(contentLineIndex, outFile);
     return resultFile;
-}
-
-/*!
- * \brief Determine, line contain start of Doxygen comment or not ("{SLASH}*!")
- * \param[in] str Line from source file
- * \retval true  Line contain start of Doxygen comment
- * \retval false Otherwise
- */
-bool Utils::isBeginOfDoxygenComment(const std::string &str)
-{
-    static const auto r = std::regex ( R"(.*/\*!.*)" );
-    return std::regex_match(str, r);
-}
-
-/*!
- * \brief Determine, line contain Doxygen tag "file" or not
- * \param[in] str Line from source file
- * \retval true  Line contain Doxygen tag "file"
- * \retval false Otherwise
- */
-bool Utils::isDoxygenFileDescription(const std::string &str)
-{
-    static const auto r = std::regex ( R"(.*\\file.*)" );
-    return std::regex_match(str, r);
-}
-
-/*!
- * \brief Determine, line contain end of multiply line comment or not ("*\/")
- * \param[in] str Line from source file
- * \retval true  Line contain end of multiply line comment
- * \retval false Otherwise
- */
-bool Utils::isEndOfComment(const std::string &str)
-{
-    static const auto r = std::regex ( R"(.*\*/.*)" );
-    return std::regex_match(str, r);
-}
-
-void Utils::replaceAllOccurancies(File &file, const std::string &pattern, const std::string &replacer)
-{
-    const auto r = std::regex ( pattern  );
-    std::smatch match;
-
-    for(auto &line : file.lines)
-    {
-        if(std::regex_match(line, match, r)) {
-            std::ostringstream ostream;
-            std::regex_replace(
-                std::ostreambuf_iterator<char>(ostream),
-                line.begin(),
-                line.end(),
-                r,
-                replacer);
-            line = ostream.str();
-        }
-    }
 }
 
 /*!

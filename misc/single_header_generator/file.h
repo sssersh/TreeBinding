@@ -16,21 +16,17 @@ struct file_t {
     std::vector<std::string> lines; /*!< Lines */
 
     file_t() = default;
-
     file_t(const fs::path &path);
 
     std::string to_string() const;
-
     void write(const fs::path &path) const;
 
     void delete_file_description();
-
     void move_includes();
+    void replace_all_occurancies(const std::string &pattern, const std::string &replacer);
 
     const file_t& operator+=(const file_t &rhs);
-
     const file_t& operator+=(const std::string &rhs);
-
     void insert(const std::size_t position, const file_t &file);
 
     void clear();

@@ -1,6 +1,7 @@
 
 #include "logger.h"
 #include "file.h"
+#include "utils.h"
 
 namespace one_header_gen {
 
@@ -59,12 +60,12 @@ void file_t::delete_file_description()
 
     size = lines.size();
     for (std::size_t i = 0; i < size; ++i) {
-        if (Utils::isBeginOfDoxygenComment(lines[i]))
+        if (utils::is_begin_of_doxygen_comment(lines[i]))
         {
             begin = i;
         }
-        isFileDescription = isFileDescription || Utils::isDoxygenFileDescription(lines[i]);
-        if (Utils::isEndOfComment(lines[i]))
+        isFileDescription = isFileDescription || utils::is_doxygen_description(lines[i]);
+        if (utils::is_end_of_comment(lines[i]))
         {
             if (isFileDescription)
             {
@@ -95,6 +96,26 @@ void file_t::move_includes() {
     }
 
     lines.insert(lines.begin(), includes.begin(), includes.end());
+}
+
+void file_t::replace_all_occurancies(const std::string &pattern, const std::string &replacer)
+{
+    const auto r = std::regex ( pattern  );
+    std::smatch match;
+
+    for(auto &line : lines)
+    {
+        if(std::regex_match(line, match, r)) {
+            std::ostringstream ostream;
+            std::regex_replace(
+                    std::ostreambuf_iterator<char>(ostream),
+                    line.begin(),
+                    line.end(),
+                    r,
+                    replacer);
+            line = ostream.str();
+        }
+    }
 }
 
 /*!

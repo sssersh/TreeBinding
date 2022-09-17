@@ -148,3 +148,8 @@ TEST_F(generator_file_test, move_includes)
     file_str.resize(2 * include_str.size() + sizeof('\n'));
     ASSERT_EQ(file_str, include_str + '\n' + include_str);
 }
+
+TEST_F(generator_file_test, replace_all_occurancies)
+{
+    TODO
+}
