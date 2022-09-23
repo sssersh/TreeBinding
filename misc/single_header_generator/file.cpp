@@ -3,6 +3,9 @@
 #include "file.h"
 #include "utils.h"
 
+#include <regex>
+#include <set>
+
 namespace one_header_gen {
 
 /*!
@@ -17,10 +20,22 @@ file_t::file_t(const fs::path &path) :
 
     while (std::getline(fileStream, line))
     {
-        lines.push_back(std::move(line));
+        lines.emplace_back(std::move(line));
     }
 
     LOG("Read ", lines.size(), " lines from file ", filename);
+}
+
+file_t::file_t(const std::string &str)
+{
+    std::istringstream stream(str);
+    std::string line;
+    while(std::getline(stream, line))
+    {
+        lines.emplace_back(std::move(line));
+    }
+
+    LOG("Read ", lines.size(), " lines from string");
 }
 
 /*!
@@ -43,7 +58,7 @@ std::string file_t::to_string() const
 void file_t::write(const fs::path &path) const
 {
     std::ofstream fileStream(path, std::ofstream::trunc);
-    fileStream << to_tring();
+    fileStream << to_string();
 }
 
 /*!
@@ -168,4 +183,10 @@ void file_t::clear() {
     LOG("Clear file ", filename, ", now it contain ", lines.size(), " lines");
 }
 
+bool operator==(const one_header_gen::file_t& lhs, const one_header_gen::file_t& rhs)
+{
+    return lhs.lines == rhs.lines;
+}
+
 } // namespace one_header_gen
+

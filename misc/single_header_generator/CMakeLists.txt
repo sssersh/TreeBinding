@@ -2,18 +2,16 @@
 # Build one header generator and run it
 #
 
-project(single_header_generator)
+project(generator)
+
+set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
     file.cpp
 #    generator.cpp
 )
-set(EXE generator)
 
-add_executable(${EXE} ${SOURCES})
-
-# stdc++fs - lib for std::experimental::filesystem
-target_link_libraries(${EXE} stdc++fs)
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 if (WITH_TESTS)
     add_subdirectory(tests)

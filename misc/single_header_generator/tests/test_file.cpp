@@ -3,17 +3,20 @@
 
 #include <gtest/gtest.h>
 
+#include <string>
+#include <fstream>
 #include <memory>
+#include <algorithm>
 
 using namespace one_header_gen;
 
 class generator_file_test : public testing::Test
 {
 public:
-    const std::string& test_file_name()
+    const fs::path& test_file_path()
     {
-        static const std::string str = "test_out_file.txt";
-        return str;
+        static const fs::path path = "test_out_file.txt";
+        return path;
     }
 
     std::string test_file =
@@ -33,16 +36,18 @@ R"(/*
 
 TEST_F(generator_file_test, create_file)
 {
-    ASSERT_NO_THROW(file_t());
-    ASSERT_NO_THROW(file_t(generator_file_test::test_file_name()));
+    ASSERT_NO_THROW(file_t{});
+    ASSERT_NO_THROW(file_t{generator_file_test::test_file_path()});
+    ASSERT_NO_THROW(file_t{std::string{"String"}});
 
     file_t empty_file;
     ASSERT_TRUE(empty_file.to_string().empty());
 
-    std::ofstream raw_file {test_file_name()};
+    std::ofstream raw_file {test_file_path(), std::ios::out | std::ios::binary};
     raw_file << test_file;
+    raw_file.flush();
 
-    file_t file {test_file_name()};
+    file_t file { test_file_path() };
     ASSERT_EQ(file.to_string(), test_file);
 }
 
@@ -67,11 +72,14 @@ TEST_F(generator_file_test, write)
 {
     file_t file;
     file += test_file;
-    file.write(test_file_name());
+    file.write(test_file_path());
 
-    std::string raw_file_string;
-    std::ifstream raw_file {test_file_name()};
-    raw_file >> raw_file_string;
+    std::string raw_file_string, line;
+    std::ifstream raw_file {test_file_path()};
+    while(std::getline(raw_file, line))
+    {
+        raw_file_string += line + "\n";
+    }
 
     ASSERT_EQ(file.to_string(), raw_file_string);
 }
@@ -87,7 +95,11 @@ TEST_F(generator_file_test, insert)
     file.clear();
 
     file += test_file;
-    auto lines_num = test_file.count() ???
+    auto lines_num = 1 +
+        std::count_if(
+            test_file.cbegin(),
+            test_file.cend(),
+            [](char symbol) { return symbol == '\n'; });
     file.insert(lines_num, inserted_file);
     ASSERT_EQ(file.to_string(), test_file + test_file_description);
     file.clear();
@@ -101,13 +113,13 @@ String 3
     inserted_file.clear();
     inserted_file += "String 4";
     file.insert(1, inserted_file);
-    ASSERT_EQ(file,
-R"(
+    ASSERT_EQ(file, file_t(
+std::string(R"(
 String 1
 String 4
 String 2
 String 3
-)");
+)")));
 }
 
 TEST_F(generator_file_test, delete_description)
@@ -138,9 +150,9 @@ TEST_F(generator_file_test, move_includes)
     file_t file;
     std::string include_str = "#include <test>";
 
-    file += test_file
+    file += test_file;
     file += include_str;
-    file += test_file
+    file += test_file;
     file += include_str;
     file.move_includes();
 
@@ -149,7 +161,7 @@ TEST_F(generator_file_test, move_includes)
     ASSERT_EQ(file_str, include_str + '\n' + include_str);
 }
 
-TEST_F(generator_file_test, replace_all_occurancies)
-{
-    TODO
-}
+//TEST_F(generator_file_test, replace_all_occurancies)
+//{
+//    TODO
+//}

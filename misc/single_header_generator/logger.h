@@ -7,6 +7,8 @@
 #include <ostream>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
+#include <cstring>
 
 namespace one_header_gen {
 
@@ -56,14 +58,14 @@ private:
 
 #define LOG_FUNCITON_NAME_WIDTH 25
 
-#define LOG(...) logger_t::write(                                           \
-    "[",                                                                    \
-    std::setw(LOG_FUNCITON_NAME_WIDTH / 2 + strlen(__FUNCTION__) / 2),      \
-    __FUNCTION__ ,                                                          \
-    std::string((LOG_FUNCITON_NAME_WIDTH - strlen(__FUNCTION__)) / 2, ' '), \
-    "] ",                                                                   \
-    __VA_ARGS__,                                                            \
-    "\n"                                                                    \
+#define LOG(...) logger_t::write(                                                \
+    "[",                                                                         \
+    std::setw(LOG_FUNCITON_NAME_WIDTH / 2 + std::strlen(__FUNCTION__) / 2),      \
+    __FUNCTION__ ,                                                               \
+    std::string((LOG_FUNCITON_NAME_WIDTH - std::strlen(__FUNCTION__)) / 2, ' '), \
+    "] ",                                                                        \
+    __VA_ARGS__,                                                                 \
+    "\n"                                                                         \
     )
 
 #endif // _LOGGER_H_

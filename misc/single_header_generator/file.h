@@ -17,6 +17,7 @@ struct file_t {
 
     file_t() = default;
     file_t(const fs::path &path);
+    file_t(const std::string &lines);
 
     std::string to_string() const;
     void write(const fs::path &path) const;
@@ -30,7 +31,10 @@ struct file_t {
     void insert(const std::size_t position, const file_t &file);
 
     void clear();
+    friend bool operator==(const one_header_gen::file_t& lhs, const one_header_gen::file_t& rhs);
 };
+
+bool operator==(const one_header_gen::file_t& lhs, const one_header_gen::file_t& rhs);
 
 } // namespace one_header_gen
 

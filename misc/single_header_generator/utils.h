@@ -2,6 +2,8 @@
 #ifndef _CREOLIZATION_UTILS_H_
 #define _CREOLIZATION_UTILS_H_
 
+#include <string>
+
 namespace one_header_gen::utils
 {
 
@@ -18,11 +20,7 @@ bool is_begin_of_doxygen_comment(const std::string &str);
  * \retval true  Line contain Doxygen tag "file"
  * \retval false Otherwise
  */
-bool is_doxygen_description(const std::string &str)
-{
-    static const auto r = std::regex ( R"(.*\\file.*)" );
-    return std::regex_match(str, r);
-}
+bool is_doxygen_description(const std::string &str);
 
 /*!
  * \brief Determine, line contain end of multiply line comment or not ("*\/")
@@ -30,11 +28,7 @@ bool is_doxygen_description(const std::string &str)
  * \retval true  Line contain end of multiply line comment
  * \retval false Otherwise
  */
-bool is_end_of_comment(const std::string &str)
-{
-    static const auto r = std::regex ( R"(.*\*/.*)" );
-    return std::regex_match(str, r);
-}
+bool is_end_of_comment(const std::string &str);
 
 } // namespace one_header_gen::utils
 

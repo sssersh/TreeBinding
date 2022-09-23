@@ -4,11 +4,16 @@ include(GoogleTest)
 
 set(GENERATOR_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(SOURCES
-        test_logger.cpp
-#    file_unit.cpp
+    test_logger.cpp
+    test_file.cpp
     )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
+    ${GENERATOR_SRC_DIR}/file.cpp
+#    ${GENERATOR_SRC_DIR}/generator.cpp
+    ${GENERATOR_SRC_DIR}/utils.cpp
+)
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
@@ -16,7 +21,11 @@ target_include_directories(${PROJECT_NAME}
     ${TEST_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${LIBS} ${CONAN_LIBS} -lstdc++fs)
+target_link_libraries(${PROJECT_NAME}
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${LIBS}
+    ${CONAN_LIBS}
+    -lstdc++fs)
 
 #    ${CMAKE_THREAD_LIBS_INIT}
 
