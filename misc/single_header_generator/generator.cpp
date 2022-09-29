@@ -5,7 +5,6 @@
 
 #include <regex>
 #include <string>
-#include <set>
 #include <ostream>
 #include <fstream>
 #include <iostream>
@@ -15,74 +14,30 @@
 #include <iomanip>
 
 #include "logger.h"
-#include "file.h"
-#include "utils.h
+#include "utils.h"
+#include "generator.h"
 
-
-/*!
- * \brief Generator implementation
- */
-struct Generator
+namespace one_header_gen
 {
-    Generator(const fs::path    &rootDir            ,
-              const std::string &projectName        ,
-              const std::string &srcDirName         ,
-              const std::string &srcFilesNames      ,
-              const std::string &outDirName         ,
-              const std::string &templateOutFilePath);
-    void generate();
-
-private:
-    void prepareOutDirAndFile() const;
-    void readSrcFiles();
-    void deleteIncludeMainFile();
-    void preprocessFile(file_t &file, std::set<std::string> &&alreadyIncludedFiles = {});
-    void deleteIncludeGuards();
-    file_t insertOutFileInTemplate();
-
-    fs::path                 rootDir         ; /*!< Path to creolization library root directory         */
-    std::string              projectName     ; /*!< Name of project                                     */
-    std::string              srcDirName      ; /*!< Name of directory with creolization library sources */
-    std::vector<std::string> srcFilesNames   ; /*!< Names of creolization library sources (first file used as
-                                                    main file, others - just single_include main file and
-                                                    and redefine macro from main file) */
-    fs::path                 outDirPath      ; /*!< Output directory name */
-    fs::path                 outFilePath     ; /*!< Path to out file */
-    file_t                     outFile         ; /*!< Out file content */
-    file_t                     templateOutFile ; /*!< Template of out file */
-
-    static const std::size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in srcFilesNames array */
-};
 
 /*!
  * \brief                      Generator constructor
- * \details                    Read filenames from srcDirName directory
- * \param[in] rootDir          Path to creolization library root directory
- * \param[in] projectName      Name of project
- * \param[in] srcDirName       Name of directory with creolization library sources
- * \param[in] srcMainFileName  Names of creolization library main header
- * \param[in] outDirName       Output directory name
- * \param[in] templateOutFile  Template of out file
- * \param[in] contentLineIndex Index of line, where will be insert generated file
+ * \details                    Read filenames from src_dir_name directory
+ * \params TODO
  */
 
-Generator::Generator(const fs::path    &rootDir            ,
-                     const std::string &projectName        ,
-                     const std::string &srcDirName         ,
-                     const std::string &srcMainFileName    ,
-                     const std::string &outDirName         ,
-                     const std::string &templateOutFilePath) :
-    rootDir(rootDir),
-    projectName(projectName),
-    srcDirName(srcDirName),
-    outDirPath(rootDir / outDirName / projectName),
-    outFilePath(rootDir / outDirName / projectName / srcMainFileName),
+generator_t::generator_t(const generator_info_t &params) :
+    root_dir(params.root_dir),
+    project_name(params.project_name),
+    src_dir_name(params.src_dir_name),
+    outDirPath(root_dir / params.out_dir_name / params.project_name),
+    outFilePath(root_dir / params.out_dir_name / params.project_name / params.src_main_file_name ),
     outFile(outFilePath),
-    templateOutFile(templateOutFilePath)
+    templateOutFile(params.template_out_file_path)
 {
-    srcFilesNames.push_back(srcMainFileName);
+    src_files_names.push_back(params.src_main_file_name);
 
-    auto srcPath = rootDir / srcDirName / projectName;
+    auto srcPath = root_dir / src_dir_name / project_name;
     // add .cpp files from all nested folders
     // Now library is one-header, ignore all cpp
     /*
@@ -92,7 +47,7 @@ Generator::Generator(const fs::path    &rootDir            ,
         {
             auto cppFilePath = cppFile.path().string();
             std::string cppFileName = cppFilePath.erase(0, srcPath.string().size() + std::string("/").size());
-            srcFilesNames.push_back(cppFileName);
+            src_files_names.push_back(cppFileName);
         }
     }
     */
@@ -101,17 +56,17 @@ Generator::Generator(const fs::path    &rootDir            ,
     for (const auto & srcFile : fs::directory_iterator(srcPath))
     {
         if(srcFile.status().type()    == fs::file_type::regular &&
-           srcFile.path().filename()  != srcMainFileName        &&
+           srcFile.path().filename()  != params.src_main_file_name        &&
            srcFile.path().extension() == ".h" )
         {
-            srcFilesNames.push_back(srcFile.path().filename());
+            src_files_names.push_back(srcFile.path().filename());
         }
     }
 
     LOG("Created single header generator with parameters: ");
-    LOG("rootDir=", rootDir);
-    LOG("projectName=", projectName);
-    LOG("srcDirName=", srcDirName);
+    LOG("root_dir=", root_dir);
+    LOG("project_name=", project_name);
+    LOG("src_dir_name=", src_dir_name);
     LOG("srcPath=", srcPath);
     LOG("outDirPath=", outDirPath);
     LOG("outFilePath=", outFilePath);
@@ -122,21 +77,21 @@ Generator::Generator(const fs::path    &rootDir            ,
         LOG(line);
     }
     LOG("=========================================");
-    LOG("srcFilesNames=");
-    for (size_t i = 0; i < srcFilesNames.size(); ++i)
+    LOG("src_files_names=");
+    for (size_t i = 0; i < src_files_names.size(); ++i)
     {
-        LOG(i, ": ", srcFilesNames[i], (i ? "" : " (main file)"));
+        LOG(i, ": ", src_files_names[i], (i ? "" : " (main file)"));
     }
 }
 
 /*!
  * \brief Generate output file
  */
-void Generator::generate()
+void generator_t::generate()
 {
     LOG("Start generate single header include file ", outFilePath);
 
-    prepareOutDirAndFile();
+    prepare_out_dir_and_file();
     readSrcFiles();
     deleteIncludeMainFile();
     preprocessFile(outFile);
@@ -153,7 +108,7 @@ void Generator::generate()
  * \brief Prepare output directory
  * \details Create/clear directory
  */
-void Generator::prepareOutDirAndFile() const
+void generator_t::prepare_out_dir_and_file() const
 {
     fs::remove_all(outDirPath);
     LOG("Remove directory ", outDirPath);
@@ -173,18 +128,18 @@ void Generator::prepareOutDirAndFile() const
 /*!
  * \brief Read source files to internal representation
  */
-void Generator::readSrcFiles()
+void generator_t::readSrcFiles()
 {
-    auto srcDirPath = rootDir / srcDirName / projectName;
+    auto srcDirPath = root_dir / src_dir_name / project_name;
     LOG("Start read source files in path ", outDirPath);
-    for(const auto& fileName : srcFilesNames)
+    for(const auto& fileName : src_files_names)
     {
         auto srcPath = srcDirPath / fileName;
 
         LOG("Read source file ", srcPath);
 
         outFile += "\n";
-        outFile += File(srcPath);
+        outFile += file_t(srcPath);
         outFile += "\n";
     }
     LOG("Finish read source files in path ", outDirPath, ", result file contain ", outFile.lines.size(), " lines");
@@ -192,12 +147,12 @@ void Generator::readSrcFiles()
 
 /*!
  * \brief Delete include of main source file
- * \details Find line "#include "srcDirName/mainFileName"" and delete it
+ * \details Find line "#include "src_dir_name/mainFileName"" and delete it
  */
-void Generator::deleteIncludeMainFile()
+void generator_t::deleteIncludeMainFile()
 {
     const std::string pattern =
-            R"(#include[ \t]+["])" + projectName + "/" + srcFilesNames[MAIN_FILE_INDEX] + R"(["][ \t]*)";
+            R"(#include[ \t]+["])" + project_name + "/" + src_files_names[MAIN_FILE_INDEX] + R"(["][ \t]*)";
     const auto r = std::regex(pattern);
     LOG("Delete include of main file, search by pattern: ", pattern);
 
@@ -220,16 +175,16 @@ void Generator::deleteIncludeMainFile()
 
 /*!
  * \brief     Preprocess file
- * \details   Recursively replace line contained "#include "srcDirName{SLASH}*" with content of file.
+ * \details   Recursively replace line contained "#include "src_dir_name{SLASH}*" with content of file.
  *            Multiply included of one file ignored.
  * \param[in] file Internal representation of file
  * \param[in] alreadyIncludedFiles Already included files (used rvalue reference because it's necessary to
  *            bind refence with default value, also it's necessary to pass by reference)
  */
-void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyIncludedFiles)
+void generator_t::preprocessFile(file_t &file, std::set<std::string> &&alreadyIncludedFiles)
 {
     auto size = file.lines.size();
-    const std::string pattern = R"(#include[ \t]+["]()" + projectName + R"([^"]+)["][ \t]*)";
+    const std::string pattern = R"(#include[ \t]+["]()" + project_name + R"([^"]+)["][ \t]*)";
     const auto r = std::regex ( pattern );
 
     LOG("Start recursively preprocess file, now file contains ", size , " lines",
@@ -250,8 +205,8 @@ void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyInclud
             std::tie(std::ignore, notYetIncluded) = alreadyIncludedFiles.insert(includeMatch[1].str());
             if(notYetIncluded)
             {
-                auto includeFilePath = rootDir / srcDirName / includeMatch[1].str();
-                auto includeFile = File(includeFilePath);
+                auto includeFilePath = root_dir / src_dir_name / includeMatch[1].str();
+                auto includeFile = file_t(includeFilePath);
                 preprocessFile(includeFile, std::move(alreadyIncludedFiles));
                 LOG("Delete line ", file.lines[i], " from file ", includeFilePath.filename());
                 file.lines[i].erase();
@@ -280,7 +235,7 @@ void Generator::preprocessFile(File &file, std::set<std::string> &&alreadyInclud
  *          b. If contains saved guard identifiers
  *             1. If line contain "#endif {SLASH}* last_guard_identifier *\/, delete line.
  */
-void Generator::deleteIncludeGuards()
+void generator_t::deleteIncludeGuards()
 {
     std::stack<std::string> guardIdentifiers;
     for(std::size_t i = 0; i < outFile.lines.size(); ++i)
@@ -314,46 +269,16 @@ void Generator::deleteIncludeGuards()
  * \brief  Insert generated output file in template
  * \return Generated file, inserted in template
  */
-File Generator::insertOutFileInTemplate()
+file_t generator_t::insertOutFileInTemplate()
 {
-    auto resultFile = File();
+    auto resultFile = file_t();
 
 
 
     resultFile += templateOutFile;
-    resultFile.insert(contentLineIndex, outFile);
+    // TODO
+//    resultFile.insert(contentLineIndex, outFile);
     return resultFile;
 }
 
-/*!
- * \brief Main function
- */
-int main(int argc, char* argv[])
-{
-//    logger_t::set_out_file("single_header_genearator.log");
-
-    if(argc != 2)
-    {
-        LOG("Invalid number of single header generator arguments. Expected: 2, actually: ", argc);
-        return -1;
-    }
-
-    try
-    {
-        Generator generator = {
-            argv[1]      ,
-            "creolization",
-            "include",
-            "serializable_types.h",
-            "single_include",
-            "output.template"
-        };
-        generator.generate();
-        return 0;
-    }
-    catch(const std::exception& e)
-    {
-        std::cout << "Single header generator error: \n" << e.what();
-        return -1;
-    }
-}
+} // namespace one_header_gen

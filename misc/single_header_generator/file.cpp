@@ -5,6 +5,7 @@
 
 #include <regex>
 #include <set>
+#include <iterator>
 
 namespace one_header_gen {
 
@@ -79,7 +80,7 @@ void file_t::delete_file_description()
         {
             begin = i;
         }
-        isFileDescription = isFileDescription || utils::is_doxygen_description(lines[i]);
+        isFileDescription = isFileDescription || utils::is_doxygen_file_description(lines[i]);
         if (utils::is_end_of_comment(lines[i]))
         {
             if (isFileDescription)
@@ -102,25 +103,28 @@ void file_t::move_includes() {
     std::set<std::string> includes;
     std::smatch match;
 
+    // use temporary vector and swap
     for (size_t i = 0; i < size; ++i) {
         if (std::regex_match(lines[i], match, r)) {
             includes.insert(match[1]);
-            lines[i].erase();
+            lines.erase(lines.begin() + i);
+//            lines[i].erase();
             --i;
+            --size;
         }
     }
 
     lines.insert(lines.begin(), includes.begin(), includes.end());
 }
 
-void file_t::replace_all_occurancies(const std::string &pattern, const std::string &replacer)
+void file_t::replace_all_occurancies_in_single_line(const std::string &pattern, const std::string &replacer)
 {
     const auto r = std::regex ( pattern  );
     std::smatch match;
 
     for(auto &line : lines)
     {
-        if(std::regex_match(line, match, r)) {
+        if(std::regex_search(line, match, r)) {
             std::ostringstream ostream;
             std::regex_replace(
                     std::ostreambuf_iterator<char>(ostream),
@@ -171,6 +175,8 @@ const file_t &file_t::operator+=(const std::string &rhs) {
  * \param[in] file     Inserted file
  */
 void file_t::insert(const std::size_t position, const file_t &file) {
+    if (position > lines.size()) throw std::invalid_argument("Position could not be more than lines number");
+    lines.reserve(file.lines.size());
     lines.insert(lines.begin() + position, file.lines.begin(), file.lines.end());
     LOG("Added ", file.lines.size(), " lines from file ", file.filename, " instead #include line");
 }

@@ -20,7 +20,7 @@ bool is_begin_of_doxygen_comment(const std::string &str);
  * \retval true  Line contain Doxygen tag "file"
  * \retval false Otherwise
  */
-bool is_doxygen_description(const std::string &str);
+bool is_doxygen_file_description(const std::string &str);
 
 /*!
  * \brief Determine, line contain end of multiply line comment or not ("*\/")

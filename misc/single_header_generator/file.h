@@ -24,7 +24,7 @@ struct file_t {
 
     void delete_file_description();
     void move_includes();
-    void replace_all_occurancies(const std::string &pattern, const std::string &replacer);
+    void replace_all_occurancies_in_single_line(const std::string &pattern, const std::string &replacer);
 
     const file_t& operator+=(const file_t &rhs);
     const file_t& operator+=(const std::string &rhs);

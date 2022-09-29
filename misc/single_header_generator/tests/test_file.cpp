@@ -25,10 +25,10 @@ String two
 String three
 )";
 
-    std::string test_file_description =
-R"(/*
+    const std::string test_file_description =
+R"(/**
  \file Filename
- \desc Descrioption
+ \desc Description
 */
 )";
 
@@ -43,7 +43,7 @@ TEST_F(generator_file_test, create_file)
     file_t empty_file;
     ASSERT_TRUE(empty_file.to_string().empty());
 
-    std::ofstream raw_file {test_file_path(), std::ios::out | std::ios::binary};
+    std::ofstream raw_file {test_file_path()};
     raw_file << test_file;
     raw_file.flush();
 
@@ -95,7 +95,7 @@ TEST_F(generator_file_test, insert)
     file.clear();
 
     file += test_file;
-    auto lines_num = 1 +
+    auto lines_num =
         std::count_if(
             test_file.cbegin(),
             test_file.cend(),
@@ -105,8 +105,7 @@ TEST_F(generator_file_test, insert)
     file.clear();
 
     file +=
-R"(
-String 1
+R"(String 1
 String 2
 String 3
 )";
@@ -114,8 +113,7 @@ String 3
     inserted_file += "String 4";
     file.insert(1, inserted_file);
     ASSERT_EQ(file, file_t(
-std::string(R"(
-String 1
+std::string(R"(String 1
 String 4
 String 2
 String 3
@@ -148,20 +146,30 @@ TEST_F(generator_file_test, delete_description)
 TEST_F(generator_file_test, move_includes)
 {
     file_t file;
-    std::string include_str = "#include <test>";
+    std::string include_str1 = "#include <test1>";
+    std::string include_str2 = "#include <test2>";
 
     file += test_file;
-    file += include_str;
+    file += include_str1;
     file += test_file;
-    file += include_str;
+    file += include_str1;
+    file += include_str2;
     file.move_includes();
 
     auto file_str = file.to_string();
-    file_str.resize(2 * include_str.size() + sizeof('\n'));
-    ASSERT_EQ(file_str, include_str + '\n' + include_str);
+    ASSERT_EQ(file_str, include_str1 + '\n' + include_str2 + '\n' + test_file + test_file);
 }
 
-//TEST_F(generator_file_test, replace_all_occurancies)
-//{
-//    TODO
-//}
+TEST_F(generator_file_test, replace_all_occurancies_in_single_line)
+{
+    std::string str1 = "NotRemoved ForReplace NotRemoved";
+    std::string str2 = "NotRemoved Replaced NotRemoved";
+
+    auto origin_string = test_file + str1 + test_file + str2 + str1;
+    auto result_string = test_file + str2 + test_file + str2 + str2 + "\n";
+
+    file_t file {origin_string};
+    file.replace_all_occurancies_in_single_line("ForReplace", "Replaced");
+
+    ASSERT_EQ(result_string, file.to_string());
+}
