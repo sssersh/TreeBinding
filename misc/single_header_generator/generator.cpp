@@ -22,22 +22,17 @@ namespace one_header_gen
 
 /*!
  * \brief                      Generator constructor
- * \details                    Read filenames from src_dir_name directory
+ * \details                    Read filenames from input_dir_name directory
  * \params TODO
  */
 
 generator_t::generator_t(const generator_info_t &params) :
-    root_dir(params.root_dir),
-    project_name(params.project_name),
-    src_dir_name(params.src_dir_name),
-    outDirPath(root_dir / params.out_dir_name / params.project_name),
-    outFilePath(root_dir / params.out_dir_name / params.project_name / params.src_main_file_name ),
-    outFile(outFilePath),
-    templateOutFile(params.template_out_file_path)
+      params(params)
+    , outFile(outFilePath)
+    , templateOutFile(params.get_template_out_file_path())
 {
-    src_files_names.push_back(params.src_main_file_name);
+    src_files_names.push_back(params.get_input_main_file_name());
 
-    auto srcPath = root_dir / src_dir_name / project_name;
     // add .cpp files from all nested folders
     // Now library is one-header, ignore all cpp
     /*
@@ -53,23 +48,17 @@ generator_t::generator_t(const generator_info_t &params) :
     */
 
     // Add all header files from root sources directory
-    for (const auto & srcFile : fs::directory_iterator(srcPath))
+    for (const auto & input_file : fs::directory_iterator(params.get_input_dir_path()))
     {
-        if(srcFile.status().type()    == fs::file_type::regular &&
-           srcFile.path().filename()  != params.src_main_file_name        &&
-           srcFile.path().extension() == ".h" )
+        if(input_file.status().type()    == fs::file_type::regular &&
+            input_file.path().filename()  != params.get_input_main_file_name()        &&
+            input_file.path().extension() == ".h" )
         {
-            src_files_names.push_back(srcFile.path().filename());
+            src_files_names.push_back(input_file.path().filename());
         }
     }
 
     LOG("Created single header generator with parameters: ");
-    LOG("root_dir=", root_dir);
-    LOG("project_name=", project_name);
-    LOG("src_dir_name=", src_dir_name);
-    LOG("srcPath=", srcPath);
-    LOG("outDirPath=", outDirPath);
-    LOG("outFilePath=", outFilePath);
     LOG("templateOutFile=");
     LOG("=========================================");
     for(const auto& line : templateOutFile.lines)
@@ -110,16 +99,16 @@ void generator_t::generate()
  */
 void generator_t::prepare_out_dir_and_file() const
 {
-    fs::remove_all(outDirPath);
-    LOG("Remove directory ", outDirPath);
+    fs::remove_all(params.get_output_dir_path());
+    LOG("Remove directory ", params.get_output_dir_path());
 
-    fs::create_directory(outDirPath);
-    LOG("Create directory ", outDirPath);
+    fs::create_directory(params.get_output_dir_path());
+    LOG("Create directory ", params.get_output_dir_path());
 
     std::ofstream fileStream(outFilePath, std::ofstream::trunc);
     LOG("Create file ", outFilePath);
-    LOG("Current content of directory ", outDirPath, ":");
-    for (const auto & outDirEntry : fs::directory_iterator(outDirPath))
+    LOG("Current content of directory ", params.get_output_dir_path(), ":");
+    for (const auto & outDirEntry : fs::directory_iterator(params.get_output_dir_path()))
     {
         LOG(outDirEntry);
     }
@@ -130,11 +119,10 @@ void generator_t::prepare_out_dir_and_file() const
  */
 void generator_t::readSrcFiles()
 {
-    auto srcDirPath = root_dir / src_dir_name / project_name;
-    LOG("Start read source files in path ", outDirPath);
+    LOG("Start read input files in path ", params.get_input_dir_path());
     for(const auto& fileName : src_files_names)
     {
-        auto srcPath = srcDirPath / fileName;
+        auto srcPath = params.get_input_dir_path() / fileName;
 
         LOG("Read source file ", srcPath);
 
@@ -142,17 +130,17 @@ void generator_t::readSrcFiles()
         outFile += file_t(srcPath);
         outFile += "\n";
     }
-    LOG("Finish read source files in path ", outDirPath, ", result file contain ", outFile.lines.size(), " lines");
+    LOG("Finish read source files in path ", params.get_input_dir_path(), ", result file contain ", outFile.lines.size(), " lines");
 }
 
 /*!
  * \brief Delete include of main source file
- * \details Find line "#include "src_dir_name/mainFileName"" and delete it
+ * \details Find line "#include "input_dir_name/mainFileName"" and delete it
  */
 void generator_t::deleteIncludeMainFile()
 {
     const std::string pattern =
-            R"(#include[ \t]+["])" + project_name + "/" + src_files_names[MAIN_FILE_INDEX] + R"(["][ \t]*)";
+            R"(#include[ \t]+["])" + params.get_project_name() + "/" + src_files_names[MAIN_FILE_INDEX] + R"(["][ \t]*)";
     const auto r = std::regex(pattern);
     LOG("Delete include of main file, search by pattern: ", pattern);
 
@@ -175,7 +163,7 @@ void generator_t::deleteIncludeMainFile()
 
 /*!
  * \brief     Preprocess file
- * \details   Recursively replace line contained "#include "src_dir_name{SLASH}*" with content of file.
+ * \details   Recursively replace line contained "#include "input_dir_name{SLASH}*" with content of file.
  *            Multiply included of one file ignored.
  * \param[in] file Internal representation of file
  * \param[in] alreadyIncludedFiles Already included files (used rvalue reference because it's necessary to
@@ -184,7 +172,7 @@ void generator_t::deleteIncludeMainFile()
 void generator_t::preprocessFile(file_t &file, std::set<std::string> &&alreadyIncludedFiles)
 {
     auto size = file.lines.size();
-    const std::string pattern = R"(#include[ \t]+["]()" + project_name + R"([^"]+)["][ \t]*)";
+    const std::string pattern = R"(#include[ \t]+["]()" + params.get_project_name() + R"([^"]+)["][ \t]*)";
     const auto r = std::regex ( pattern );
 
     LOG("Start recursively preprocess file, now file contains ", size , " lines",
@@ -205,7 +193,7 @@ void generator_t::preprocessFile(file_t &file, std::set<std::string> &&alreadyIn
             std::tie(std::ignore, notYetIncluded) = alreadyIncludedFiles.insert(includeMatch[1].str());
             if(notYetIncluded)
             {
-                auto includeFilePath = root_dir / src_dir_name / includeMatch[1].str();
+                auto includeFilePath = params.get_input_dir_path() / includeMatch[1].str();
                 auto includeFile = file_t(includeFilePath);
                 preprocessFile(includeFile, std::move(alreadyIncludedFiles));
                 LOG("Delete line ", file.lines[i], " from file ", includeFilePath.filename());

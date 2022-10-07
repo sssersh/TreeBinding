@@ -68,6 +68,6 @@ private:
     "\n"                                                                         \
     )
 
-#endif // _LOGGER_H_
-
 } // namespace one_header_gen
+
+#endif // _LOGGER_H_

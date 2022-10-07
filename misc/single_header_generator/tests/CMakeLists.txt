@@ -7,6 +7,7 @@ set(SOURCES
     test_logger.cpp
     test_file.cpp
     test_utils.cpp
+    test_generator_info.cpp
     test_generator.cpp
     )
 
@@ -18,9 +19,9 @@ add_executable(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME}
-        PUBLIC
-    ${GENERATOR_SRC_DIR}
-    ${TEST_INCLUDE_DIR}
+    PUBLIC
+        ${GENERATOR_SRC_DIR}
+        ${TEST_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME}
