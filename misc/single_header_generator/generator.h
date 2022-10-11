@@ -28,11 +28,10 @@ struct generator_t
     void deleteIncludeGuards();
     file_t insertOutFileInTemplate();
 
-    generator_config_t params;
+    generator_config_t config;
     std::vector<std::string> src_files_names   ; /*!< Names of creolization library sources (first file used as
                                                     main file, others - just single_include main file and
                                                     and redefine macro from main file) */
-    fs::path                 outFilePath     ; /*!< Path to out file */
     file_t                   outFile         ; /*!< Out file content */
     file_t                   templateOutFile ; /*!< Template of out file */
 

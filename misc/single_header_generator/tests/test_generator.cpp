@@ -7,63 +7,53 @@
 
 using namespace one_header_gen;
 
-//class generator_test : public ::testing::Test
-//{
-//public:
-//    void SetUp() override
-//    {
-////        fs::create_directories(test_generator_info().input_dir_path());
-////        // create main file
-////        std::ofstream { main_file_path };
-////
-////        generator = std::make_shared<generator_t>(info);
-//    }
-//
-//    void TearDown() override
-//    {
-////        fs::remove_all(info.root_dir);
-//    }
-//
-//protected:
-////    generator_config_t info = test_generator_info();
-//
-//    std::shared_ptr<generator_t> generator;
-//};
+class generator_test : public ::testing::Test
+{
+public:
+    void SetUp() override
+    {
+        fs::remove_all(root_dir);
 
-//TEST(generator_create_test, empty_data)
-//{
-//    struct generator_config_t info = test_generator_info();
-//
-//    info.root_dir.clear();
-//    ASSERT_ANY_THROW(generator_t{info});
-//
-//    info = test_generator_info();
-//    info.project_name.clear();
-//    ASSERT_ANY_THROW(generator_t{info});
-//
-//    info = test_generator_info();
-//    info.input_dir_name.clear();
-//    ASSERT_ANY_THROW(generator_t{info});
-//
-//    info = test_generator_info();
-//    info.input_main_file_name.clear();
-//    ASSERT_ANY_THROW(generator_t{info});
-//
-//    info = test_generator_info();
-//    info.out_dir_name.clear();
-//    ASSERT_ANY_THROW(generator_t{info});
-//
-//    info = test_generator_info();
-//    info.template_out_file_path.clear();
-//    ASSERT_ANY_THROW(generator_t{info});
-//}
+        fs::create_directories(root_dir / input_dir_name / project_name);
 
-//TEST_F(generator_test, prepare_out_dir_and_file)
-//{
-//    fs::create_directories(info.out_dir_name);
-//    ASSERT_TRUE(fs::exists(main_file_path));
-//
-//    ASSERT_NO_THROW(generator->prepare_out_dir_and_file());
-//
-//    fs::remove_all(info.out_dir_name);
-//}
+        std::ofstream {root_dir / input_dir_name / project_name / main_file_name};
+        std::ofstream {template_out_file_path };
+
+        config = std::make_shared<generator_config_t>(
+              root_dir
+            , project_name
+            , input_dir_name
+            , main_file_name
+            , output_dir_name
+            , template_out_file_path
+        );
+
+        generator = std::make_shared<generator_t>(*config);
+    }
+
+    void TearDown() override
+    {
+        fs::remove_all(root_dir);
+    }
+
+protected:
+    const fs::path root_dir = "test_root_dir";
+    const std::string_view project_name = "test_project_name";
+    const std::string_view input_dir_name = "test_input_dir_name";
+    const std::string_view main_file_name = "test_file.cpp";
+    const std::string_view output_dir_name = "test_out_dir_name";
+    const fs::path template_out_file_path = "test_root_dir/test_template_file.in";
+
+    std::shared_ptr<generator_config_t> config;
+    std::shared_ptr<generator_t> generator;
+};
+
+TEST_F(generator_test, prepare_out_dir_and_file)
+{
+    ASSERT_TRUE(!fs::exists(config->get_output_dir_path()));
+
+    ASSERT_NO_THROW(generator->prepare_out_dir_and_file());
+
+    ASSERT_TRUE(fs::exists(config->get_output_dir_path()));
+    ASSERT_TRUE(fs::exists(config->get_out_file_path()));
+}

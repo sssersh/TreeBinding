@@ -7,7 +7,7 @@ set(SOURCES
     test_logger.cpp
     test_file.cpp
     test_utils.cpp
-    test_generator_info.cpp
+        test_generator_config.cpp
     test_generator.cpp
     )
 
