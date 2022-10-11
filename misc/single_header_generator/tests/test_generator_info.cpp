@@ -3,11 +3,11 @@
 #include <filesystem>
 #include <fstream>
 
-#include "generator_info.h"
+#include "generator_config.h"
 
 using namespace one_header_gen;
 
-TEST(generator_info_test, base)
+TEST(generator_config_test, base)
 {
     fs::path root_dir = "test_root_dir";
     auto project_name = "test_project_name";
@@ -16,7 +16,7 @@ TEST(generator_info_test, base)
     fs::path output_dir_name = "test_out_dir_name";
     auto template_out_file_path = "test_root_dir/test_template_file.in";
 
-    auto create_info = [&]() -> generator_info_t
+    auto create_info = [&]() -> generator_config_t
     {
         return
             {

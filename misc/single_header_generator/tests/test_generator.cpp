@@ -25,14 +25,14 @@ using namespace one_header_gen;
 //    }
 //
 //protected:
-////    generator_info_t info = test_generator_info();
+////    generator_config_t info = test_generator_info();
 //
 //    std::shared_ptr<generator_t> generator;
 //};
 
 //TEST(generator_create_test, empty_data)
 //{
-//    struct generator_info_t info = test_generator_info();
+//    struct generator_config_t info = test_generator_info();
 //
 //    info.root_dir.clear();
 //    ASSERT_ANY_THROW(generator_t{info});

@@ -22,7 +22,7 @@ namespace fs = std::filesystem;
 * \param[in] templateOutFile  Template of out file
 * \param[in] contentLineIndex Index of line, where will be insert generated file
  */
-class generator_info_t {
+class generator_config_t {
 
     fs::path root_dir;  /*!< Path to creolization library root directory         */
     std::string project_name; /*!< Name of project                                     */
@@ -32,7 +32,7 @@ class generator_info_t {
     fs::path template_out_file_path;
 
 public:
-    generator_info_t(
+    generator_config_t(
           fs::path root_dir
         , std::string project_name
         , std::string input_dir_name

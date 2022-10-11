@@ -26,7 +26,7 @@ namespace one_header_gen
  * \params TODO
  */
 
-generator_t::generator_t(const generator_info_t &params) :
+generator_t::generator_t(const generator_config_t &params) :
       params(params)
     , outFile(outFilePath)
     , templateOutFile(params.get_template_out_file_path())

@@ -7,7 +7,7 @@
 
 #include "file.h"
 #include "logger.h"
-#include "generator_info.h"
+#include "generator_config.h"
 
 namespace one_header_gen
 {
@@ -17,7 +17,7 @@ namespace one_header_gen
  */
 struct generator_t
 {
-    generator_t(const generator_info_t &params);
+    generator_t(const generator_config_t &params);
     void generate();
 
     void prepare_out_dir_and_file() const;
@@ -28,7 +28,7 @@ struct generator_t
     void deleteIncludeGuards();
     file_t insertOutFileInTemplate();
 
-    generator_info_t params;
+    generator_config_t params;
     std::vector<std::string> src_files_names   ; /*!< Names of creolization library sources (first file used as
                                                     main file, others - just single_include main file and
                                                     and redefine macro from main file) */
