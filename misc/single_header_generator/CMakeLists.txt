@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
     file.cpp
+    file_formatter.cpp
 #    generator.cpp
 )
 

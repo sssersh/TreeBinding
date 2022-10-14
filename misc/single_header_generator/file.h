@@ -12,28 +12,29 @@ namespace one_header_gen
 /*!
  * \brief Structure for represent source file as array of lines
  */
-struct file_t {
-    std::string filename;
-    std::vector<std::string> lines; /*!< Lines */
-
+class file_t {
+public:
     file_t() = default;
     file_t(const fs::path &path);
     file_t(const std::string &lines);
 
-    std::string to_string() const;
     void write(const fs::path &path) const;
-
-    void delete_file_description();
-    void move_includes();
-    void replace_all_occurancies_in_single_line(const std::string &pattern, const std::string &replacer);
+    void insert(const std::size_t position, const file_t &file);
+    void clear();
+    std::string to_string() const;
+    std::vector<std::string>& get_lines();
+    const std::string& get_name() const;
 
     const file_t& operator+=(const file_t &rhs);
     const file_t& operator+=(const std::string &rhs);
-    void insert(const std::size_t position, const file_t &file);
-
-    void clear();
     friend bool operator==(const one_header_gen::file_t& lhs, const one_header_gen::file_t& rhs);
+
+private:
+    std::string filename;
+    std::vector<std::string> lines; /*!< Lines */
 };
+
+using file_ptr_t = std::shared_ptr<file_t>;
 
 bool operator==(const one_header_gen::file_t& lhs, const one_header_gen::file_t& rhs);
 

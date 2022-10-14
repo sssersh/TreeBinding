@@ -26,8 +26,11 @@ namespace one_header_gen
  * \params TODO
  */
 
-generator_t::generator_t(const generator_config_t &params) :
-        config(params)
+generator_t::generator_t(
+      i_file_formatter_ptr_t file_formatter
+    , const generator_config_t &params) :
+          file_formatter(std::move(file_formatter))
+        , config(params)
     , templateOutFile(params.get_template_out_file_path())
 {
     src_files_names.emplace_back(std::string(params.get_input_main_file_name()));
@@ -60,7 +63,7 @@ generator_t::generator_t(const generator_config_t &params) :
     LOG("Created single header generator with parameters: ");
     LOG("templateOutFile=");
     LOG("=========================================");
-    for(const auto& line : templateOutFile.lines)
+    for(const auto& line : templateOutFile.get_lines())
     {
         LOG(line);
     }
@@ -80,12 +83,16 @@ void generator_t::generate()
     LOG("Start generate single header include file ", config.get_out_file_path());
 
     prepare_out_dir_and_file();
-    readSrcFiles();
-    deleteIncludeMainFile();
+    read_src_files();
+    file_formatter->delete_include(
+        outFile.get_lines(),
+        std::string(config.get_project_name())
+        + "/"
+        + src_files_names[MAIN_FILE_INDEX]);
     preprocessFile(outFile);
-    outFile.delete_file_description();
-    deleteIncludeGuards();
-    outFile.move_includes();
+    file_formatter->delete_file_description(outFile.get_lines());
+//    deleteIncludeGuards();
+    file_formatter->move_includes(outFile.get_lines());
     auto resultFile = insertOutFileInTemplate();
     resultFile.write(config.get_out_file_path());
 
@@ -116,7 +123,7 @@ void generator_t::prepare_out_dir_and_file() const
 /*!
  * \brief Read source files to internal representation
  */
-void generator_t::readSrcFiles()
+void generator_t::read_src_files()
 {
     LOG("Start read input files in path ", config.get_input_dir_path());
     for(const auto& fileName : src_files_names)
@@ -129,127 +136,11 @@ void generator_t::readSrcFiles()
         outFile += file_t(srcPath);
         outFile += "\n";
     }
-    LOG("Finish read source files in path ", config.get_input_dir_path(), ", result file contain ", outFile.lines.size(), " lines");
-}
-
-/*!
- * \brief Delete include of main source file
- * \details Find line "#include "input_dir_name/mainFileName"" and delete it
- */
-void generator_t::deleteIncludeMainFile()
-{
-    const std::string pattern =
-            R"(#include[ \t]+["])" + std::string(config.get_project_name()) + "/" + src_files_names[MAIN_FILE_INDEX] + R"(["][ \t]*)";
-    const auto r = std::regex(pattern);
-    LOG("Delete include of main file, search by pattern: ", pattern);
-
-    bool main_file_founded = false;
-    for(auto &line : outFile.lines)
-    {
-        if(std::regex_match(line, r))
-        {
-            main_file_founded = true;
-            LOG("Delete line with content \"", line, "\"");
-            line.clear();
-        }
-    }
-
-    if (!main_file_founded)
-    {
-        LOG("Include of main file not founded");
-    }
-}
-
-/*!
- * \brief     Preprocess file
- * \details   Recursively replace line contained "#include "input_dir_name{SLASH}*" with content of file.
- *            Multiply included of one file ignored.
- * \param[in] file Internal representation of file
- * \param[in] alreadyIncludedFiles Already included files (used rvalue reference because it's necessary to
- *            bind refence with default value, also it's necessary to pass by reference)
- */
-void generator_t::preprocessFile(file_t &file, std::set<std::string> &&alreadyIncludedFiles)
-{
-    auto size = file.lines.size();
-    const std::string pattern = R"(#include[ \t]+["]()" + std::string(config.get_project_name()) + R"([^"]+)["][ \t]*)";
-    const auto r = std::regex ( pattern );
-
-    LOG("Start recursively preprocess file, now file contains ", size , " lines",
-        (alreadyIncludedFiles.size() ? ", already included files: " : "") );
-    for(const auto& i : alreadyIncludedFiles)
-    {
-        LOG("- ", i);
-    }
-
-    LOG("Start search include of files by pattern: ", pattern);
-    for(std::size_t i = 0; i < size; ++i)
-    {
-        std::smatch includeMatch;
-        if(std::regex_match(file.lines[i], includeMatch, r))
-        {
-            LOG("Found include of file: ", file.lines[i]);
-            bool notYetIncluded;
-            std::tie(std::ignore, notYetIncluded) = alreadyIncludedFiles.insert(includeMatch[1].str());
-            if(notYetIncluded)
-            {
-                auto includeFilePath = config.get_input_dir_path() / includeMatch[1].str();
-                auto includeFile = file_t(includeFilePath);
-                preprocessFile(includeFile, std::move(alreadyIncludedFiles));
-                LOG("Delete line ", file.lines[i], " from file ", includeFilePath.filename());
-                file.lines[i].erase();
-                file.insert(i, includeFile);
-                size += includeFile.lines.size() - 1; // -1 - erased line
-            }
-            else
-            {
-                LOG("File ", includeMatch[1].str(), " already included, delete line: ", file.lines[i] );
-                file.lines[i].erase();
-                size--;
-            }
-            LOG("Current size of file ", file.filename, ": ", file.lines.size(), " lines");
-        }
-    }
-    LOG("Finish search of included files");
-    LOG("End of preprocessing file");
-}
-
-/*!
- * \brief   Delete include guards from output file
- * \details a. 1. Find line with "#ifndef *"
- *             2. If next line is "#define *" with same identificator,
- *                2.1 Delete these lines.
- *                2.2 Save guard identifier
- *          b. If contains saved guard identifiers
- *             1. If line contain "#endif {SLASH}* last_guard_identifier *\/, delete line.
- */
-void generator_t::deleteIncludeGuards()
-{
-    std::stack<std::string> guardIdentifiers;
-    for(std::size_t i = 0; i < outFile.lines.size(); ++i)
-    {
-        static const auto ifdefRegex = std::regex ( R"(#ifndef[ \t]+([A-Z0-9_]+[ \t]*))");
-        std::smatch match;
-        if(std::regex_match(outFile.lines[i], match, ifdefRegex))
-        {
-            auto defineRegex = std::regex ( R"(#define[ \t]+)" + match[1].str() );
-            if(std::regex_match(outFile.lines[i + 1], defineRegex))
-            {
-                guardIdentifiers.push(match[1].str());
-                outFile.lines[i].clear();
-                outFile.lines[i + 1].clear();
-            }
-        }
-
-        if(!guardIdentifiers.empty())
-        {
-            auto endifRegex =
-                    std::regex ( R"(#endif[ \t]+/\*[ \t+])" + guardIdentifiers.top() + R"([ \t]\*/)");
-            if(std::regex_match(outFile.lines[i], match, endifRegex)) {
-                outFile.lines[i].clear();
-                guardIdentifiers.pop();
-            }
-        }
-    }
+    LOG("Finish read source files in path "
+        , config.get_input_dir_path()
+        , ", result file contain "
+        , outFile.get_lines().size()
+        , " lines");
 }
 
 /*!

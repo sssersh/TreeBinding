@@ -41,9 +41,6 @@ TEST(generator_config_test, base)
     std::ofstream {root_dir / input_dir_name / project_name / main_file_name};
     ASSERT_ANY_THROW(create_info());
 
-//    fs::create_directories(root_dir / output_dir_name / project_name);
-//    ASSERT_ANY_THROW(create_info());
-
     std::ofstream {template_out_file_path };
     ASSERT_NO_THROW(create_info());
 

@@ -5,7 +5,6 @@
 
 #include <string>
 #include <fstream>
-#include <memory>
 #include <algorithm>
 
 using namespace one_header_gen;
@@ -118,58 +117,4 @@ String 4
 String 2
 String 3
 )")));
-}
-
-TEST_F(generator_file_test, delete_description)
-{
-    file_t file;
-
-    file += test_file_description;
-    file += test_file;
-    file.delete_file_description();
-    ASSERT_EQ(file.to_string(), test_file);
-    file.clear();
-
-    file += test_file;
-    file += test_file_description;
-    file.delete_file_description();
-    ASSERT_EQ(file.to_string(), test_file);
-    file.clear();
-
-    file += test_file;
-    file += test_file_description;
-    file += test_file;
-    file.delete_file_description();
-    ASSERT_EQ(file.to_string(), test_file + test_file);
-}
-
-TEST_F(generator_file_test, move_includes)
-{
-    file_t file;
-    std::string include_str1 = "#include <test1>";
-    std::string include_str2 = "#include <test2>";
-
-    file += test_file;
-    file += include_str1;
-    file += test_file;
-    file += include_str1;
-    file += include_str2;
-    file.move_includes();
-
-    auto file_str = file.to_string();
-    ASSERT_EQ(file_str, include_str1 + '\n' + include_str2 + '\n' + test_file + test_file);
-}
-
-TEST_F(generator_file_test, replace_all_occurancies_in_single_line)
-{
-    std::string str1 = "NotRemoved ForReplace NotRemoved";
-    std::string str2 = "NotRemoved Replaced NotRemoved";
-
-    auto origin_string = test_file + str1 + test_file + str2 + str1;
-    auto result_string = test_file + str2 + test_file + str2 + str2 + "\n";
-
-    file_t file {origin_string};
-    file.replace_all_occurancies_in_single_line("ForReplace", "Replaced");
-
-    ASSERT_EQ(result_string, file.to_string());
 }
