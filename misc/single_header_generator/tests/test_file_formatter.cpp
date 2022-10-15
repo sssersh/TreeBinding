@@ -15,6 +15,7 @@ public:
 
     void TearDown() override
     {
+        file.clear();
         reference_file.clear();
     }
 

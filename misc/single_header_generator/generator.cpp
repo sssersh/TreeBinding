@@ -33,32 +33,6 @@ generator_t::generator_t(
         , config(params)
     , templateOutFile(params.get_template_out_file_path())
 {
-    src_files_names.emplace_back(std::string(params.get_input_main_file_name()));
-
-    // add .cpp files from all nested folders
-    // Now library is one-header, ignore all cpp
-    /*
-    for(const auto &cppFile : fs::recursive_directory_iterator(srcPath))
-    {
-        if(cppFile.path().extension() == ".cpp")
-        {
-            auto cppFilePath = cppFile.path().string();
-            std::string cppFileName = cppFilePath.erase(0, srcPath.string().size() + std::string("/").size());
-            src_files_names.push_back(cppFileName);
-        }
-    }
-    */
-
-    // Add all header files from root sources directory
-    for (const auto & input_file : fs::directory_iterator(params.get_input_dir_path()))
-    {
-        if(input_file.status().type()    == fs::file_type::regular &&
-            input_file.path().filename()  != params.get_input_main_file_name()        &&
-            input_file.path().extension() == ".h" )
-        {
-            src_files_names.push_back(input_file.path().filename());
-        }
-    }
 
     LOG("Created single header generator with parameters: ");
     LOG("templateOutFile=");
@@ -97,27 +71,6 @@ void generator_t::generate()
     resultFile.write(config.get_out_file_path());
 
     LOG("Succesfully generate single header include file ", config.get_out_file_path());
-}
-
-/*!
- * \brief Prepare output directory
- * \details Create/clear directory
- */
-void generator_t::prepare_out_dir_and_file() const
-{
-    fs::remove_all(config.get_output_dir_path());
-    LOG("Remove directory ", config.get_output_dir_path());
-
-    fs::create_directories(config.get_output_dir_path());
-    LOG("Create directory ", config.get_output_dir_path());
-
-    std::ofstream { config.get_out_file_path() }; // std::ofstream::trunc
-    LOG("Create file ", config.get_out_file_path());
-    LOG("Current content of directory ", config.get_output_dir_path(), ":");
-    for (const auto & outDirEntry : fs::directory_iterator(config.get_output_dir_path()))
-    {
-        LOG(outDirEntry);
-    }
 }
 
 /*!

@@ -9,8 +9,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCES
     file.cpp
     file_formatter.cpp
+    files_structure.cpp
 #    generator.cpp
-)
+        files_structure.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

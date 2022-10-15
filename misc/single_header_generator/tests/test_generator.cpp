@@ -73,16 +73,6 @@ file 1 content
     std::shared_ptr<generator_t> generator;
 };
 
-TEST_F(generator_test, prepare_out_dir_and_file)
-{
-    ASSERT_TRUE(!fs::exists(config->get_output_dir_path()));
-
-    ASSERT_NO_THROW(generator->prepare_out_dir_and_file());
-
-    ASSERT_TRUE(fs::exists(config->get_output_dir_path()));
-    ASSERT_TRUE(fs::exists(config->get_out_file_path()));
-}
-
 TEST_F(generator_test, read_src_files)
 {
 //    generator->prepare_out_dir_and_file();
