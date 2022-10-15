@@ -29,6 +29,9 @@ class files_structure_t {
     fs::path out_dir; /*!< Output directory path */
     fs::path template_out_file_path;
     fs::path out_file_path; /*!< Path to out file */
+    std::vector<fs::path> input_files_paths   ; /*!< Names of creolization library sources (first file used as
+                                                    main file, others - just single_include main file and
+                                                    and redefine macro from main file) */
 
 public:
     files_structure_t(
@@ -46,7 +49,7 @@ public:
     const fs::path &get_out_file_path() const;
     std::string_view get_project_name() const;
     std::string_view get_input_main_file_name() const;
-    std::vector<fs::path> get_input_files() const;
+    const std::vector<fs::path>& get_input_files() const;
 
     void prepare_out_dir_and_file() const;
 };

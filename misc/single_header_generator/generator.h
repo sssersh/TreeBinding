@@ -23,17 +23,14 @@ struct generator_t
         , const generator_config_t &params);
     void generate();
 
-    void prepare_out_dir_and_file() const;
-    void read_src_files();
+//    void prepare_out_dir_and_file() const;
+//    void read_src_files();
 
-    void preprocessFile(file_t &file, std::set<std::string> &&alreadyIncludedFiles = {});
+//    void preprocessFile(file_t &file, std::set<std::string> &&alreadyIncludedFiles = {});
     file_t insertOutFileInTemplate();
 
     i_file_formatter_ptr_t file_formatter;
     generator_config_t config;
-    std::vector<std::string> src_files_names   ; /*!< Names of creolization library sources (first file used as
-                                                    main file, others - just single_include main file and
-                                                    and redefine macro from main file) */
     file_t                   outFile         ; /*!< Out file content */
     file_t                   templateOutFile ; /*!< Template of out file */
 

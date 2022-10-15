@@ -42,11 +42,7 @@ generator_t::generator_t(
         LOG(line);
     }
     LOG("=========================================");
-    LOG("src_files_names=");
-    for (size_t i = 0; i < src_files_names.size(); ++i)
-    {
-        LOG(i, ": ", src_files_names[i], (i ? "" : " (main file)"));
-    }
+
 }
 
 /*!

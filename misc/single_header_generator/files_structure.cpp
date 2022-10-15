@@ -26,6 +26,14 @@ files_structure_t::files_structure_t(
 //        if (!fs::exists(out_dir)) throw std::runtime_error("Output directory not exist");
     if (!fs::exists(template_out_file_path)) throw std::runtime_error("Template out file not exist");
 
+    for (const auto & input_file : fs::directory_iterator(get_input_dir_path()))
+    {
+        if(input_file.status().type() == fs::file_type::regular)
+        {
+            input_files_paths.push_back(input_file.path().filename());
+        }
+    }
+
     LOG("Generator parameters:");
     LOG("root_dir = ", root_dir);
     LOG("project_name = ", project_name);
@@ -34,6 +42,13 @@ files_structure_t::files_structure_t(
     LOG("out_dir = ", out_dir);
     LOG("out_file_path = ", out_file_path);
     LOG("template_out_file_path = ", template_out_file_path);
+    LOG("input_files_paths=");
+    for (size_t i = 0; i < input_files_paths.size(); ++i)
+    {
+        LOG(i, ": ", input_files_paths[i]);//, (i ? "" : " (main file)"));
+    }
+
+
 }
 
 const fs::path& files_structure_t::get_input_dir_path() const
@@ -87,17 +102,9 @@ std::string_view files_structure_t::get_input_main_file_name() const
 //            input_file.path().filename()  != get_input_main_file_name()        &&
 //           input_file.path().extension() == ".h"
 
-std::vector<fs::path> files_structure_t::get_input_files() const
+const std::vector<fs::path>& files_structure_t::get_input_files() const
 {
-    std::vector<fs::path> result;
-    for (const auto & input_file : fs::directory_iterator(get_input_dir_path()))
-    {
-        if(input_file.status().type() == fs::file_type::regular)
-        {
-            result.push_back(input_file.path().filename());
-        }
-    }
-    return result;
+    return input_files_paths;
 }
 
 /*!
