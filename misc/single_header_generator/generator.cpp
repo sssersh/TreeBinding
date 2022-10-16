@@ -56,8 +56,8 @@ void generator_t::generate()
     read_src_files();
     file_formatter->delete_include(
         outFile.get_lines(),
-        std::string(config.get_project_name())
-        + "/"
+//        std::string(config.get_project_name()) +
+        "/"
         + src_files_names[MAIN_FILE_INDEX]);
     preprocessFile(outFile);
     file_formatter->delete_file_description(outFile.get_lines());
@@ -82,7 +82,7 @@ void generator_t::read_src_files()
         LOG("Read source file ", srcPath);
 
         outFile += "\n";
-        outFile += file_t(srcPath);
+        outFile += files_provider.get_input_file(path);// file_t(srcPath);
         outFile += "\n";
     }
     LOG("Finish read source files in path "

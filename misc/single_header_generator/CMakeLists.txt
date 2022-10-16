@@ -7,11 +7,12 @@ project(generator)
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
+    utils.cpp
     file.cpp
     file_formatter.cpp
-    files_structure.cpp
+    files_provider.cpp
 #    generator.cpp
-        files_structure.cpp)
+)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

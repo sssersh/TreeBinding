@@ -8,15 +8,16 @@ set(SOURCES
     test_file_formatter.cpp
     test_file.cpp
     test_utils.cpp
-    test_files_structure.cpp
+    test_files_provider.cpp
 #    test_generator.cpp
     )
 
 add_executable(${PROJECT_NAME}
     ${SOURCES}
+    ${GENERATOR_SRC_DIR}/utils.cpp
     ${GENERATOR_SRC_DIR}/file.cpp
     ${GENERATOR_SRC_DIR}/file_formatter.cpp
-    ${GENERATOR_SRC_DIR}/files_structure.cpp
+    ${GENERATOR_SRC_DIR}/files_provider.cpp
 #    ${GENERATOR_SRC_DIR}/generator.cpp
     ${GENERATOR_SRC_DIR}/utils.cpp
 )

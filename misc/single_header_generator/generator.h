@@ -8,7 +8,7 @@
 #include "i_file_formatter.h"
 #include "file.h"
 #include "logger.h"
-#include "files_structure.h"
+#include "files_provider.h"
 
 namespace one_header_gen
 {

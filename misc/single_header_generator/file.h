@@ -24,12 +24,14 @@ public:
     std::string to_string() const;
     std::vector<std::string>& get_lines();
     const std::string& get_name() const;
+    const fs::path& get_path() const;
 
     const file_t& operator+=(const file_t &rhs);
     const file_t& operator+=(const std::string &rhs);
     friend bool operator==(const one_header_gen::file_t& lhs, const one_header_gen::file_t& rhs);
 
 private:
+    fs::path    path;
     std::string filename;
     std::vector<std::string> lines; /*!< Lines */
 };

@@ -12,7 +12,8 @@ namespace one_header_gen {
  * \param[in] path Path to file
  */
 file_t::file_t(const fs::path &path) :
-    filename(path.string())
+      path(path)
+    , filename(path.string())
 {
     std::ifstream fileStream(path);
     std::string line;
@@ -54,9 +55,9 @@ std::string file_t::to_string() const
  * \brief Write file to path
  * \param[in] path Path to file
  */
-void file_t::write(const fs::path &path) const
+void file_t::write(const fs::path &write_path) const
 {
-    std::ofstream fileStream(path, std::ofstream::trunc);
+    std::ofstream fileStream(write_path, std::ofstream::trunc);
     fileStream << to_string();
 }
 
@@ -120,6 +121,11 @@ std::vector<std::string>& file_t::get_lines()
 const std::string& file_t::get_name() const
 {
     return filename;
+}
+
+const fs::path& file_t::get_path() const
+{
+    return path;
 }
 
 bool operator==(const one_header_gen::file_t& lhs, const one_header_gen::file_t& rhs)
