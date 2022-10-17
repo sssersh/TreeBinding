@@ -12,7 +12,7 @@ set(SOURCES
     file_formatter.cpp
     files_provider.cpp
 #    generator.cpp
-)
+        i_files_provider.h i_generator.h)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

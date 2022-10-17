@@ -20,6 +20,13 @@
 namespace one_header_gen
 {
 
+i_generator_ptr_t create_generator()
+{
+    auto files_provider = std::make_shared<files_provider_t>(TODO);
+    auto file_formatter = std::make_shared<file_formatter_t>(TODO)
+}
+
+
 /*!
  * \brief                      Generator constructor
  * \details                    Read filenames from input_dir_name directory
@@ -27,11 +34,13 @@ namespace one_header_gen
  */
 
 generator_t::generator_t(
-      i_file_formatter_ptr_t file_formatter
-    , const generator_config_t &params) :
-          file_formatter(std::move(file_formatter))
-        , config(params)
-    , templateOutFile(params.get_template_out_file_path())
+      i_files_provider_ptr_t files_provider
+    , i_file_formatter_ptr_t file_formatter
+    , generator_config_t config
+) :
+      files_provider(std::move(files_provider))
+    , file_formatter(std::move(file_formatter)))
+    , config(std::move(config))
 {
 
     LOG("Created single header generator with parameters: ");
@@ -52,7 +61,6 @@ void generator_t::generate()
 {
     LOG("Start generate single header include file ", config.get_out_file_path());
 
-    prepare_out_dir_and_file();
     read_src_files();
     file_formatter->delete_include(
         outFile.get_lines(),
@@ -63,8 +71,13 @@ void generator_t::generate()
     file_formatter->delete_file_description(outFile.get_lines());
 //    deleteIncludeGuards();
     file_formatter->move_includes(outFile.get_lines());
-    auto resultFile = insertOutFileInTemplate();
-    resultFile.write(config.get_out_file_path());
+//    auto resultFile = insertOutFileInTemplate();
+    file_t result_file;
+    file_formatter->replace_all_occurancies_in_single_line(
+            result_file.get_lines(),
+            "PATTERN",
+            outFile.to_string());
+    result_file.write(config.get_out_file_path());
 
     LOG("Succesfully generate single header include file ", config.get_out_file_path());
 }
@@ -96,16 +109,16 @@ void generator_t::read_src_files()
  * \brief  Insert generated output file in template
  * \return Generated file, inserted in template
  */
-file_t generator_t::insertOutFileInTemplate()
-{
-    auto resultFile = file_t();
-
-
-
-    resultFile += templateOutFile;
-    // TODO
-//    resultFile.insert(contentLineIndex, outFile);
-    return resultFile;
-}
+//file_t generator_t::insertOutFileInTemplate()
+//{
+//    auto resultFile = file_t();
+//
+//
+//
+//    resultFile += templateOutFile;
+//    // TODO
+////    resultFile.insert(contentLineIndex, outFile);
+//    return resultFile;
+//}
 
 } // namespace one_header_gen

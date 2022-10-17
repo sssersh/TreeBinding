@@ -8,7 +8,8 @@
 #include "i_file_formatter.h"
 #include "file.h"
 #include "logger.h"
-#include "files_provider.h"
+#include "i_files_provider.h"
+#include "i_generator.h"
 
 namespace one_header_gen
 {
@@ -16,25 +17,23 @@ namespace one_header_gen
 /*!
  * \brief Generator implementation
  */
-struct generator_t
+class generator_t : public i_generator_t
 {
+public:
     generator_t(
-          i_file_formatter_ptr_t file_formatter
-        , const generator_config_t &params);
-    void generate();
+          i_files_provider_ptr_t files_provider
+        , i_file_formatter_ptr_t file_formatter
+        , generator_config_t params);
+    void generate() override;
 
-//    void prepare_out_dir_and_file() const;
-//    void read_src_files();
-
-//    void preprocessFile(file_t &file, std::set<std::string> &&alreadyIncludedFiles = {});
-    file_t insertOutFileInTemplate();
-
+private:
+    i_files_provider_ptr_t files_provider;
     i_file_formatter_ptr_t file_formatter;
     generator_config_t config;
-    file_t                   outFile         ; /*!< Out file content */
-    file_t                   templateOutFile ; /*!< Template of out file */
+//    file_t                   outFile         ; /*!< Out file content */
+//    file_t                   templateOutFile ; /*!< Template of out file */
 
-    static const std::size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in src_files_names array */
+//    static const std::size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in src_files_names array */
 };
 
 } // one_header_gen

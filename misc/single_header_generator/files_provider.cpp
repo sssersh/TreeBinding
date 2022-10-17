@@ -86,7 +86,6 @@ void files_provider_t::read_input_files(const fs::path& input_dir)
         }
     }
     if (input_files.empty()) throw std::runtime_error("No files in input directory");
-
 }
 
 /*!

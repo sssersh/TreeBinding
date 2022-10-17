@@ -7,7 +7,7 @@
 
 using namespace one_header_gen;
 
-class files_provider_test : public ::testing::Test
+class files_provider_test_t : public ::testing::Test
 {
 public:
     void SetUp() override
@@ -47,7 +47,7 @@ public:
     };
 };
 
-TEST_F(files_provider_test, base)
+TEST_F(files_provider_test_t, base)
 {
     fs::remove_all(input_dir);
     fs::remove(template_out_file_path);
@@ -66,12 +66,12 @@ TEST_F(files_provider_test, base)
     ASSERT_NO_THROW(create_files_provider());
 }
 
-TEST_F(files_provider_test, prepare_out_dir_and_file)
+TEST_F(files_provider_test_t, prepare_out_dir_and_file)
 {
     ASSERT_TRUE(fs::exists(files_provider->get_out_file()->get_path().parent_path()));
 }
 
-TEST_F(files_provider_test, get_input_file)
+TEST_F(files_provider_test_t, get_input_file)
 {
     auto file1 = files_provider->get_input_file(input_dir / input_file1_path);
     auto file2 = files_provider->get_input_file(input_dir / input_file2_path);
@@ -89,7 +89,7 @@ TEST_F(files_provider_test, get_input_file)
 }
 
 
-TEST_F(files_provider_test, get_all_input_files)
+TEST_F(files_provider_test_t, get_all_input_files)
 {
     auto input_files = files_provider->get_all_input_files();
 

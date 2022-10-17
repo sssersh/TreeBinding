@@ -7,6 +7,7 @@
 
 #include "logger.h"
 #include "file.h"
+#include "i_files_provider.h"
 
 namespace one_header_gen {
 
@@ -21,7 +22,8 @@ namespace fs = std::filesystem;
 * \param[in] templateOutFile  Template of out file
 * \param[in] contentLineIndex Index of line, where will be insert generated file
  */
-class files_provider_t {
+class files_provider_t : public i_files_provider_t
+{
     file_ptr_t out_file; /*!< Path to out file */
     std::vector<file_ptr_t> input_files   ; /*!< Names of creolization library sources (first file used as
                                                     main file, others - just single_include main file and
@@ -34,9 +36,9 @@ public:
         , fs::path template_out_file_path
     );
 
-    file_ptr_t get_out_file() const;
-    file_ptr_t get_input_file(fs::path path);
-    std::vector<file_ptr_t> get_all_input_files() const;
+    file_ptr_t get_out_file() const override;
+    file_ptr_t get_input_file(fs::path path) override;
+    std::vector<file_ptr_t> get_all_input_files() const override;
 
 private:
     void read_input_files(const fs::path& input_dir);
