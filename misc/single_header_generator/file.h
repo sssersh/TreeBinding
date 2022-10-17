@@ -40,6 +40,8 @@ using file_ptr_t = std::shared_ptr<file_t>;
 
 bool operator==(const one_header_gen::file_t& lhs, const one_header_gen::file_t& rhs);
 
+// TODO: write at destructor
+
 } // namespace one_header_gen
 
 #endif // _FILE_H_

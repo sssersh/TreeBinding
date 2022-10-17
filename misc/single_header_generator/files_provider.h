@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "logger.h"
+#include "file.h"
 
 namespace one_header_gen {
 
@@ -21,38 +22,28 @@ namespace fs = std::filesystem;
 * \param[in] contentLineIndex Index of line, where will be insert generated file
  */
 class files_provider_t {
-
-    fs::path root_dir;  /*!< Path to creolization library root directory         */
-//    std::string_view project_name; /*!< Name of project                                     */
-    fs::path input_dir; /*!< Directory with creolization library sources */
-    std::string_view input_main_file_name;
-    fs::path out_dir; /*!< Output directory path */
-    fs::path template_out_file_path;
-    fs::path out_file_path; /*!< Path to out file */
-    std::vector<fs::path> input_files_paths   ; /*!< Names of creolization library sources (first file used as
+    file_ptr_t out_file; /*!< Path to out file */
+    std::vector<file_ptr_t> input_files   ; /*!< Names of creolization library sources (first file used as
                                                     main file, others - just single_include main file and
                                                     and redefine macro from main file) */
 
 public:
     files_provider_t(
-          fs::path root_dir
-//        , std::string_view project_name
-        , std::string_view input_dir_name
-        , std::string_view input_main_file_name
-        , std::string_view out_dir_name
+          fs::path input_dir
+        , fs::path out_dir
         , fs::path template_out_file_path
     );
 
-//    const fs::path &get_input_dir_path() const;
-    const fs::path &get_output_dir_path() const;
-    const fs::path &get_template_out_file_path() const;
-    const fs::path &get_out_file_path() const;
-//    std::string_view get_project_name() const;
-    std::string_view get_input_main_file_name() const;
-    const std::vector<fs::path>& get_input_files() const;
+    file_ptr_t get_out_file() const;
+    file_ptr_t get_input_file(fs::path path);
+    std::vector<file_ptr_t> get_all_input_files() const;
 
-    void prepare_out_dir_and_file() const;
+private:
+    void read_input_files(const fs::path& input_dir);
+    void prepare_out_dir(const fs::path& out_dir) const;
 };
+
+using files_provider_ptr_t = std::shared_ptr<files_provider_t>;
 
 } // namespace one_header_gen
 

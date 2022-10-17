@@ -1,84 +1,58 @@
 
+#include <algorithm>
+
 #include "files_provider.h"
 
 namespace one_header_gen
 {
 
 files_provider_t::files_provider_t(
-      fs::path root_dir
-//    , std::string_view project_name
-    , std::string_view input_dir_name
-    , std::string_view input_main_file_name
-    , std::string_view out_dir_name
+      fs::path input_dir
+    , fs::path out_dir
     , fs::path template_out_file_path
-    ) :
-    root_dir(root_dir)
-//    , project_name(project_name)
-    , input_dir(root_dir / input_dir_name) // / project_name
-    , input_main_file_name(input_main_file_name)
-    , out_dir(root_dir / out_dir_name) // / project_name
-    , template_out_file_path(root_dir / template_out_file_path)
-    , out_file_path(out_dir / input_main_file_name)
+    )
 {
-    if (!fs::exists(root_dir)) throw std::runtime_error("Root directory not exist");
-//    if (project_name.empty()) throw std::runtime_error("Project name is empty");
     if (!fs::exists(input_dir)) throw std::runtime_error("Input directory not exist");
-//        if (!fs::exists(out_dir)) throw std::runtime_error("Output directory not exist");
     if (!fs::exists(template_out_file_path)) throw std::runtime_error("Template out file not exist");
 
-    for (const auto & input_file : fs::directory_iterator(input_dir))
-    {
-        if(input_file.status().type() == fs::file_type::regular)
-        {
-            input_files_paths.push_back(input_file.path().filename());
-        }
-    }
+    read_input_files(input_dir);
+    prepare_out_dir(out_dir);
 
-    LOG("Generator parameters:");
-    LOG("root_dir = ", root_dir);
-//    LOG("project_name = ", project_name);
-    LOG("input_main_file = ", input_main_file_name);
-    LOG("input_dir = ", input_dir);
-    LOG("out_dir = ", out_dir);
-    LOG("out_file_path = ", out_file_path);
+    // TODO: remove .in
+    out_file = std::make_shared<file_t>(out_dir / template_out_file_path.filename());
+
+    LOG("Create files provider:");
+    LOG("input dir = ", input_dir);
+    LOG("out dir = ", out_dir);
     LOG("template_out_file_path = ", template_out_file_path);
-    LOG("input_files_paths=");
-    for (size_t i = 0; i < input_files_paths.size(); ++i)
+    LOG("out file = ", out_file->get_path());
+    LOG("input files=");
+    for (size_t i = 0; i < input_files.size(); ++i)
     {
-        LOG(i, ": ", input_files_paths[i]);//, (i ? "" : " (main file)"));
+        LOG(i, ": ", input_files[i]->get_path());
     }
-
-
 }
 
-//const fs::path& files_provider_t::get_input_dir_path() const
-//{
-//    return input_dir;
-//}
-
-const fs::path& files_provider_t::get_output_dir_path() const
+file_ptr_t files_provider_t::get_out_file() const
 {
-    return out_dir;
+    return out_file;
 }
 
-const fs::path& files_provider_t::get_template_out_file_path() const
+std::vector<file_ptr_t> files_provider_t::get_all_input_files() const
 {
-    return template_out_file_path;
+    return input_files;
 }
 
-const fs::path& files_provider_t::get_out_file_path() const
+file_ptr_t files_provider_t::get_input_file(fs::path path)
 {
-    return out_file_path;
-}
-
-//std::string_view files_provider_t::get_project_name() const
-//{
-//    return project_name;
-//}
-
-std::string_view files_provider_t::get_input_main_file_name() const
-{
-    return input_main_file_name;
+    auto result = std::find_if(
+        input_files.cbegin(),
+        input_files.cend(),
+        [&](const file_ptr_t& file)
+        {
+            return file->get_path() == path;
+        });
+    return result == input_files.cend() ? file_ptr_t{} : *result;
 }
 
 // Add all header files from input directory
@@ -102,30 +76,30 @@ std::string_view files_provider_t::get_input_main_file_name() const
 //            input_file.path().filename()  != get_input_main_file_name()        &&
 //           input_file.path().extension() == ".h"
 
-const std::vector<fs::path>& files_provider_t::get_input_files() const
+void files_provider_t::read_input_files(const fs::path& input_dir)
 {
-    return input_files_paths;
+    for (const auto & input_file : fs::recursive_directory_iterator(input_dir))
+    {
+        if(input_file.status().type() == fs::file_type::regular)
+        {
+            input_files.emplace_back(std::make_shared<file_t>(input_file.path()));
+        }
+    }
+    if (input_files.empty()) throw std::runtime_error("No files in input directory");
+
 }
 
 /*!
  * \brief Prepare output directory
  * \details Create/clear directory
  */
-void files_provider_t::prepare_out_dir_and_file() const
+void files_provider_t::prepare_out_dir(const fs::path& output_dir) const
 {
-    fs::remove_all(get_output_dir_path());
-    LOG("Remove directory ", get_output_dir_path());
+    fs::remove_all(output_dir);
+    LOG("Remove directory ", output_dir);
 
-    fs::create_directories(get_output_dir_path());
-    LOG("Create directory ", get_output_dir_path());
-
-    std::ofstream { get_out_file_path() }; // std::ofstream::trunc
-    LOG("Create file ", get_out_file_path());
-    LOG("Current content of directory ", get_output_dir_path(), ":");
-    for (const auto & outDirEntry : fs::directory_iterator(get_output_dir_path()))
-    {
-        LOG(outDirEntry);
-    }
+    fs::create_directories(output_dir);
+    LOG("Create directory ", output_dir);
 }
 
 } // namespace one_header_gen
