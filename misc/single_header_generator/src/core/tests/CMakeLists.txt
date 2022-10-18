@@ -1,4 +1,4 @@
-project(gtest_generator CXX)
+project(gtest_generator_core CXX)
 
 include(GoogleTest)
 
@@ -25,7 +25,8 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${GENERATOR_SRC_DIR}
-        ${TEST_INCLUDE_DIR}
+        ${GENERATOR_SRC_DIR}/include
+#        ${TEST_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME}

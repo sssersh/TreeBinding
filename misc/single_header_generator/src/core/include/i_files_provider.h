@@ -7,7 +7,8 @@ namespace one_header_gen
 
 class i_files_provider_t
 {
-    ~i_files_provider_t() = default;
+public:
+    virtual ~i_files_provider_t() = default;
     virtual file_ptr_t get_out_file() const = 0;
     virtual file_ptr_t get_input_file(fs::path path) = 0;
     virtual std::vector<file_ptr_t> get_all_input_files() const = 0;

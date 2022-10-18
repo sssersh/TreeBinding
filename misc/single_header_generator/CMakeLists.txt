@@ -1,21 +1,18 @@
-#
-# Build one header generator and run it
-#
 
 project(generator)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCES
-    utils.cpp
-    file.cpp
-    file_formatter.cpp
-    files_provider.cpp
-#    generator.cpp
-        i_files_provider.h i_generator.h)
+add_subdirectory(src/core)
+
+#target_include_directories(src/include)
+
+set(SOURCES src/main.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-if (WITH_TESTS)
-    add_subdirectory(tests)
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE generator_core)
+
+#if (WITH_TESTS)
+#    add_subdirectory(tests)
+#endif()
