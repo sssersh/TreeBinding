@@ -25,7 +25,6 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${GENERATOR_SRC_DIR}/core
-        ${GENERATOR_SRC_DIR}/core/include
 #        ${TEST_INCLUDE_DIR}
 )
 

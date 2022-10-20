@@ -15,15 +15,28 @@
 
 #include "logger.h"
 #include "utils.h"
+#include "files_provider.h"
+#include "file_formatter.h"
 #include "generator.h"
 
 namespace one_header_gen
 {
 
-i_generator_ptr_t create_generator()
+i_generator_ptr_t create_generator(const generator_config_t& config)
 {
-    auto files_provider = std::make_shared<files_provider_t>(TODO);
-    auto file_formatter = std::make_shared<file_formatter_t>(TODO)
+    auto files_provider = std::make_shared<files_provider_t>(
+        config.root_dir / config.input_dir,
+        config.root_dir / config.out_dir,
+        config.root_dir / config.out_file_path
+    );
+
+    auto file_formatter = std::make_shared<file_formatter_t>();
+
+    return std::make_shared<generator_t>(
+        std::move(files_provider),
+        std::move(file_formatter),
+        config
+    );
 }
 
 
@@ -51,7 +64,6 @@ generator_t::generator_t(
         LOG(line);
     }
     LOG("=========================================");
-
 }
 
 /*!
@@ -59,16 +71,17 @@ generator_t::generator_t(
  */
 void generator_t::generate()
 {
-    LOG("Start generate single header include file ", config.get_out_file_path());
+//    LOG("Start generate single header include file ", config.get_out_file_path());
 
-    read_src_files();
-    file_formatter->delete_include(
-        outFile.get_lines(),
-//        std::string(config.get_project_name()) +
-        "/"
-        + src_files_names[MAIN_FILE_INDEX]);
-    preprocessFile(outFile);
-    file_formatter->delete_file_description(outFile.get_lines());
+    output_file = files_provider->get_out_file();
+    copy_public_includes_to_output_file();
+    delete_include_of_public_inputs();
+    auto input_files = files_provider->get_all_input_files();
+    file_formatter->preprocess_file(output_file->get_lines(), input_files);
+
+
+
+    file_formatter->delete_file_description(outFile.get_lines(), );
 //    deleteIncludeGuards();
     file_formatter->move_includes(outFile.get_lines());
 //    auto resultFile = insertOutFileInTemplate();
@@ -85,24 +98,29 @@ void generator_t::generate()
 /*!
  * \brief Read source files to internal representation
  */
-void generator_t::read_src_files()
+void generator_t::copy_public_includes_to_output_file()
 {
-    LOG("Start read input files in path ", config.get_input_dir_path());
-    for(const auto& fileName : src_files_names)
+    auto public_includes = files_provider->get_public_input_files();
+    for (auto &file : public_includes)
     {
-        auto srcPath = config.get_input_dir_path() / fileName;
-
-        LOG("Read source file ", srcPath);
-
-        outFile += "\n";
-        outFile += files_provider.get_input_file(path);// file_t(srcPath);
-        outFile += "\n";
+        LOG("Add input file ", file->get_path(), " to input file");
+        *output_file += "\n";
+        *output_file += *file;
+        *output_file += "\n";
     }
-    LOG("Finish read source files in path "
-        , config.get_input_dir_path()
+    LOG("Finish read public input files"
         , ", result file contain "
-        , outFile.get_lines().size()
+        , output_file->get_lines().size()
         , " lines");
+}
+
+void generator_t::delete_include_of_public_inputs()
+{
+    for (auto input_file : files_provider->get_public_input_files()) {
+        file_formatter->delete_include(
+                output_file->get_lines(),
+                fs::relative(config.input_dir, input_file->get_path()));
+    }
 }
 
 /*!

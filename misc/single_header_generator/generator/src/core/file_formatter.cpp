@@ -9,6 +9,10 @@
 namespace one_header_gen
 {
 
+file_formatter_t::file_formatter_t(i_editable_file_ptr_t file)
+    : file(std::move(file))
+{}
+
 /*!
  * \brief   Delete file description in Doxygen format
  * \details 1. Find line with "{SLASH}*!"
@@ -16,10 +20,11 @@ namespace one_header_gen
  *          3. Find line with "*\/"
  *          4. Delete
  */
-void file_formatter_t::delete_file_description(LinesContainer &lines)
+void file_formatter_t::delete_file_description()
 {
     std::size_t begin = 0, size;
     bool isFileDescription = false;
+    auto& lines = file->get_lines();
 
     size = lines.size();
     for (std::size_t i = 0; i < size; ++i) {
@@ -45,7 +50,9 @@ void file_formatter_t::delete_file_description(LinesContainer &lines)
 /*!
  * \brief Move lines with "#include" to begin of file
  */
-void file_formatter_t::move_includes(LinesContainer &lines) {
+void file_formatter_t::move_includes()
+{
+    auto& lines = file->get_lines();
     const auto r = std::regex(R"((#include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");
     size_t size = lines.size();
 
@@ -67,12 +74,12 @@ void file_formatter_t::move_includes(LinesContainer &lines) {
 }
 
 void file_formatter_t::replace_all_occurancies_in_single_line(
-      LinesContainer &lines
-    , const std::string &pattern
+      const std::string &pattern
     , const std::string &replacer)
 {
     const auto r = std::regex ( pattern  );
     std::smatch match;
+    auto& lines = file->get_lines();
 
     for(auto &line : lines)
     {
@@ -93,10 +100,7 @@ void file_formatter_t::replace_all_occurancies_in_single_line(
  * \brief Delete include of main source file
  * \details Find line "#include "input_dir_name/mainFileName"" and delete it
  */
-void file_formatter_t::delete_include(
-      std::vector<std::string>& lines
-    , const std::string& path
-    )
+void file_formatter_t::delete_include(const std::string& path)
 {
     const std::string pattern =
           R"(#include[ \t]+["])"
@@ -104,6 +108,7 @@ void file_formatter_t::delete_include(
         + R"(["][ \t]*)";
     const auto r = std::regex(pattern);
     LOG("Delete include of file, search by pattern: ", pattern);
+    auto& lines = file->get_lines();
 
     auto previous_size = lines.size();
     for(std::size_t i = 0; i < lines.size(); ++i)
@@ -130,8 +135,10 @@ void file_formatter_t::delete_include(
  *          b. If contains saved guard identifiers
  *             1. If line contain "#endif {SLASH}* last_guard_identifier *\/, delete line.
  */
-void file_formatter_t::delete_include_guards(LinesContainer &lines)
+void file_formatter_t::delete_include_guards()
 {
+    auto& lines = file->get_lines();
+
     auto delete_line = [&lines](std::size_t& i)
     {
         lines.erase(lines.cbegin() + i);
@@ -187,11 +194,11 @@ void file_formatter_t::delete_include_guards(LinesContainer &lines)
  *            bind refence with default value, also it's necessary to pass by reference)
  */
 void file_formatter_t::preprocess_file(
-      LinesContainer &preprocessed_file
-    , std::unordered_map<std::string, LinesContainer> included_files)
+      std::unordered_map<std::string, i_editable_file_ptr_t> included_files)
 {
     const std::string pattern = R"(#include[ \t]+["]([^"]+)["][ \t]*)";
     const auto include_regex = std::regex ( pattern );
+    auto& preprocessed_file = file->get_lines();
 
     std::set<std::string> already_included_files;
 
@@ -210,8 +217,8 @@ void file_formatter_t::preprocess_file(
                 preprocessed_file.erase(preprocessed_file.cbegin() + i);
                 preprocessed_file.insert(
                     preprocessed_file.cbegin() + i,
-                    included_files[include_path].cbegin(),
-                    included_files[include_path].cend());
+                    included_files[include_path]->get_lines().cbegin(),
+                    included_files[include_path]->get_lines().cend());
                 --i;
             }
             else

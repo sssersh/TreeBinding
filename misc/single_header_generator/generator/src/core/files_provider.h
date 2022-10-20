@@ -39,10 +39,13 @@ public:
     file_ptr_t get_out_file() const override;
     file_ptr_t get_input_file(fs::path path) override;
     std::vector<file_ptr_t> get_all_input_files() const override;
+    std::vector<file_ptr_t> get_public_input_files() const override;
 
 private:
-    void read_input_files(const fs::path& input_dir);
+    void read_input_files();
     void prepare_out_dir(const fs::path& out_dir) const;
+
+    fs::path input_dir;
 };
 
 using files_provider_ptr_t = std::shared_ptr<files_provider_t>;

@@ -10,12 +10,13 @@ files_provider_t::files_provider_t(
       fs::path input_dir
     , fs::path out_dir
     , fs::path template_out_file_path
-    )
+    ) :
+    input_dir(input_dir)
 {
     if (!fs::exists(input_dir)) throw std::runtime_error("Input directory not exist");
     if (!fs::exists(template_out_file_path)) throw std::runtime_error("Template out file not exist");
 
-    read_input_files(input_dir);
+    read_input_files();
     prepare_out_dir(out_dir);
 
     // TODO: remove .in
@@ -55,6 +56,22 @@ file_ptr_t files_provider_t::get_input_file(fs::path path)
     return result == input_files.cend() ? file_ptr_t{} : *result;
 }
 
+std::vector<file_ptr_t> files_provider_t::get_public_input_files() const
+{
+    const fs::path detail_include_path = "details";
+    std::vector<file_ptr_t> result;
+
+    std::copy_if(
+        input_files.cbegin(),
+        input_files.cend(),
+        std::back_inserter(result),
+        [&](const file_ptr_t& file)
+        {
+            return fs::relative(file->get_path(), input_dir).parent_path() != detail_include_path;
+        });
+    return result;
+}
+
 // Add all header files from input directory
 
 //    src_files_names.emplace_back(std::string(params.get_input_main_file_name()));
@@ -76,13 +93,13 @@ file_ptr_t files_provider_t::get_input_file(fs::path path)
 //            input_file.path().filename()  != get_input_main_file_name()        &&
 //           input_file.path().extension() == ".h"
 
-void files_provider_t::read_input_files(const fs::path& input_dir)
+void files_provider_t::read_input_files()
 {
     for (const auto & input_file : fs::recursive_directory_iterator(input_dir))
     {
         if(input_file.status().type() == fs::file_type::regular)
         {
-            input_files.emplace_back(std::make_shared<file_t>(input_file.path()));
+            input_files.emplace_back(std::make_shared<file_t>(input_file));
         }
     }
     if (input_files.empty()) throw std::runtime_error("No files in input directory");

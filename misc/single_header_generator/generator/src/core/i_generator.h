@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include "generator_config.h"
+
 namespace one_header_gen
 {
 
@@ -15,7 +17,7 @@ class i_generator_t
 
 using i_generator_ptr_t = std::shared_ptr<i_generator_t>;
 
-i_generator_ptr_t create_generator();
+i_generator_ptr_t create_generator(const generator_config_t& config);
 
 } // namespace one_header_gen
 

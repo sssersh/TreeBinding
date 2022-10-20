@@ -1,97 +1,111 @@
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "file_formatter.h"
 
 using namespace one_header_gen;
 
+class file_mock_t : public i_editable_file_t
+{
+public:
+    MOCK_METHOD(std::vector<std::string>&, get_lines, (), (override));
+};
+
+using file_mock_ptr_t = std::shared_ptr<file_mock_t>;
+
 class file_formatter_test : public testing::Test
 {
 public:
     void SetUp() override
     {
-        file_formatter = std::make_shared<file_formatter_t>();
+        file = std::make_shared<file_mock_t>();
+        file_formatter = std::make_shared<file_formatter_t>(file);
+
+        ON_CALL(*file, get_lines)
+                .WillByDefault(::testing::ReturnRef(file_lines));
     }
 
     void TearDown() override
     {
-        file.clear();
-        reference_file.clear();
+        file_lines.clear();
+        reference_file_lines.clear();
     }
 
     i_file_formatter_ptr_t file_formatter;
-    LinesContainer file;
-    LinesContainer reference_file;
+    file_mock_ptr_t file;
 
-    const LinesContainer test_file_content =
+    std::vector<std::string> file_lines;
+    std::vector<std::string> reference_file_lines;
+
+    const std::vector<std::string> test_file_content =
     {
           "String 1"
         , "String two"
         , "String three"
     };
 
-    const LinesContainer test_file_description =
+    const std::vector<std::string> test_file_description =
     {
            "/**"
          , R"(\file Filename)"
          , R"(\desc Description)"
          , "*/"
     };
-
 };
 
 TEST_F(file_formatter_test, delete_description)
 {
-    auto file_formatter = std::make_shared<file_formatter_t>();
+//    auto file_formatter = std::make_shared<file_formatter_t>();
 
     std::copy(
         test_file_description.cbegin(),
         test_file_description.cend(),
-        std::back_inserter(file));
+        std::back_inserter(file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file_formatter->delete_file_description(file);
-    ASSERT_EQ(file, test_file_content);
-    file.clear();
+            std::back_inserter(file_lines));
+    file_formatter->delete_file_description();
+    ASSERT_EQ(file_lines, test_file_content);
+    file_lines.clear();
 
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
+            std::back_inserter(file_lines));
     std::copy(
             test_file_description.cbegin(),
             test_file_description.cend(),
-            std::back_inserter(file));
-    file_formatter->delete_file_description(file);
-    ASSERT_EQ(file, test_file_content);
-    file.clear();
+            std::back_inserter(file_lines));
+    file_formatter->delete_file_description();
+    ASSERT_EQ(file_lines, test_file_content);
+    file_lines.clear();
 
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
+            std::back_inserter(file_lines));
     std::copy(
             test_file_description.cbegin(),
             test_file_description.cend(),
-            std::back_inserter(file));
+            std::back_inserter(file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
+            std::back_inserter(file_lines));
 
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
 
-    file_formatter->delete_file_description(file);
-    ASSERT_EQ(file, reference_file);
+    file_formatter->delete_file_description();
+    ASSERT_EQ(file_lines, reference_file_lines);
 }
 
 TEST_F(file_formatter_test, move_includes)
@@ -99,33 +113,32 @@ TEST_F(file_formatter_test, move_includes)
     std::string include_str1 = "#include <test1>";
     std::string include_str2 = "#include <test2>";
 
-    std::vector<std::string> reference_file;
-    reference_file.push_back(include_str1);
-    reference_file.push_back(include_str2);
+    reference_file_lines.push_back(include_str1);
+    reference_file_lines.push_back(include_str2);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
 
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back(include_str1);
+            std::back_inserter(file_lines));
+    file_lines.push_back(include_str1);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back(include_str1);
-    file.push_back(include_str2);
+            std::back_inserter(file_lines));
+    file_lines.push_back(include_str1);
+    file_lines.push_back(include_str2);
 
-    file_formatter->move_includes(file);
+    file_formatter->move_includes();
 
-    ASSERT_EQ(file, reference_file);
+    ASSERT_EQ(file_lines, reference_file_lines);
 }
 
 TEST_F(file_formatter_test, delete_includes)
@@ -134,45 +147,44 @@ TEST_F(file_formatter_test, delete_includes)
     std::string include_str1 = "#include \"" + include_path_1 + "\"";
     std::string include_str2 = "#include \"test2\"";
 
-    file.push_back(include_str2);
+    file_lines.push_back(include_str2);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back(include_str1);
-    file.push_back(include_str2);
-    file.push_back(include_str1);
+            std::back_inserter(file_lines));
+    file_lines.push_back(include_str1);
+    file_lines.push_back(include_str2);
+    file_lines.push_back(include_str1);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back(include_str1);
-    file.push_back(include_str2);
+            std::back_inserter(file_lines));
+    file_lines.push_back(include_str1);
+    file_lines.push_back(include_str2);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
+            std::back_inserter(file_lines));
 
-    std::vector<std::string> reference_file;
-    reference_file.push_back(include_str2);
+    reference_file_lines.push_back(include_str2);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
-    reference_file.push_back(include_str2);
+            std::back_inserter(reference_file_lines));
+    reference_file_lines.push_back(include_str2);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
-    reference_file.push_back(include_str2);
+            std::back_inserter(reference_file_lines));
+    reference_file_lines.push_back(include_str2);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
 
-    file_formatter->delete_include(file, include_path_1);
+    file_formatter->delete_include(include_path_1);
 
-    ASSERT_EQ(file, reference_file);
+    ASSERT_EQ(file_lines, reference_file_lines);
 }
 
 TEST_F(file_formatter_test, replace_all_occurancies_in_single_line)
@@ -183,122 +195,133 @@ TEST_F(file_formatter_test, replace_all_occurancies_in_single_line)
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back(str1);
+            std::back_inserter(file_lines));
+    file_lines.push_back(str1);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back(str2);
-    file.push_back(str1);
+            std::back_inserter(file_lines));
+    file_lines.push_back(str2);
+    file_lines.push_back(str1);
 
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
-    reference_file.push_back(str2);
+            std::back_inserter(reference_file_lines));
+    reference_file_lines.push_back(str2);
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
-    reference_file.push_back(str2);
-    reference_file.push_back(str2);
+            std::back_inserter(reference_file_lines));
+    reference_file_lines.push_back(str2);
+    reference_file_lines.push_back(str2);
 
-    file_formatter->replace_all_occurancies_in_single_line(file, "ForReplace", "Replaced");
+    file_formatter->replace_all_occurancies_in_single_line("ForReplace", "Replaced");
 
-    ASSERT_EQ(file, reference_file);
+    ASSERT_EQ(file_lines, reference_file_lines);
 }
 
 TEST_F(file_formatter_test, delete_include_guards_positive)
 {
-    file.push_back("#pragma once");
+    file_lines.push_back("#pragma once");
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back("#ifndef _TEST_");
-    file.push_back("#define _TEST_");
-    file.push_back("#endif // _TEST_");
-    file.push_back("#ifndef _TEST_");
-    file.push_back("#define _TEST_");
+            std::back_inserter(file_lines));
+    file_lines.push_back("#ifndef _TEST_");
+    file_lines.push_back("#define _TEST_");
+    file_lines.push_back("#endif // _TEST_");
+    file_lines.push_back("#ifndef _TEST_");
+    file_lines.push_back("#define _TEST_");
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back("#ifndef _TEST_2_");
-    file.push_back("#define _TEST_2_");
+            std::back_inserter(file_lines));
+    file_lines.push_back("#ifndef _TEST_2_");
+    file_lines.push_back("#define _TEST_2_");
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back("#ifndef _TEST_3_");
-    file.push_back("#define _TEST_3_");
+            std::back_inserter(file_lines));
+    file_lines.push_back("#ifndef _TEST_3_");
+    file_lines.push_back("#define _TEST_3_");
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(file));
-    file.push_back("#endif // _TEST_3_");
-    file.push_back("#endif /* _TEST_2_ */");
-    file.push_back("#endif // _TEST_");
+            std::back_inserter(file_lines));
+    file_lines.push_back("#endif // _TEST_3_");
+    file_lines.push_back("#endif /* _TEST_2_ */");
+    file_lines.push_back("#endif // _TEST_");
 
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
 
-    file_formatter->delete_include_guards(file);
+    file_formatter->delete_include_guards();
 
-    ASSERT_EQ(file, reference_file);
+    ASSERT_EQ(file_lines, reference_file_lines);
 }
 
 TEST_F(file_formatter_test, preprocess_file)
 {
-    std::unordered_map<std::string, LinesContainer> include_files;
+    std::unordered_map<std::string, i_editable_file_ptr_t> include_files;
     std::string included_file1_path = "test/path/file.h";
     std::string included_file2_path = "test/path/file_2_nested.h";
     std::string included_file3_path = "test/path/file_3.h";
 
-    file.push_back("#include \"" + included_file1_path + "\"");
+    file_lines.push_back("#include \"" + included_file1_path + "\"");
     std::copy(
             test_file_description.cbegin(),
             test_file_description.cend(),
-            std::back_inserter(file));
-    file.push_back("#include \"" + included_file3_path + "\"");
+            std::back_inserter(file_lines));
+    file_lines.push_back("#include \"" + included_file3_path + "\"");
 
-    LinesContainer include_file_1;
-    include_file_1.push_back("#include \"" + included_file2_path + "\"");
+    std::vector<std::string> include_file_1_lines;
+    include_file_1_lines.push_back("#include \"" + included_file2_path + "\"");
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(include_file_1));
+            std::back_inserter(include_file_1_lines));
 
-    LinesContainer include_file_2;
+    std::vector<std::string> include_file_2_lines;
     std::copy(
             test_file_description.cbegin(),
             test_file_description.cend(),
-            std::back_inserter(include_file_2));
+            std::back_inserter(include_file_2_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(include_file_2));
+            std::back_inserter(include_file_2_lines));
 
-    LinesContainer include_file_3;
+    std::vector<std::string> include_file_3_lines;
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(include_file_3));
+            std::back_inserter(include_file_3_lines));
+
+    auto include_file_1 = std::make_shared<file_mock_t>();
+    auto include_file_2 = std::make_shared<file_mock_t>();
+    auto include_file_3 = std::make_shared<file_mock_t>();
+
+    ON_CALL(*include_file_1, get_lines)
+            .WillByDefault(::testing::ReturnRef(include_file_1_lines));
+    ON_CALL(*include_file_2, get_lines)
+            .WillByDefault(::testing::ReturnRef(include_file_2_lines));
+    ON_CALL(*include_file_3, get_lines)
+            .WillByDefault(::testing::ReturnRef(include_file_3_lines));
 
     include_files =
     {
@@ -310,26 +333,26 @@ TEST_F(file_formatter_test, preprocess_file)
     std::copy(
             test_file_description.cbegin(),
             test_file_description.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
 
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
     std::copy(
             test_file_description.cbegin(),
             test_file_description.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
     std::copy(
             test_file_content.cbegin(),
             test_file_content.cend(),
-            std::back_inserter(reference_file));
+            std::back_inserter(reference_file_lines));
 
-    file_formatter->preprocess_file(file, include_files);
+    file_formatter->preprocess_file(include_files);
 
-    ASSERT_EQ(file, reference_file);
+    ASSERT_EQ(file_lines, reference_file_lines);
 }

@@ -29,7 +29,7 @@ public:
 
     const fs::path input_dir = "test_input_dir";
     const fs::path input_file1_path = "file1.h";
-    const fs::path input_file2_path = "nested/file2.h";
+    const fs::path input_file2_path = "details/file2.h";
     const fs::path input_file3_path = "test_file.cpp";
     const fs::path output_dir = "test_out_dir";
     const fs::path template_out_file_path = "test_template_file.in";
@@ -76,7 +76,6 @@ TEST_F(files_provider_test_t, get_input_file)
     auto file1 = files_provider->get_input_file(input_dir / input_file1_path);
     auto file2 = files_provider->get_input_file(input_dir / input_file2_path);
     auto file3 = files_provider->get_input_file(input_dir / input_file3_path);
-
 
     ASSERT_TRUE(file1);
     ASSERT_TRUE(file2);
@@ -127,4 +126,15 @@ TEST_F(files_provider_test_t, get_all_input_files)
 //    ASSERT_EQ(*file1, file_t(input_file1_path));
 //    ASSERT_EQ(*file2, file_t(input_file2_path));
 //    ASSERT_EQ(*main_file, file_t(main_file_name));
+}
+
+
+TEST_F(files_provider_test_t, get_public_input_files)
+{
+    auto public_input_files = files_provider->get_public_input_files();
+
+    ASSERT_EQ(public_input_files.size(), (decltype(public_input_files)::size_type)2);
+
+    // TODO
+//    ASSERT_EQ(public_input_files[0], file_t(input_file1_path));
 }

@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <vector>
 
+#include "i_editable_file.h"
+
 namespace fs = std::filesystem;
 
 namespace one_header_gen
@@ -12,7 +14,7 @@ namespace one_header_gen
 /*!
  * \brief Structure for represent source file as array of lines
  */
-class file_t {
+class file_t : public i_editable_file_t {
 public:
     file_t() = default;
     file_t(const fs::path &path);
@@ -22,9 +24,10 @@ public:
     void insert(const std::size_t position, const file_t &file);
     void clear();
     std::string to_string() const;
-    std::vector<std::string>& get_lines();
     const std::string& get_name() const;
     const fs::path& get_path() const;
+
+    std::vector<std::string>& get_lines() override;
 
     const file_t& operator+=(const file_t &rhs);
     const file_t& operator+=(const std::string &rhs);

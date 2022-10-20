@@ -27,10 +27,13 @@ public:
     void generate() override;
 
 private:
+    void copy_public_includes_to_output_file();
+    void delete_include_of_public_inputs();
+
     i_files_provider_ptr_t files_provider;
     i_file_formatter_ptr_t file_formatter;
     generator_config_t config;
-//    file_t                   outFile         ; /*!< Out file content */
+    file_ptr_t output_file; /*!< Output file */
 //    file_t                   templateOutFile ; /*!< Template of out file */
 
 //    static const std::size_t MAIN_FILE_INDEX = 0; /*!< Index of main header file in src_files_names array */
