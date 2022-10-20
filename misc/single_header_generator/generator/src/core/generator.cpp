@@ -76,10 +76,18 @@ void generator_t::generate()
     output_file = files_provider->get_out_file();
     copy_public_includes_to_output_file();
     delete_include_of_public_inputs();
+
     auto input_files = files_provider->get_all_input_files();
-    file_formatter->preprocess_file(output_file->get_lines(), input_files);
-
-
+    std::unordered_map<std::string, i_editable_file_ptr_t> input_files_map;
+    std::transform(
+        input_files.begin(),
+        input_files.end(),
+        std::inserter(input_files_map, input_files_map.end()),
+        [](decltype(input_files)::value_type &file)
+        {
+            return std::pair{ file->get_path(), file };
+        });
+    file_formatter->preprocess_file(input_files_map);
 
     file_formatter->delete_file_description(outFile.get_lines(), );
 //    deleteIncludeGuards();

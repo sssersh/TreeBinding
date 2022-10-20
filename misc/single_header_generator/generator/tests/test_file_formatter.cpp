@@ -22,8 +22,8 @@ public:
         file = std::make_shared<file_mock_t>();
         file_formatter = std::make_shared<file_formatter_t>(file);
 
-        ON_CALL(*file, get_lines)
-                .WillByDefault(::testing::ReturnRef(file_lines));
+        EXPECT_CALL(*file, get_lines())
+                .WillRepeatedly(::testing::ReturnRef(file_lines));
     }
 
     void TearDown() override
@@ -316,12 +316,12 @@ TEST_F(file_formatter_test, preprocess_file)
     auto include_file_2 = std::make_shared<file_mock_t>();
     auto include_file_3 = std::make_shared<file_mock_t>();
 
-    ON_CALL(*include_file_1, get_lines)
-            .WillByDefault(::testing::ReturnRef(include_file_1_lines));
-    ON_CALL(*include_file_2, get_lines)
-            .WillByDefault(::testing::ReturnRef(include_file_2_lines));
-    ON_CALL(*include_file_3, get_lines)
-            .WillByDefault(::testing::ReturnRef(include_file_3_lines));
+    EXPECT_CALL(*include_file_1, get_lines())
+            .WillRepeatedly(::testing::ReturnRef(include_file_1_lines));
+    EXPECT_CALL(*include_file_2, get_lines())
+            .WillRepeatedly(::testing::ReturnRef(include_file_2_lines));
+    EXPECT_CALL(*include_file_3, get_lines())
+            .WillRepeatedly(::testing::ReturnRef(include_file_3_lines));
 
     include_files =
     {
