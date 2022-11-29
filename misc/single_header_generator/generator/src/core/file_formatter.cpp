@@ -50,7 +50,7 @@ void file_formatter_t::delete_file_description()
 /*!
  * \brief Move lines with "#include" to begin of file
  */
-void file_formatter_t::move_includes()
+void file_formatter_t::move_includes_to_top()
 {
     auto& lines = file->get_lines();
     const auto r = std::regex(R"((#include[ \t]*[<][a-zA-Z0-9\._/]*[>]).*)");

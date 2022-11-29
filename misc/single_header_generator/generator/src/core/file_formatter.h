@@ -10,18 +10,18 @@ namespace one_header_gen
 class file_formatter_t : public i_file_formatter_t
 {
 public:
-    file_formatter_t(i_editable_file_ptr_t file);
+    file_formatter_t(i_file_ptr_t file);
     void delete_file_description() override;
-    void move_includes() override;
+    void move_includes_to_top() override;
     void replace_all_occurancies_in_single_line(
           const std::string &pattern
         , const std::string &replacer) override;
     void delete_include(const std::string& path) override;
     void delete_include_guards() override;
-    void preprocess_file(std::unordered_map<std::string, i_editable_file_ptr_t> included_files) override;
+    void preprocess_file(std::unordered_map<std::string, i_file_ptr_t> included_files) override;
 
 private:
-    i_editable_file_ptr_t file;
+    i_file_ptr_t file;
 };
 
 } // namespace one_header_gen

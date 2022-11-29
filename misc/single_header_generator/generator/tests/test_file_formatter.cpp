@@ -6,10 +6,11 @@
 
 using namespace one_header_gen;
 
-class file_mock_t : public i_editable_file_t
+class file_mock_t : public i_file_t
 {
 public:
     MOCK_METHOD(std::vector<std::string>&, get_lines, (), (override));
+    MOCK_METHOD(const std::string_view, get_path, (), (override, const));
 };
 
 using file_mock_ptr_t = std::shared_ptr<file_mock_t>;
@@ -56,8 +57,6 @@ public:
 
 TEST_F(file_formatter_test, delete_description)
 {
-//    auto file_formatter = std::make_shared<file_formatter_t>();
-
     std::copy(
         test_file_description.cbegin(),
         test_file_description.cend(),
@@ -108,7 +107,7 @@ TEST_F(file_formatter_test, delete_description)
     ASSERT_EQ(file_lines, reference_file_lines);
 }
 
-TEST_F(file_formatter_test, move_includes)
+TEST_F(file_formatter_test, move_includes_to_top)
 {
     std::string include_str1 = "#include <test1>";
     std::string include_str2 = "#include <test2>";
@@ -136,7 +135,7 @@ TEST_F(file_formatter_test, move_includes)
     file_lines.push_back(include_str1);
     file_lines.push_back(include_str2);
 
-    file_formatter->move_includes();
+    file_formatter->move_includes_to_top();
 
     ASSERT_EQ(file_lines, reference_file_lines);
 }
@@ -277,7 +276,7 @@ TEST_F(file_formatter_test, delete_include_guards_positive)
 
 TEST_F(file_formatter_test, preprocess_file)
 {
-    std::unordered_map<std::string, i_editable_file_ptr_t> include_files;
+    std::unordered_map<std::string, i_file_ptr_t> include_files;
     std::string included_file1_path = "test/path/file.h";
     std::string included_file2_path = "test/path/file_2_nested.h";
     std::string included_file3_path = "test/path/file_3.h";

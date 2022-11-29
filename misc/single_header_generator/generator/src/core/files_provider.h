@@ -8,6 +8,8 @@
 #include "logger.h"
 #include "file.h"
 #include "i_files_provider.h"
+#include "i_fs_interactor.h"
+#include "i_file_factory.h"
 
 namespace one_header_gen {
 
@@ -24,31 +26,39 @@ namespace fs = std::filesystem;
  */
 class files_provider_t : public i_files_provider_t
 {
-    file_ptr_t out_file; /*!< Path to out file */
-    std::vector<file_ptr_t> input_files   ; /*!< Names of creolization library sources (first file used as
-                                                    main file, others - just single_include main file and
-                                                    and redefine macro from main file) */
 
 public:
     files_provider_t(
           fs::path input_dir
         , fs::path out_dir
         , fs::path template_out_file_path
+        , i_fs_interactor_ptr_t fs_interactor
+        , i_file_factory_ptr_t file_factory
     );
 
-    file_ptr_t get_out_file() const override;
-    file_ptr_t get_input_file(fs::path path) override;
-    std::vector<file_ptr_t> get_all_input_files() const override;
-    std::vector<file_ptr_t> get_public_input_files() const override;
+    std::vector<i_file_ptr_t> get_all_input_files() const override;
+    std::vector<i_file_ptr_t> get_public_input_files() const override;
+    i_file_ptr_t get_input_file(const std::string& path) override;
+    i_file_ptr_t get_template_out_file() const override;
+    i_file_ptr_t get_out_file() const override;
+
+    ~files_provider_t();
 
 private:
     void read_input_files();
     void prepare_out_dir(const fs::path& out_dir) const;
 
     fs::path input_dir;
+    i_fs_interactor_ptr_t fs_interactor;
+    i_file_factory_ptr_t file_factory;
+    i_file_ptr_t out_file; /*!< Path to out file */
+    std::vector<i_file_ptr_t> input_files   ; /*!< Names of creolization library sources (first file used as
+                                                    main file, others - just single_include main file and
+                                                    and redefine macro from main file) */
+    i_file_ptr_t template_out_file;
 };
 
-using files_provider_ptr_t = std::shared_ptr<files_provider_t>;
+//using files_provider_ptr_t = std::shared_ptr<files_provider_t>;
 
 } // namespace one_header_gen
 

@@ -3,10 +3,9 @@
 
 #include <gtest/gtest.h>
 
-#include <experimental/filesystem>
+#include <filesystem>
 
 using namespace one_header_gen;
-namespace filesystem = std::experimental::filesystem;
 
 class logger_test : public ::testing::Test
 {
@@ -18,7 +17,7 @@ public:
 
     void TearDown() override
     {
-        filesystem::remove(filename());
+        std::filesystem::remove(filename());
     }
 
     static std::string filename() { return "out.log"; }
@@ -26,11 +25,11 @@ public:
 
 TEST_F(logger_test, create_file)
 {
-    ASSERT_TRUE(std::experimental::filesystem::exists(logger_test::filename()));
+    ASSERT_TRUE(std::filesystem::exists(logger_test::filename()));
 }
 
 TEST_F(logger_test, write_to_file)
-{    
+{
     logger_t::write("First string\n");
     logger_t::write("Second string ", "Argument 2 ", 555);
 

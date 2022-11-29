@@ -5,10 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
     src/core/utils.cpp
+    src/core/fs_interactor.cpp
     src/core/file.cpp
-    src/core/file_formatter.cpp
-    src/core/files_provider.cpp
-    src/main.cpp
+#    src/core/file_formatter.cpp
+#    src/core/files_provider.cpp
+#    src/main.cpp
     #    generator.cpp
 )
 
