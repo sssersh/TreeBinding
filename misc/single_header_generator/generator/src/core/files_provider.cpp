@@ -12,14 +12,14 @@ i_files_provider_ptr_t create_files_provider(
     , fs::path template_out_file_path
 )
 {
-    auto fs_interactor = create_fs_interactor();
+    auto fs_adapter = create_fs_adapter();
     auto file_factory  = create_file_factory();
 
     return std::make_shared<files_provider_t>(
           input_dir
         , out_dir
         , template_out_file_path
-        , fs_interactor
+        , fs_adapter
         , file_factory
     );
 }
@@ -28,17 +28,17 @@ files_provider_t::files_provider_t(
       fs::path input_dir
     , fs::path out_dir
     , fs::path template_out_file_path
-    , i_fs_interactor_ptr_t fs_interactor
+    , i_fs_adapter_ptr_t fs_adapter
     , i_file_factory_ptr_t file_factory
     ) :
       input_dir(std::move(input_dir))
-    , fs_interactor(std::move(fs_interactor))
+    , fs_adapter(std::move(fs_adapter))
     , file_factory(std::move(file_factory))
 {
-    for (const auto & input_file_path : fs_interactor->get_files_list_recursively(input_dir))
+    for (const auto & input_file_path : fs_adapter->get_files_list_recursively(input_dir))
     {
         auto file = file_factory->create(input_file_path);
-        file->get_lines() = fs_interactor->read_file(input_file_path);
+        file->get_lines() = fs_adapter->read_file(input_file_path);
         input_files.emplace_back(file);
     }
     if (input_files.empty()) throw std::runtime_error("No files in input directory");
@@ -47,7 +47,7 @@ files_provider_t::files_provider_t(
     out_file = file_factory->create(out_dir / template_out_file_path.filename());
 
     template_out_file = file_factory->create(template_out_file_path);
-    template_out_file->get_lines() = fs_interactor->read_file(template_out_file_path);
+    template_out_file->get_lines() = fs_adapter->read_file(template_out_file_path);
 
 //    template_out_file = file_factory->create(template_out_file_path);
 
@@ -65,7 +65,7 @@ files_provider_t::files_provider_t(
 
 files_provider_t::~files_provider_t()
 {
-    fs_interactor->write_file(out_file->get_lines(), out_file->get_path());
+    fs_adapter->write_file(out_file->get_lines(), out_file->get_path());
 }
 
 i_file_ptr_t files_provider_t::get_out_file() const

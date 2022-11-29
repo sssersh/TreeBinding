@@ -5,7 +5,7 @@ include(GoogleTest)
 set(GENERATOR_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 set(SOURCES
     test_logger.cpp
-    test_fs_interactor.cpp
+    test_fs_adapter.cpp
     test_file.cpp
     test_file_formatter.cpp
     test_utils.cpp
@@ -16,7 +16,7 @@ set(SOURCES
 add_executable(${PROJECT_NAME}
     ${SOURCES}
     ${GENERATOR_SRC_DIR}/core/utils.cpp
-    ${GENERATOR_SRC_DIR}/core/fs_interactor.cpp
+    ${GENERATOR_SRC_DIR}/core/fs_adapter.cpp
     ${GENERATOR_SRC_DIR}/core/file.cpp
     ${GENERATOR_SRC_DIR}/core/file_formatter.cpp
     ${GENERATOR_SRC_DIR}/core/files_provider.cpp

@@ -8,7 +8,7 @@
 #include "logger.h"
 #include "file.h"
 #include "i_files_provider.h"
-#include "i_fs_interactor.h"
+#include "i_fs_adapter.h"
 #include "i_file_factory.h"
 
 namespace one_header_gen {
@@ -32,7 +32,7 @@ public:
           fs::path input_dir
         , fs::path out_dir
         , fs::path template_out_file_path
-        , i_fs_interactor_ptr_t fs_interactor
+        , i_fs_adapter_ptr_t fs_adapter
         , i_file_factory_ptr_t file_factory
     );
 
@@ -49,7 +49,7 @@ private:
     void prepare_out_dir(const fs::path& out_dir) const;
 
     fs::path input_dir;
-    i_fs_interactor_ptr_t fs_interactor;
+    i_fs_adapter_ptr_t fs_adapter;
     i_file_factory_ptr_t file_factory;
     i_file_ptr_t out_file; /*!< Path to out file */
     std::vector<i_file_ptr_t> input_files   ; /*!< Names of creolization library sources (first file used as

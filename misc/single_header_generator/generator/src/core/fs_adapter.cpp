@@ -3,7 +3,7 @@
 #include <fstream>
 #include <memory>
 
-#include "fs_interactor.h"
+#include "fs_adapter.h"
 
 namespace
 {
@@ -30,22 +30,22 @@ auto get_files_list(const fs::path& directory)
 namespace one_header_gen
 {
 
-i_fs_interactor_ptr_t create_fs_interactor()
+i_fs_adapter_ptr_t create_fs_adapter()
 {
-    return std::make_shared<fs_interactor_t>();
+    return std::make_shared<fs_adapter_t>();
 }
 
-std::vector<fs::path> fs_interactor_t::get_files_list(const fs::path& directory)
+std::vector<fs::path> fs_adapter_t::get_files_list(const fs::path& directory)
 {
     return ::get_files_list<fs::directory_iterator>(directory);
 }
 
-std::vector<fs::path> fs_interactor_t::get_files_list_recursively(const fs::path& directory)
+std::vector<fs::path> fs_adapter_t::get_files_list_recursively(const fs::path& directory)
 {
     return ::get_files_list<fs::recursive_directory_iterator>(directory);
 }
 
-std::vector<std::string> fs_interactor_t::read_file(const fs::path& file_path)
+std::vector<std::string> fs_adapter_t::read_file(const fs::path& file_path)
 {
     if (!fs::exists(file_path) || !std::filesystem::is_regular_file(file_path))
         throw std::invalid_argument("Incorrect file path: " + file_path.string());
@@ -62,7 +62,7 @@ std::vector<std::string> fs_interactor_t::read_file(const fs::path& file_path)
     return result;
 }
 
-void fs_interactor_t::write_file(const std::vector<std::string>& content, const fs::path& file_path)
+void fs_adapter_t::write_file(const std::vector<std::string>& content, const fs::path& file_path)
 {
     if (!std::filesystem::is_regular_file(file_path))
         throw std::invalid_argument("Incorrect file path: " + file_path.string());

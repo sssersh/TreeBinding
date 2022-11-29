@@ -1,13 +1,13 @@
 
-#ifndef _FS_INTERACTOR_H_
-#define _FS_INTERACTOR_H_
+#ifndef _FS_ADAPTER_H_
+#define _FS_ADAPTER_H_
 
-#include "i_fs_interactor.h"
+#include "i_fs_adapter.h"
 
 namespace one_header_gen
 {
 
-class fs_interactor_t : public i_fs_interactor_t
+class fs_adapter_t : public i_fs_adapter_t
 {
     std::vector<fs::path>    get_files_list(const fs::path& directory) override;
     std::vector<fs::path>    get_files_list_recursively(const fs::path& directory) override;
@@ -17,4 +17,4 @@ class fs_interactor_t : public i_fs_interactor_t
 
 } // namespace one_header_gen
 
-#endif // _FS_INTERACTOR_H_
+#endif // _FS_ADAPTER_H_

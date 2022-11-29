@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 
 using namespace one_header_gen;
 
-class fs_interactor_mock_t : public i_fs_interactor_t
+class fs_adapter_mock_t : public i_fs_adapter_t
 {
 public:
     MOCK_METHOD(std::vector<fs::path>, get_files_list, (const fs::path& directory), (override));
@@ -19,7 +19,7 @@ public:
     MOCK_METHOD(void, write_file, (const std::vector<std::string>& content, const fs::path& file_path), (override));
 };
 
-using fs_interactor_mock_ptr_t = std::shared_ptr<fs_interactor_mock_t>;
+using fs_adapter_mock_ptr_t = std::shared_ptr<fs_adapter_mock_t>;
 
 class file_factory_mock_t : public i_file_factory_t
 {
@@ -42,7 +42,7 @@ public:
 
 //        files_provider = create_files_provider();
 
-        fs_interactor_mock = std::make_shared<fs_interactor_mock_t>();
+        fs_adapter_mock = std::make_shared<fs_adapter_mock_t>();
         file_factory_mock = std::make_shared<file_factory_mock_t>();
     }
 
@@ -60,7 +60,7 @@ public:
     const fs::path template_out_file_path = "test_template_file.in";
 
     i_files_provider_ptr_t files_provider;
-    fs_interactor_mock_ptr_t fs_interactor_mock;
+    fs_adapter_mock_ptr_t fs_adapter_mock;
     file_factory_mock_ptr_t file_factory_mock;
 
     i_files_provider_ptr_t create_files_provider()
@@ -69,7 +69,7 @@ public:
                   input_dir
                 , output_dir
                 , template_out_file_path
-                , fs_interactor_mock
+                , fs_adapter_mock
                 , file_factory_mock
         );
     };
@@ -77,8 +77,8 @@ public:
 
 TEST_F(files_provider_test_t, no_input_files)
 {
-    EXPECT_CALL(*fs_interactor_mock, get_files_list())
-        .WillRepeatedly(decltype(fs_interactor_mock->get_files_list()){});
+    EXPECT_CALL(*fs_adapter_mock, get_files_list())
+        .WillRepeatedly(decltype(fs_adapter_mock->get_files_list()){});
 
     ASSERT_ANY_THROW(create_files_provider());
 }
