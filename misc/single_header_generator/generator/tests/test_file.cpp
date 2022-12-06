@@ -4,7 +4,6 @@
 #include <gtest/gtest.h>
 
 #include <string>
-#include <fstream>
 #include <algorithm>
 
 using namespace one_header_gen;
@@ -18,18 +17,18 @@ public:
         return path;
     }
 
-    std::string test_file =
-R"(String 1
-String two
-String three
-)";
-
-    const std::string test_file_description =
-R"(/**
- \file Filename
- \desc Description
-*/
-)";
+//    std::string test_file =
+//R"(String 1
+//String two
+//String three
+//)";
+//
+//    const std::string test_file_description =
+//R"(/**
+// \file Filename
+// \desc Description
+//*/
+//)";
 
 };
 
@@ -37,85 +36,71 @@ TEST_F(generator_file_test, create_file)
 {
     ASSERT_NO_THROW(file_t{});
     ASSERT_NO_THROW(file_t{generator_file_test::test_file_path()});
-    ASSERT_NO_THROW(file_t{std::string{"String"}});
-
-    file_t empty_file;
-    ASSERT_TRUE(empty_file.to_string().empty());
-
-//    std::ofstream raw_file {test_file_path()};
-//    raw_file << test_file;
-//    raw_file.flush();
-
-    file_t file { test_file_path() };
-    ASSERT_EQ(file.to_string(), test_file);
 }
 
-TEST_F(generator_file_test, add_operator)
+TEST_F(generator_file_test, get_path)
+{
+    auto file = file_t{generator_file_test::test_file_path()};
+    ASSERT_EQ(file.get_path(), generator_file_test::test_file_path());
+}
+
+TEST_F(generator_file_test, get_lines)
 {
     file_t file;
-    file += test_file;
-    file += test_file_description;
+    auto& lines = file.get_lines();
 
-    auto result = test_file + test_file_description;
-    ASSERT_EQ(result, file.to_string());
+    std::string test_line = "test line";
+    lines.emplace_back(test_line);
 
-//    file.clear();
-//    ASSERT_TRUE(file.to_string().empty());
-
-    file_t file_2;
-    file_2 += file;
-    ASSERT_EQ(file.to_string(), file.to_string());
+    ASSERT_EQ(file.get_lines().at(0), test_line);
 }
 
-//TEST_F(generator_file_test, write)
+//TEST_F(generator_file_test, add_operator)
 //{
 //    file_t file;
 //    file += test_file;
-//    file.write(test_file_path());
+//    file += test_file_description;
 //
-//    std::string raw_file_string, line;
-//    std::ifstream raw_file {test_file_path()};
-//    while(std::getline(raw_file, line))
-//    {
-//        raw_file_string += line + "\n";
-//    }
+//    auto result = test_file + test_file_description;
+//    ASSERT_EQ(result, file.to_string());
 //
-//    ASSERT_EQ(file.to_string(), raw_file_string);
+//    file_t file_2;
+//    file_2 += file;
+//    ASSERT_EQ(file.to_string(), file.to_string());
 //}
-
-TEST_F(generator_file_test, insert)
-{
+//
+//TEST_F(generator_file_test, insert)
+//{
 //    file_t file, inserted_file;
 //    file += test_file;
 //    inserted_file += test_file_description;
 //
 //    file.insert(0, inserted_file);
 //    ASSERT_EQ(file.to_string(), test_file_description + test_file);
-//    file.clear();
 //
-//    file += test_file;
+//    file_t file2;
+//    file2 += test_file;
 //    auto lines_num =
 //        std::count_if(
 //            test_file.cbegin(),
 //            test_file.cend(),
 //            [](char symbol) { return symbol == '\n'; });
-//    file.insert(lines_num, inserted_file);
-//    ASSERT_EQ(file.to_string(), test_file + test_file_description);
-//    file.clear();
+//    file2.insert(lines_num, inserted_file);
+//    ASSERT_EQ(file2.to_string(), test_file + test_file_description);
 //
-//    file +=
+//    file_t file3;
+//    file3 +=
 //R"(String 1
 //String 2
 //String 3
 //)";
-//    inserted_file.clear();
-//    inserted_file += "String 4";
-//    file.insert(1, inserted_file);
-//    ASSERT_EQ(file, file_t(
-//std::string(R"(String 1
+//    file_t inserted_file3;
+//    inserted_file3 += "String 4";
+//    file3.insert(1, inserted_file3);
+//    ASSERT_EQ(file3.to_string(), std::string(
+//R"(String 1
 //String 4
 //String 2
 //String 3
-//)")));
-    ASSERT_TRUE(false);
-}
+//)"));
+//}

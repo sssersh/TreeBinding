@@ -45,15 +45,15 @@ file_t::file_t(const std::string_view path) :
 /*!
  * \brief Convert file to one string
  */
-std::string file_t::to_string() const
-{
-    std::string result;
-    for (const auto &line: lines)
-    {
-        result += line + "\n";
-    }
-    return result;
-}
+//std::string file_t::to_string() const
+//{
+//    std::string result;
+//    for (const auto &line: lines)
+//    {
+//        result += line + "\n";
+//    }
+//    return result;
+//}
 
 /*!
  * \brief Write file to path
@@ -70,46 +70,46 @@ std::string file_t::to_string() const
  * \param[in] rhs Right hand side file
  * \return    Result file
  */
-const file_t &file_t::operator+=(const file_t &rhs)
-{
-    lines.insert(lines.end(), rhs.lines.begin(), rhs.lines.end());
-    LOG("Add ", rhs.lines.size(), " lines to file ", path, ", now it contain ", lines.size(), " lines");
-    return *this;
-}
+//const file_t &file_t::operator+=(const file_t &rhs)
+//{
+//    lines.insert(lines.end(), rhs.lines.begin(), rhs.lines.end());
+//    LOG("Add ", rhs.lines.size(), " lines to file ", path, ", now it contain ", lines.size(), " lines");
+//    return *this;
+//}
 
 /*!
  * \brief Add string to end of file
  * \param[in] rhs Added string
  * \return    Result file
  */
-const file_t &file_t::operator+=(const std::string &rhs) {
-    std::stringstream stream(rhs);
-    std::string line;
-
-    size_t delta = 0;
-
-    while (std::getline(stream, line)) {
-        ++delta;
-        lines.push_back(line);
-    }
-
-    LOG("Add ", delta, " lines to file ", path, ", now it contain ", lines.size(), " lines");
-
-    return *this;
-}
+//const file_t &file_t::operator+=(const std::string &rhs) {
+//    std::stringstream stream(rhs);
+//    std::string line;
+//
+//    size_t delta = 0;
+//
+//    while (std::getline(stream, line)) {
+//        ++delta;
+//        lines.push_back(line);
+//    }
+//
+//    LOG("Add ", delta, " lines to file ", path, ", now it contain ", lines.size(), " lines");
+//
+//    return *this;
+//}
 
 /*!
  * \brief Insert file to position
  * \param[in] position Position for insert
  * \param[in] file     Inserted file
  */
-void file_t::insert(const std::size_t position, const file_t &file)
-{
-    if (position > lines.size()) throw std::invalid_argument("Position could not be more than lines number");
-    lines.reserve(file.lines.size());
-    lines.insert(lines.begin() + position, file.lines.begin(), file.lines.end());
-    LOG("Added ", file.lines.size(), " lines from file ", file.path, " instead #include line");
-}
+//void file_t::insert(const std::size_t position, const file_t &file)
+//{
+//    if (position > lines.size()) throw std::invalid_argument("Position could not be more than lines number");
+//    lines.reserve(file.lines.size());
+//    lines.insert(lines.begin() + position, file.lines.begin(), file.lines.end());
+//    LOG("Added ", file.lines.size(), " lines from file ", file.path, " instead #include line");
+//}
 
 /*!
  * \brief Clear file

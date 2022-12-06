@@ -2,10 +2,10 @@
 project(generator_core)
 
 set(SOURCES
-    utils.cpp
-    file.cpp
-    file_formatter.cpp
-    files_provider.cpp
+#    utils.cpp
+#    file.cpp
+#    file_formatter.cpp
+#    files_provider.cpp
 #    generator.cpp
 )
 

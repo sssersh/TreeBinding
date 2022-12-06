@@ -5,11 +5,11 @@ include(GoogleTest)
 set(GENERATOR_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 set(SOURCES
     test_logger.cpp
+    test_utils.cpp
     test_fs_adapter.cpp
     test_file.cpp
     test_file_formatter.cpp
-    test_utils.cpp
-    test_files_provider.cpp
+#    test_files_provider.cpp
 #    test_generator.cpp
     )
 

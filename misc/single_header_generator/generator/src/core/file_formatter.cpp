@@ -9,7 +9,7 @@
 namespace one_header_gen
 {
 
-file_formatter_t::file_formatter_t(i_editable_file_ptr_t file)
+file_formatter_t::file_formatter_t(i_file_ptr_t file)
     : file(std::move(file))
 {}
 
@@ -194,7 +194,7 @@ void file_formatter_t::delete_include_guards()
  *            bind refence with default value, also it's necessary to pass by reference)
  */
 void file_formatter_t::preprocess_file(
-      std::unordered_map<std::string, i_editable_file_ptr_t> included_files)
+      std::unordered_map<std::string, i_file_ptr_t> included_files)
 {
     const std::string pattern = R"(#include[ \t]+["]([^"]+)["][ \t]*)";
     const auto include_regex = std::regex ( pattern );
