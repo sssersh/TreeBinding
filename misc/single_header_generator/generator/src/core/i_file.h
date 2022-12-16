@@ -17,6 +17,7 @@ public:
 };
 
 using i_file_ptr_t = std::shared_ptr<i_file_t>;
+using i_file_u_ptr_t = std::unique_ptr<i_file_t>;
 
 } // namespace one_header_gen
 

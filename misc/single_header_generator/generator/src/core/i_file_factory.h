@@ -11,12 +11,11 @@ class i_file_factory_t
 {
 public:
     virtual ~i_file_factory_t() = default;
-    virtual i_file_ptr_t create(const std::string& file_path) = 0;
+    virtual i_file_u_ptr_t create(const std::string& file_path) = 0;
 };
 
 using i_file_factory_ptr_t = std::shared_ptr<i_file_factory_t>;
-
-i_file_factory_ptr_t create_file_factory();
+using i_file_factory_u_ptr_t = std::unique_ptr<i_file_factory_t>;
 
 } // namespace one_header_gen
 

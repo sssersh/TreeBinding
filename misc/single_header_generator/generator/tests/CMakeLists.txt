@@ -9,7 +9,7 @@ set(SOURCES
     test_fs_adapter.cpp
     test_file.cpp
     test_file_formatter.cpp
-#    test_files_provider.cpp
+    test_files_provider.cpp
 #    test_generator.cpp
     )
 
@@ -18,6 +18,7 @@ add_executable(${PROJECT_NAME}
     ${GENERATOR_SRC_DIR}/core/utils.cpp
     ${GENERATOR_SRC_DIR}/core/fs_adapter.cpp
     ${GENERATOR_SRC_DIR}/core/file.cpp
+    ${GENERATOR_SRC_DIR}/core/file_factory.cpp
     ${GENERATOR_SRC_DIR}/core/file_formatter.cpp
     ${GENERATOR_SRC_DIR}/core/files_provider.cpp
 #    ${GENERATOR_SRC_DIR}/core/generator.cpp

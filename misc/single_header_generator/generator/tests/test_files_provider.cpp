@@ -24,7 +24,7 @@ using fs_adapter_mock_ptr_t = std::shared_ptr<fs_adapter_mock_t>;
 class file_factory_mock_t : public i_file_factory_t
 {
 public:
-    MOCK_METHOD(i_file_ptr_t, create, (const std::string& file_path), (override));
+    MOCK_METHOD(i_file_u_ptr_t, create, (const std::string& file_path), (override));
 };
 
 using file_factory_mock_ptr_t = std::shared_ptr<file_factory_mock_t>;
@@ -42,8 +42,8 @@ public:
 
 //        files_provider = create_files_provider();
 
-        fs_adapter_mock = std::make_shared<fs_adapter_mock_t>();
-        file_factory_mock = std::make_shared<file_factory_mock_t>();
+        m_fs_adapter_mock = std::make_shared<fs_adapter_mock_t>();
+        m_file_factory_mock = std::make_shared<file_factory_mock_t>();
     }
 
     void TearDown() override
@@ -52,36 +52,75 @@ public:
 //        fs::remove_all(output_dir);
     };
 
-    const fs::path input_dir = "test_input_dir";
+    const directories_info_t m_dirs_info =
+    {
+        "test_input_dir",
+        "test_out_dir",
+        "test_template_file.in"
+    };
+
+    //     static fs::path input_file1_path() { return "file1.h"; };
     const fs::path input_file1_path = "file1.h";
     const fs::path input_file2_path = "details/file2.h";
-    const fs::path input_file3_path = "test_file.cpp";
-    const fs::path output_dir = "test_out_dir";
-    const fs::path template_out_file_path = "test_template_file.in";
+    const fs::path input_file3_path = "/test_file.cpp";
 
-    i_files_provider_ptr_t files_provider;
-    fs_adapter_mock_ptr_t fs_adapter_mock;
-    file_factory_mock_ptr_t file_factory_mock;
+    i_files_provider_ptr_t m_files_provider;
+    fs_adapter_mock_ptr_t m_fs_adapter_mock;
+    file_factory_mock_ptr_t m_file_factory_mock;
 
     i_files_provider_ptr_t create_files_provider()
     {
-        return std::make_shared<files_provider_t>(
-                  input_dir
-                , output_dir
-                , template_out_file_path
-                , fs_adapter_mock
-                , file_factory_mock
+        return std::make_unique<files_provider_t>(
+              m_fs_adapter_mock
+            , m_file_factory_mock
+            , m_dirs_info
         );
     };
 };
 
-TEST_F(files_provider_test_t, no_input_files)
+TEST_F(files_provider_test_t, empty_parameters)
 {
-    EXPECT_CALL(*fs_adapter_mock, get_files_list())
-        .WillRepeatedly(decltype(fs_adapter_mock->get_files_list()){});
+    fs_adapter_mock_ptr_t fs_adapter_mock;
+    file_factory_mock_ptr_t file_factory_mock;
+    directories_info_t dirs_info;
 
-    ASSERT_ANY_THROW(create_files_provider());
+    auto create = [&]() { zfiles_provider_t{fs_adapter_mock, file_factory_mock, dirs_info}; };
+
+    ASSERT_ANY_THROW(create());
+
+    dirs_info.input_dir = m_dirs_info.input_dir;
+    ASSERT_ANY_THROW(create());
+
+    dirs_info.out_dir = m_dirs_info.out_dir;
+    ASSERT_ANY_THROW(create());
+
+    dirs_info.template_out_file_path = m_dirs_info.template_out_file_path;
+    ASSERT_ANY_THROW(create());
+
+    fs_adapter_mock = m_fs_adapter_mock;
+    EXPECT_CALL(*fs_adapter_mock, get_files_list_recursively(::testing::_))
+            .WillRepeatedly(::testing::Return(std::vector<fs::path>{ input_file1_path }));
+    EXPECT_CALL(*fs_adapter_mock, read_file(::testing::_))
+            .WillRepeatedly(::testing::Return(std::vector<std::string>{}));
+    ASSERT_ANY_THROW(create());
+
+    file_factory_mock = m_file_factory_mock;
+    EXPECT_CALL(*file_factory_mock, create(::testing::_))
+        .WillRepeatedly(::testing::Return(::testing::ByMove(std::make_unique<file_t>())));
+
+    ASSERT_NO_THROW(create());
 }
+
+//TEST_F(files_provider_test_t, no_input_files)
+//{
+////    EXPECT_CALL(*fs_adapter_mock, get_files_list())
+////        .WillRepeatedly(decltype(fs_adapter_mock->get_files_list()){});
+//
+//    EXPECT_CALL(*fs_adapter_mock, get_files_list_recursively(dirs_info.input_dir))
+//        .WillOnce(testing::Return(std::vector<fs::path>{}));
+//
+//    ASSERT_ANY_THROW(create_files_provider());
+//}
 
 //TEST_F(files_provider_test_t, no_input_files)
 //{

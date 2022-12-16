@@ -24,13 +24,7 @@ public:
     virtual std::vector<i_file_ptr_t> get_public_input_files() const = 0;
 };
 
-using i_files_provider_ptr_t = std::shared_ptr<i_files_provider_t>;
-
-i_files_provider_ptr_t create_files_provider(
-      std::string input_dir
-    , std::string out_dir
-    , std::string template_out_file_path
-);
+using i_files_provider_ptr_t = std::unique_ptr<i_files_provider_t>;
 
 } // namespace one_header_gen
 

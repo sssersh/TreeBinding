@@ -8,7 +8,7 @@ set(SOURCES
     src/core/fs_adapter.cpp
     src/core/file.cpp
     src/core/file_formatter.cpp
-#    src/core/files_provider.cpp
+    src/core/files_provider.cpp
     src/main.cpp
     #    generator.cpp
 )

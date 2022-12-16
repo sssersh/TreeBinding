@@ -15,6 +15,13 @@ namespace one_header_gen {
 
 namespace fs = std::filesystem;
 
+struct directories_info_t
+{
+    fs::path input_dir;
+    fs::path out_dir;
+    fs::path template_out_file_path;
+};
+
 /*
 * \param[in] root_dir          Path to creolization library root directory
 * \param[in] project_name      Name of project
@@ -26,14 +33,11 @@ namespace fs = std::filesystem;
  */
 class files_provider_t : public i_files_provider_t
 {
-
 public:
     files_provider_t(
-          fs::path input_dir
-        , fs::path out_dir
-        , fs::path template_out_file_path
-        , i_fs_adapter_ptr_t fs_adapter
+          i_fs_adapter_ptr_t fs_adapter
         , i_file_factory_ptr_t file_factory
+        , directories_info_t dirs_info
     );
 
     std::vector<i_file_ptr_t> get_all_input_files() const override;
@@ -58,7 +62,7 @@ private:
     i_file_ptr_t template_out_file;
 };
 
-//using files_provider_ptr_t = std::shared_ptr<files_provider_t>;
+i_files_provider_ptr_t create_files_provider(directories_info_t dirs_info);
 
 } // namespace one_header_gen
 

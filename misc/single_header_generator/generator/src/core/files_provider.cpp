@@ -2,52 +2,57 @@
 #include <algorithm>
 
 #include "files_provider.h"
+#include "file_factory.h"
 
 namespace one_header_gen
 {
 
-i_files_provider_ptr_t create_files_provider(
-      fs::path input_dir
-    , fs::path out_dir
-    , fs::path template_out_file_path
-)
+i_files_provider_ptr_t create_files_provider(const directories_info_t &dirs_info)
 {
     auto fs_adapter = create_fs_adapter();
     auto file_factory  = create_file_factory();
 
-    return std::make_shared<files_provider_t>(
-          input_dir
-        , out_dir
-        , template_out_file_path
-        , fs_adapter
-        , file_factory
+    return std::make_unique<files_provider_t>(
+          std::move(fs_adapter)
+        , std::move(file_factory)
+        , std::move(dirs_info)
     );
 }
 
 files_provider_t::files_provider_t(
-      fs::path input_dir
-    , fs::path out_dir
-    , fs::path template_out_file_path
-    , i_fs_adapter_ptr_t fs_adapter
-    , i_file_factory_ptr_t file_factory
+      i_fs_adapter_ptr_t _fs_adapter
+    , i_file_factory_ptr_t _file_factory
+    , directories_info_t dirs_info
     ) :
-      input_dir(std::move(input_dir))
-    , fs_adapter(std::move(fs_adapter))
-    , file_factory(std::move(file_factory))
+      input_dir(std::move(dirs_info.input_dir))
+    , fs_adapter(std::move(_fs_adapter))
+    , file_factory(std::move(_file_factory))
 {
-    for (const auto & input_file_path : fs_adapter->get_files_list_recursively(input_dir))
+    if (input_dir.empty())
+        throw std::runtime_error("Input dir parameter is empty");
+    if (dirs_info.out_dir.empty())
+        throw std::runtime_error("Output dir parameter is empty");
+    if (dirs_info.template_out_file_path.empty())
+        throw std::runtime_error("Template out file path parameter is empty");
+    if (!this->fs_adapter)
+        throw std::runtime_error("fs_adapter parameter is empty");
+    if (!this->file_factory)
+        throw std::runtime_error("file_factory parameter is empty");
+
+    auto input_files_paths = fs_adapter->get_files_list_recursively(input_dir);
+    if (input_files_paths.empty()) throw std::runtime_error("No files in input directory");
+    for (const auto & input_file_path : input_files_paths)
     {
         auto file = file_factory->create(input_file_path);
         file->get_lines() = fs_adapter->read_file(input_file_path);
-        input_files.emplace_back(file);
+        input_files.emplace_back(std::move(file));
     }
-    if (input_files.empty()) throw std::runtime_error("No files in input directory");
 
     // TODO: remove .in
-    out_file = file_factory->create(out_dir / template_out_file_path.filename());
+    out_file = file_factory->create(dirs_info.out_dir / dirs_info.template_out_file_path.filename());
 
-    template_out_file = file_factory->create(template_out_file_path);
-    template_out_file->get_lines() = fs_adapter->read_file(template_out_file_path);
+    template_out_file = file_factory->create(dirs_info.template_out_file_path);
+    template_out_file->get_lines() = fs_adapter->read_file(dirs_info.template_out_file_path);
 
 //    template_out_file = file_factory->create(template_out_file_path);
 
@@ -88,7 +93,7 @@ i_file_ptr_t files_provider_t::get_input_file(const std::string& path)
     auto result = std::find_if(
         input_files.cbegin(),
         input_files.cend(),
-        [&](const file_ptr_t& file)
+        [&](const i_file_ptr_t& file)
         {
             return file->get_path() == path;
         });
@@ -104,7 +109,7 @@ std::vector<i_file_ptr_t> files_provider_t::get_public_input_files() const
         input_files.cbegin(),
         input_files.cend(),
         std::back_inserter(result),
-        [&](const file_ptr_t& file)
+        [&](const i_file_ptr_t& file)
         {
             return fs::relative(file->get_path(), input_dir).parent_path() != detail_include_path;
         });
