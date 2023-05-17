@@ -84,31 +84,37 @@ TEST_F(files_provider_test_t, empty_parameters)
     file_factory_mock_ptr_t file_factory_mock;
     directories_info_t dirs_info;
 
-    auto create = [&]() { zfiles_provider_t{fs_adapter_mock, file_factory_mock, dirs_info}; };
+    auto create1 = [&]() { files_provider_t{fs_adapter_mock, file_factory_mock, dirs_info}; };
 
-    ASSERT_ANY_THROW(create());
+    ASSERT_ANY_THROW(create1());
 
     dirs_info.input_dir = m_dirs_info.input_dir;
-    ASSERT_ANY_THROW(create());
+    ASSERT_ANY_THROW(create1());
 
     dirs_info.out_dir = m_dirs_info.out_dir;
-    ASSERT_ANY_THROW(create());
+    ASSERT_ANY_THROW(create1());
 
     dirs_info.template_out_file_path = m_dirs_info.template_out_file_path;
-    ASSERT_ANY_THROW(create());
+    ASSERT_ANY_THROW(create1());
 
     fs_adapter_mock = m_fs_adapter_mock;
     EXPECT_CALL(*fs_adapter_mock, get_files_list_recursively(::testing::_))
             .WillRepeatedly(::testing::Return(std::vector<fs::path>{ input_file1_path }));
     EXPECT_CALL(*fs_adapter_mock, read_file(::testing::_))
             .WillRepeatedly(::testing::Return(std::vector<std::string>{}));
-    ASSERT_ANY_THROW(create());
+    ASSERT_ANY_THROW(create1());
 
     file_factory_mock = m_file_factory_mock;
-    EXPECT_CALL(*file_factory_mock, create(::testing::_))
-        .WillRepeatedly(::testing::Return(::testing::ByMove(std::make_unique<file_t>())));
+    auto a = std::make_unique<file_t>();
+    EXPECT_CALL(*fs_adapter_mock,
+                get_files_list_recursively(::testing::_))
+            .WillRepeatedly(::testing::Return(std::vector<fs::path>{ input_file1_path }));
+    EXPECT_CALL(*fs_adapter_mock, read_file(::testing::_))
+            .WillRepeatedly(::testing::Return(std::vector<std::string>{}));
+    EXPECT_CALL(*file_factory_mock, create(m_dirs_info.template_out_file_path))
+        .WillRepeatedly(::testing::Return(::testing::ByMove(std::move(a))));
 
-    ASSERT_NO_THROW(create());
+    ASSERT_NO_THROW(create1());
 }
 
 //TEST_F(files_provider_test_t, no_input_files)
